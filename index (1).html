@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>鬼屋调查：第一关</title>
+
+  <!--
+    这里通过 <link> 把外部 CSS 文件绑定进来。
+    只要 style.css 和 index.html 在同一个文件夹里，这样写就可以。
+  -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- =========================
+       进入游戏页面
+       作用：作为游戏封面 / 开始界面
+  ========================== -->
+  <section class="screen intro-screen active" id="introScreen">
+    <div class="intro-overlay"></div>
+
+    <div class="intro-card">
+      <h1>Seen Her</h1>
+      <p class="intro-subtitle">Cop 4580, welcome</p>
+
+      <p>
+        Please check out related document with assistant Yolanda
+      </p>
+
+      <!--
+        点击这个按钮后，JS 会把首页隐藏，把游戏页显示出来。
+      -->
+      <button id="startGameBtn">Clear</button>
+    </div>
+  </section>
+
+  <!-- =========================
+       游戏第一关页面
+       左边：房间大图
+       右边：叙事文本 + 已发现证据
+  ========================== -->
+  <section class="screen game-screen" id="gameScreen">
+    <header class="top-bar">
+      <div>
+        <h2>第一关：案发现场</h2>
+        <p>点击房间中的关键区域，调查证据。</p>
+      </div>
+
+      <!--
+        返回按钮：从游戏页回到首页
+      -->
+      <button id="backIntroBtn" class="secondary-btn">返回首页</button>
+    </header>
+
+    <main class="game-layout">
+      <!-- =========================
+           左侧场景区域
+           这里会显示你的“房间总图”
+      ========================== -->
+      <section class="scene-panel">
+        <div class="scene-wrapper">
+          <!--
+            这张 img 就是你的房间背景图。
+            你把自己生成的房间图片放到 images 文件夹里，
+            并命名为 room.png，或者改成你自己的文件名。
+          -->
+          <img
+            id="roomImage"
+            class="scene-image"
+            src="images/room.png"
+            alt="案发房间"
+          />
+
+          <!--
+            六个热点按钮（透明可点击区域）
+            它们的位置由 CSS 中的 .hs-photo / .hs-mirror 等控制。
+            你需要根据自己的房间图，慢慢调 top/left/width/height。
+          -->
+          <button class="hotspot hs-photo" data-evidence="photo" aria-label="照片"></button>
+          <button class="hotspot hs-mirror" data-evidence="mirror" aria-label="镜子"></button>
+          <button class="hotspot hs-doll" data-evidence="doll" aria-label="娃娃"></button>
+          <button class="hotspot hs-computer" data-evidence="computer" aria-label="电脑"></button>
+          <button class="hotspot hs-camera" data-evidence="camera" aria-label="相机"></button>
+          <button class="hotspot hs-polaroid" data-evidence="polaroid" aria-label="拍立得"></button>
+        </div>
+      </section>
+
+      <!-- =========================
+           右侧信息区
+           1. 当前叙事文字
+           2. 证据栏
+           3. 调查进度
+      ========================== -->
+
+
+        <div class="panel-block">
+          <h3>证据栏</h3>
+
+          <!--
+            这些按钮默认隐藏。
+            当某个证据第一次被发现后，JS 会给它加上 .visible，
+            它就会显示在这里，之后可以重复点击再次查看。
+          -->
+          <div class="evidence-icons">
+            <button class="evidence-btn" data-evidence="photo">🖼️<span>照片</span></button>
+            <button class="evidence-btn" data-evidence="mirror">🪞<span>镜子</span></button>
+            <button class="evidence-btn" data-evidence="doll">🧸<span>娃娃</span></button>
+            <button class="evidence-btn" data-evidence="dollHidden">⭕<span>娃娃腹部镜头</span></button>
+            <button class="evidence-btn" data-evidence="computer">💻<span>电脑</span></button>
+            <button class="evidence-btn" data-evidence="camera">📷<span>相机</span></button>
+            <button class="evidence-btn" data-evidence="polaroid">🧾<span>拍立得</span></button>
+          </div>
+        </div>
+
+        <div class="panel-block">
+          <h3>调查进度</h3>
+          <p id="progressCount">0 / 6</p>
+        </div>
+      </aside>
+    </main>
+  </section>
+
+  <!-- =========================
+       证据弹窗
+       点击热点 / 证据栏按钮后打开
+  ========================== -->
+  <div class="modal" id="evidenceModal">
+    <div class="modal-card">
+      <button id="closeModalBtn" class="modal-close">✕</button>
+
+      <div class="modal-header">
+        <div id="modalMark" class="modal-mark">🖼️</div>
+        <div>
+          <h3 id="modalTitle">证据标题</h3>
+          <p id="modalSubtitle">证据副标题</p>
+        </div>
+      </div>
+
+      <div class="modal-content">
+        <!--
+          左边：证据图片
+          注意这里不是写死的 <img>，而是由 JS 动态替换，
+          因为每个证据要显示不同图片。
+        -->
+        <div id="artifactView" class="artifact-view"></div>
+
+        <!--
+          右边：文字说明 / 分析
+        -->
+        <div id="artifactNote" class="artifact-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    这里通过 <script src="script.js"> 把外部 JS 文件绑定进来。
+    JS 一般放在 body 最后，这样页面元素先加载完，再执行脚本。
+  -->
+  <script src="script.js"></script>
+</body>
+</html>
