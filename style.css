@@ -1034,3 +1034,159 @@ body.final-blackout-stage::after {
   box-shadow: none !important;
   border-color: transparent !important;
 }
+
+.artifact-note {
+  display: none;
+}
+
+.modal-content {
+  grid-template-columns: 1fr;
+}
+
+.artifact-view {
+  width: 100%;
+}
+
+
+/* =========================
+   Mirror 世界照片 stack：保留比例 + 做旧
+========================== */
+
+.photo-stack-shell-vintage {
+  width: 100%;
+}
+
+.photo-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 560px;
+  width: 100%;
+}
+
+.photo-stage-vintage {
+  padding: 18px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 235, 190, 0.04), transparent 26%),
+    radial-gradient(circle at 80% 75%, rgba(120, 85, 35, 0.08), transparent 24%),
+    rgba(10, 12, 24, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.photo-paper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-paper-vintage {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background:
+    linear-gradient(180deg, #f1e2b8 0%, #e6d2a2 55%, #d8be87 100%);
+  border: 1px solid rgba(107, 80, 42, 0.65);
+  border-radius: 10px;
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(255, 248, 220, 0.3),
+    inset 0 0 24px rgba(110, 72, 24, 0.12);
+  transform: rotate(-1.1deg);
+  overflow: visible;
+}
+
+/* 泛黄污渍层 */
+.photo-paper-vintage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(140, 100, 35, 0.16), transparent 18%),
+    radial-gradient(circle at 78% 68%, rgba(120, 88, 30, 0.12), transparent 20%),
+    radial-gradient(circle at 48% 85%, rgba(95, 68, 20, 0.08), transparent 16%),
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(120, 80, 20, 0.05));
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* 折角 */
+.photo-paper-vintage::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, rgba(255, 247, 220, 0.15) 0 48%, rgba(122, 92, 44, 0.35) 49% 100%);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  border-top-right-radius: 8px;
+  box-shadow: -2px 2px 8px rgba(0,0,0,0.14);
+  pointer-events: none;
+}
+
+.stack-photo {
+  display: block;
+}
+
+/* 关键：不裁切，保留原比例 */
+.stack-photo-vintage {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 820px);
+  max-height: 68vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(95, 65, 25, 0.2);
+  filter:
+    sepia(0.42)
+    saturate(0.82)
+    contrast(0.94)
+    brightness(0.98);
+}
+
+/* 让横图更舒服地居中展示 */
+.photo-stage-vintage .stack-photo-vintage {
+  margin: 0 auto;
+}
+
+/* 如果你原先对所有 stack 图写了固定宽高 / cover，这里强行覆盖 */
+.photo-stage-vintage .stack-photo,
+.photo-paper-vintage .stack-photo {
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  max-width: min(100%, 820px) !important;
+  max-height: 68vh !important;
+}
+
+
+
+
+/*删掉*/
+
+
+.scaffold-nav {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10000;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.scaffold-nav button {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  cursor: pointer;
+}

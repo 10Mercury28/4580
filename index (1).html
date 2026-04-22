@@ -51,41 +51,6 @@
         </div>
       </section>
 
-      <section class="screen game-screen" id="gameScreen2">
-        <header class="top-bar">
-          <div>
-            <h2>第二关：镜中房间</h2>
-            <p>这个房间与刚才相似，但一切都被反转了。</p>
-          </div>
-
-          <button id="backPage1Btn" class="secondary-btn">返回上一页</button>
-        </header>
-
-        <main class="game-layout">
-          <section class="scene-panel">
-            <div class="scene-wrapper">
-              <img
-                id="roomImage2"
-                class="scene-image"
-                src="images/room2.png"
-                alt="镜中房间"
-              />
-
-              <button class="hotspot hs-photo-mirror" data-evidence="photoMirror" aria-label="第二页照片"></button>
-            </div>
-          </section>
-
-          <aside class="side-panel">
-            <div class="panel-block">
-              <h3>当前叙事</h3>
-              <div id="storyText2" class="story-text">
-                <p>镜子另一侧的房间像是原房间的镜像。桌上仍压着一叠照片。</p>
-              </div>
-            </div>
-          </aside>
-        </main>
-      </section>
-
       <aside class="side-panel">
         <div class="panel-block">
           <h3>当前叙事</h3>
@@ -96,13 +61,48 @@
 
         <div class="panel-block">
           <h3>证据栏</h3>
-          <div class="evidence-icons">
-            <div class="evidence-icons" id="evidenceIcons"></div>
-          </div>
+          <div class="evidence-icons" id="evidenceIcons"></div>
         </div>
 
-        <h3>调查进度</h3>
+        <div class="panel-block">
+          <h3>调查进度</h3>
           <p id="progressCount">0 / 6</p>
+        </div>
+      </aside>
+    </main>
+  </section>
+
+  <section class="screen game-screen" id="gameScreen2">
+    <header class="top-bar">
+      <div>
+        <h2>第二关：镜中房间</h2>
+        <p>这个房间与刚才相似，但一切都被反转了。</p>
+      </div>
+
+      <button id="backPage1Btn" class="secondary-btn">返回上一页</button>
+    </header>
+
+    <main class="game-layout">
+      <section class="scene-panel">
+        <div class="scene-wrapper">
+          <img
+            id="roomImage2"
+            class="scene-image"
+            src="images/room2.png"
+            alt="镜中房间"
+          />
+
+          <button class="hotspot hs-photo-mirror" data-evidence="photoMirror" aria-label="第二页照片"></button>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <div class="panel-block">
+          <h3>当前叙事</h3>
+          <div id="storyText2" class="story-text">
+            <p>镜子另一侧的房间像是原房间的镜像。桌上仍压着一叠照片。</p>
+          </div>
+        </div>
       </aside>
     </main>
   </section>
@@ -127,5 +127,11 @@
   </div>
 
   <script src="script.js"></script>
+
+  <div id="scaffoldNav" class="scaffold-nav">
+  <button id="goIntroBtn" type="button">Intro</button>
+  <button id="goRoom1Btn" type="button">Room 1</button>
+  <button id="goRoom2Btn" type="button">Room 2</button>
+</div>
 </body>
 </html>

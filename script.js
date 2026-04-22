@@ -1,6 +1,11 @@
 /* =========================
    1. 获取页面元素
 ========================== */
+//手脚架！！！一定要删掉
+const goIntroBtn = document.getElementById("goIntroBtn");
+const goRoom1Btn = document.getElementById("goRoom1Btn");
+const goRoom2Btn = document.getElementById("goRoom2Btn");
+//
 const introScreen = document.getElementById("introScreen");
 const gameScreen = document.getElementById("gameScreen");
 const startGameBtn = document.getElementById("startGameBtn");
@@ -63,8 +68,8 @@ let collapseTimers = [];
 const evidenceData = {
   photo: {
     icon: "🖼️",
-    title: "桌玻璃下的照片",
-    subtitle: "涵盖被害人从小到大的照片，他是哈尔滨人，毕业后在上海做功课白领，爱看团播",
+    title: "A series of photo taken under the table glass",
+    subtitle: "The photos cover the victim from childhood to adulthood. He is from Harbin. After graduation, he worked as a white-collar worker doing homework in Shanghai and loved watching thirsty trap videos and livestreaming profitting on male gaze",
     photos: [
       "images/photo1.png",
       "images/photo2.png",
@@ -74,57 +79,44 @@ const evidenceData = {
     ],
     hiddenBackImage: "images/polaroid.png",
     story: `
-      <p>桌玻璃下压着五张照片。它们像被人反复翻看过，不只是普通纪念照。</p>
-      <p>当你翻到最后一张时，明显感觉这张纸板更厚，背后似乎还藏着别的东西。</p>
-    `,
-    note: `
-      <p><strong>操作方式：</strong>把鼠标放在左侧照片区域，用滚轮或点击左右按钮切换照片。</p>
+      <p>The victim displays this five photos to identify and fashion his identity</p>
+      <p>When you turn to the last one, you can clearly feel that this cardboard is thicker and there seems to be something else hidden behind it</p>
     `
   },
 
   mirror: {
     icon: "🪞",
-    title: "衣柜门上的镜子",
-    subtitle: "表面异常冰冷",
+    title: "The mirror on the wardrobe door",
+    subtitle: "The surface is extremely cold",
     image: "images/mirror1.png",
   },
 
   doll: {
     icon: "🧸",
-    title: "床边玩偶",
-    subtitle: "与头部和四肢部分的柔软不同，玩偶腹腔部分填充物似乎更坚硬",
+    title: "Doll on the bed",
+    subtitle: "Unlike the softness of the head and limbs, the filling in the abdominal cavity of the doll seems to be harder",
     image: "images/doll.png",
     story: `
-      <p>你摸到缝线深处，发现填充物里埋着微型镜头。</p>
+      <p>You reached deep into the suture and found a miniature lens buried in the filling.</p>
     `
   },
 
   dollHidden: {
     icon: "⭕",
-    title: "你重新查看娃娃的腹部。",
+    title: "Take another look at the doll's abdomen.",
     image: "images/doll2.png",
-    story: `
-      <p>你重新查看娃娃的腹部。那一块布料被处理得过于平整，像是在掩盖一个被缝进去的硬物。</p>
-    `
   },
 
   photoReveal: {
     icon: "🖼️",
-    title: "翻开的最后一张照片",
-    subtitle: "照片背后藏着被刻意隐藏的内容",
+    title: "The hidden polaroid revealed",
+    subtitle: "why, another device?",
     image: "images/evidence3.png",
-    story: `
-      <p>最后一张照片的背面藏着另一层信息。它不是普通的纪念照片，而是被用来掩盖某个关键线索的外壳。</p>
-    `,
-    note: `
-      <p><strong>说明：</strong>这是你从最后一张照片背面找到的隐藏证据。</p>
-    `
   },
 
   photoMirror: {
     icon: "🖼️",
-    title: "镜中桌玻璃下的照片",
-    subtitle: "另一叠被压在玻璃下的照片",
+    title: "The photos in the file folder",
     photos: [
       "images/photo6.png",
       "images/photo7.png",
@@ -132,31 +124,25 @@ const evidenceData = {
       "images/photo9.png",
       "images/photo10.png"
     ],
-    story: `
-      <p>这一次，桌下压着的是另一组照片。它们延续了上一叠照片没有说完的叙事。</p>
-    `,
-    note: `
-      <p><strong>操作方式：</strong>把鼠标放在左侧照片区域，用滚轮或点击左右按钮切换。</p>
-    `
   },
 
   computer: {
     icon: "💻",
-    title: "死者电脑",
-    subtitle: "云盘中保存私密视频",
+    title: "The victim's PC",
+    subtitle: "The deceased's private video is saved in Cloud Drive a of the computer",
     image: "images/computer.png",
   },
 
   camera: {
     icon: "📷",
-    title: "桌上的相机",
-    subtitle: "似乎死者是个喜爱拍照、摄像的人。这与他的工科职业似乎没什么关系，但是又很和“合理”--一个喜爱机械的理工男，对吧",
+    title: "The victim's camera colelction",
+    subtitle: "It seems that the deceased was a person who loved taking photos and videos. This seems to have little to do with his engineering career, but it's quite reasonable - a science and engineering guy who loves machinery, right?",
     image: "images/camera.png",
   },
 
   polaroid: {
     icon: "🧾",
-    title: "放在桌子上的拍立得相机",
+    title: "The Polaroid camera placed on the table",
     image: "images/pc.png",
   }
 };
@@ -167,6 +153,7 @@ const evidenceData = {
 function openScreen(screenToOpen) {
   introScreen.classList.remove("active");
   gameScreen.classList.remove("active");
+  gameScreen2.classList.remove("active");
   screenToOpen.classList.add("active");
 }
 
@@ -186,15 +173,16 @@ let wheelReleaseTimer = null;
 ========================== */
 function renderPhotoStack(photoData) {
   artifactView.innerHTML = `
-    <div class="photo-stack-shell">
+    <div class="photo-stack-shell ${photoData.vintageStyle ? "photo-stack-shell-vintage" : ""}">
       <p class="photo-stack-instruction">
-        鼠标放在照片区域中，可用滚轮或左右按钮切换。
+        examine the photos with your mouse
+      </p>
 
-      <div class="photo-stack-stage" id="photoStackStage"></div>
+      <div class="photo-stack-stage ${photoData.vintageStyle ? "photo-stage-vintage" : ""}" id="photoStackStage"></div>
 
       <div class="photo-stack-footer">
         <button type="button" id="photoPrevBtn">← 上一张</button>
-        <div class="photo-stack-counter" id="photoStackCounter">照片 1 / 5</div>
+        <div class="photo-stack-counter" id="photoStackCounter">照片 1 / ${photoData.photos.length}</div>
         <button type="button" id="photoNextBtn">下一张 →</button>
       </div>
 
@@ -219,15 +207,17 @@ function renderPhotoStack(photoData) {
   stage.innerHTML = photoData.photos
     .map((src, index) => {
       const isLast = index === photoData.photos.length - 1;
+      const vintageCardClass = photoData.vintageStyle ? " photo-card-vintage" : "";
+      const vintageFrontClass = photoData.vintageStyle ? " photo-card-front-vintage" : "";
 
       return `
-        <div class="photo-card" data-index="${index}">
-          <div class="photo-card-face photo-card-front">
+        <div class="photo-card${vintageCardClass}" data-index="${index}">
+          <div class="photo-card-face photo-card-front${vintageFrontClass}">
             <img src="${src}" alt="照片 ${index + 1}">
           </div>
 
           ${
-            isLast
+            isLast && photoData.hiddenBackImage
               ? `
                 <div class="photo-card-face photo-card-back">
                   <div class="photo-back-inner">
@@ -279,17 +269,25 @@ function renderPhotoStack(photoData) {
 
     counter.textContent = `照片 ${photoStackIndex + 1} / ${photoData.photos.length}`;
 
-    if (photoStackIndex === photoData.photos.length - 1 && !photoStackFlipped) {
+    if (
+      photoData.hiddenBackImage &&
+      photoStackIndex === photoData.photos.length - 1 &&
+      !photoStackFlipped
+    ) {
       flipBtn.style.display = "inline-flex";
     } else {
       flipBtn.style.display = "none";
     }
 
-    if (photoStackIndex === photoData.photos.length - 1 && !photoStackFlipped) {
+    if (
+      photoData.hiddenBackImage &&
+      photoStackIndex === photoData.photos.length - 1 &&
+      !photoStackFlipped
+    ) {
       hint.textContent = "这张照片有点厚，可以点击 Flip，或左右拖拽翻面。";
       hint.classList.add("important");
     } else if (photoStackFlipped) {
-      hint.textContent = "你翻到了背面：隐藏证物 evidence3。";
+      hint.textContent = "你翻到了背面。";
       hint.classList.add("important");
     } else {
       hint.textContent = "滚轮或按钮切换照片";
@@ -318,11 +316,9 @@ function renderPhotoStack(photoData) {
 
   prevBtn.addEventListener("click", goPrev);
   nextBtn.addEventListener("click", goNext);
-  backPage1Btn.addEventListener("click", () => {
-    openScreen(gameScreen);
-  });
 
   flipBtn.addEventListener("click", () => {
+    if (!photoData.hiddenBackImage) return;
     if (photoStackIndex !== photoData.photos.length - 1) return;
     if (photoStackFlipped) return;
 
@@ -389,59 +385,59 @@ function renderPhotoStack(photoData) {
   let dragStartX = 0;
   let currentDragX = 0;
 
-  lastCard.addEventListener("pointerdown", (event) => {
-    if (photoStackIndex !== photoData.photos.length - 1) return;
-    if (photoStackFlipped) return;
+  if (photoData.hiddenBackImage) {
+    lastCard.addEventListener("pointerdown", (event) => {
+      if (photoStackIndex !== photoData.photos.length - 1) return;
+      if (photoStackFlipped) return;
 
-    isDragging = true;
-    dragStartX = event.clientX;
-    currentDragX = 0;
-    lastCard.classList.add("dragging");
-    lastCard.setPointerCapture(event.pointerId);
-  });
+      isDragging = true;
+      dragStartX = event.clientX;
+      currentDragX = 0;
+      lastCard.classList.add("dragging");
+      lastCard.setPointerCapture(event.pointerId);
+    });
 
-  lastCard.addEventListener("pointermove", (event) => {
-    if (!isDragging) return;
+    lastCard.addEventListener("pointermove", (event) => {
+      if (!isDragging) return;
 
-    currentDragX = event.clientX - dragStartX;
-    const rotate = Math.max(-14, Math.min(14, currentDragX / 10));
+      currentDragX = event.clientX - dragStartX;
+      const rotate = Math.max(-14, Math.min(14, currentDragX / 10));
+      lastCard.style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
+    });
 
-    lastCard.style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
-  });
-
-  function resetLastCardPosition() {
-    lastCard.style.transform = "";
-    updatePhotoStack();
-  }
-
-  function finishDrag() {
-    if (!isDragging) return;
-
-    isDragging = false;
-    lastCard.classList.remove("dragging");
-
-    if (Math.abs(currentDragX) > 55) {
-      photoStackFlipped = true;
+    function resetLastCardPosition() {
       lastCard.style.transform = "";
-      lastCard.classList.add("flipped");
-      hint.textContent = "你翻到了背面：隐藏证物";
-      hint.classList.add("important");
-      prevBtn.disabled = true;
-      nextBtn.disabled = true;
-      queueEvidenceReward("photoReveal");
-      queueInvestigationReward("photoReveal");
-    } else {
-      resetLastCardPosition();
+      updatePhotoStack();
     }
-  }
 
-  lastCard.addEventListener("pointerup", finishDrag);
-  lastCard.addEventListener("pointercancel", finishDrag);
-  lastCard.addEventListener("lostpointercapture", finishDrag);
+    function finishDrag() {
+      if (!isDragging) return;
+
+      isDragging = false;
+      lastCard.classList.remove("dragging");
+
+      if (Math.abs(currentDragX) > 55) {
+        photoStackFlipped = true;
+        lastCard.style.transform = "";
+        lastCard.classList.add("flipped");
+        hint.textContent = "你翻到了背面：隐藏证物";
+        hint.classList.add("important");
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        queueEvidenceReward("photoReveal");
+        queueInvestigationReward("photoReveal");
+      } else {
+        resetLastCardPosition();
+      }
+    }
+
+    lastCard.addEventListener("pointerup", finishDrag);
+    lastCard.addEventListener("pointercancel", finishDrag);
+    lastCard.addEventListener("lostpointercapture", finishDrag);
+  }
 
   updatePhotoStack();
 
-  evidenceModal.dataset.photoKeyHandlerBound = "true";
   evidenceModal._photoKeyHandler = keyHandler;
 }
 
@@ -455,9 +451,7 @@ function renderDollInteraction(dollData) {
 
   artifactView.innerHTML = `
     <div class="doll-shell">
-      <p class="doll-instruction">
-        先观察娃娃腹部。点击腹部位置，也许能发现隐藏层。
-      </p>
+
 
       <div class="doll-stage" id="dollStage">
         <img
@@ -684,9 +678,6 @@ function closeModal() {
 
   if (!allCoreEvidenceUnlocked && collectedEvidence.size === 3) {
     allCoreEvidenceUnlocked = true;
-    storyText.innerHTML = `
-      <p><strong>三个关键证据已经齐了。</strong> 这个房间不是普通的案发现场，而是一个围绕偷窥、记录与隐藏而运转的装置。</p>
-    `;
   }
 
   checkCollapseTrigger();
@@ -701,8 +692,8 @@ function startCollapseSequence() {
   closeModal();
 
   storyText.innerHTML = `
-    <p>房间忽然开始不稳定地震颤。</p>
-    <p>像有什么东西终于被看见，也终于决定反过来看你。</p>
+    <p>The room suddenly began to tremble unstably.</p>
+    <p>It's as if something has finally been seen and has finally decided to look at you in the opposite direction.</p>
   `;
 
   stopCollapseSequence();
@@ -781,6 +772,10 @@ backIntroBtn.addEventListener("click", () => {
   openScreen(introScreen);
 });
 
+backPage1Btn.addEventListener("click", () => {
+  openScreen(gameScreen);
+});
+
 document.querySelectorAll(".hotspot").forEach((hotspot) => {
   hotspot.addEventListener("click", () => {
     const key = hotspot.dataset.evidence;
@@ -856,6 +851,7 @@ function showMirrorFinale() {
   setTimeout(() => {
     finalMirrorImage.addEventListener("click", handleMirrorFinalClick, { once: true });
   }, 1500);
+  
 }
 
 function handleMirrorFinalClick() {
@@ -874,3 +870,15 @@ function handleMirrorFinalClick() {
   // 1. 切第二关
   // 2. 跳转新页面
   // 3. 播放新的过场
+  
+  goIntroBtn.addEventListener("click", () => {
+    openScreen(introScreen);
+  });
+
+  goRoom1Btn.addEventListener("click", () => {
+    openScreen(gameScreen);
+  });
+
+  goRoom2Btn.addEventListener("click", () => {
+    openScreen(gameScreen2);
+  });//一定要删掉
