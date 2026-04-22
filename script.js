@@ -9,6 +9,7 @@ const backIntroBtn = document.getElementById("backIntroBtn");
 const roomImage = document.getElementById("roomImage");
 const storyText = document.getElementById("storyText");
 const progressCount = document.getElementById("progressCount");
+const evidenceIcons = document.getElementById("evidenceIcons");
 
 const evidenceModal = document.getElementById("evidenceModal");
 const closeModalBtn = document.getElementById("closeModalBtn");
@@ -18,10 +19,42 @@ const modalSubtitle = document.getElementById("modalSubtitle");
 const artifactView = document.getElementById("artifactView");
 const artifactNote = document.getElementById("artifactNote");
 
+//晃动动画
+const gameLayout = document.querySelector(".game-layout");
+const scenePanel = document.querySelector(".scene-panel");
+const sidePanel = document.querySelector(".side-panel");
+const topBar = document.querySelector(".top-bar");
+const gameScreenInner = document.getElementById("gameScreen");
+const panelBlocks = document.querySelectorAll(".panel-block");
+const storyPanelText = document.querySelectorAll(".story-text, .panel-block h3, .panel-block p, .top-bar h2, .top-bar p");
+const evidenceButtons = document.querySelectorAll(".evidence-btn");
+
+const gameScreen2 = document.getElementById("gameScreen2");
+const backPage1Btn = document.getElementById("backPage1Btn");
+const roomImage2 = document.getElementById("roomImage2");
+const storyText2 = document.getElementById("storyText2");
 /* =========================
    2. 记录已发现证据
 ========================== */
 const discovered = new Set();
+
+const coreEvidenceKeys = ["dollHidden", "computer", "photoReveal"];
+const investigationKeys = ["dollHidden", "computer", "photoReveal", "mirror", "camera", "polaroid"];
+
+const collectedEvidence = new Set();
+const investigatedItems = new Set();
+
+let currentOpenEvidenceKey = null;
+const pendingEvidenceRewards = new Set();
+const pendingInvestigationRewards = new Set();
+let isClosingForCollapse = false;
+let mirrorCorrupted = false;
+
+let allCoreEvidenceUnlocked = false;
+
+let collapseStarted = false;
+let collapseFinished = false;
+let collapseTimers = [];
 
 /* =========================
    3. 证据数据
@@ -39,7 +72,7 @@ const evidenceData = {
       "images/photo4.png",
       "images/photo5.png"
     ],
-    hiddenBackImage: "images/evidence3.png",
+    hiddenBackImage: "images/polaroid.png",
     story: `
       <p>桌玻璃下压着五张照片。它们像被人反复翻看过，不只是普通纪念照。</p>
       <p>当你翻到最后一张时，明显感觉这张纸板更厚，背后似乎还藏着别的东西。</p>
@@ -72,6 +105,38 @@ const evidenceData = {
     image: "images/doll2.png",
     story: `
       <p>你重新查看娃娃的腹部。那一块布料被处理得过于平整，像是在掩盖一个被缝进去的硬物。</p>
+    `
+  },
+
+  photoReveal: {
+    icon: "🖼️",
+    title: "翻开的最后一张照片",
+    subtitle: "照片背后藏着被刻意隐藏的内容",
+    image: "images/evidence3.png",
+    story: `
+      <p>最后一张照片的背面藏着另一层信息。它不是普通的纪念照片，而是被用来掩盖某个关键线索的外壳。</p>
+    `,
+    note: `
+      <p><strong>说明：</strong>这是你从最后一张照片背面找到的隐藏证据。</p>
+    `
+  },
+
+  photoMirror: {
+    icon: "🖼️",
+    title: "镜中桌玻璃下的照片",
+    subtitle: "另一叠被压在玻璃下的照片",
+    photos: [
+      "images/photo6.png",
+      "images/photo7.png",
+      "images/photo8.png",
+      "images/photo9.png",
+      "images/photo10.png"
+    ],
+    story: `
+      <p>这一次，桌下压着的是另一组照片。它们延续了上一叠照片没有说完的叙事。</p>
+    `,
+    note: `
+      <p><strong>操作方式：</strong>把鼠标放在左侧照片区域，用滚轮或点击左右按钮切换。</p>
     `
   },
 
@@ -166,7 +231,7 @@ function renderPhotoStack(photoData) {
               ? `
                 <div class="photo-card-face photo-card-back">
                   <div class="photo-back-inner">
-                    <img src="images/polaroid.png" alt="隐藏证物 evidence3">
+                    <img src="${photoData.hiddenBackImage}" alt="翻开的最后一张照片">
                   </div>
                 </div>
               `
@@ -253,12 +318,17 @@ function renderPhotoStack(photoData) {
 
   prevBtn.addEventListener("click", goPrev);
   nextBtn.addEventListener("click", goNext);
+  backPage1Btn.addEventListener("click", () => {
+    openScreen(gameScreen);
+  });
 
   flipBtn.addEventListener("click", () => {
     if (photoStackIndex !== photoData.photos.length - 1) return;
     if (photoStackFlipped) return;
 
     photoStackFlipped = true;
+    queueEvidenceReward("photoReveal");
+    queueInvestigationReward("photoReveal");
     lastCard.style.transform = "";
     lastCard.classList.add("flipped");
     hint.textContent = "你翻到了背面：隐藏证物 evidence3。";
@@ -354,10 +424,12 @@ function renderPhotoStack(photoData) {
       photoStackFlipped = true;
       lastCard.style.transform = "";
       lastCard.classList.add("flipped");
-      hint.textContent = "你翻到了背面：隐藏证物 evidence3。";
+      hint.textContent = "你翻到了背面：隐藏证物";
       hint.classList.add("important");
       prevBtn.disabled = true;
       nextBtn.disabled = true;
+      queueEvidenceReward("photoReveal");
+      queueInvestigationReward("photoReveal");
     } else {
       resetLastCardPosition();
     }
@@ -442,16 +514,14 @@ function renderDollInteraction(dollData) {
 
       dollRedCircle.classList.add("visible");
 
-      const hiddenBtn = document.querySelector('.evidence-btn[data-evidence="dollHidden"]');
-      if (hiddenBtn) {
-        hiddenBtn.classList.add("visible");
-      }
+      queueEvidenceReward("dollHidden");
+      queueInvestigationReward("dollHidden");
 
       const noteBlock = document.getElementById("artifactNote");
       if (noteBlock) {
         noteBlock.innerHTML = `
           <p><strong>已锁定：</strong>红圈处就是娃娃腹部的异常位置。</p>
-          <p><strong>结果：</strong>新证物“娃娃腹部镜头”已加入右侧证物栏，可单独重新查看。</p>
+          <p><strong>关闭这个弹窗后，证物会正式加入右侧证据栏。</strong></p>
         `;
       }
 
@@ -464,60 +534,146 @@ function renderDollInteraction(dollData) {
     }
   });
 }
+function addEvidenceToPanel(key) {
+  if (!coreEvidenceKeys.includes(key)) return;
+  if (collectedEvidence.has(key)) return;
 
+  const data = evidenceData[key];
+  if (!data) return;
+
+  collectedEvidence.add(key);
+
+  const btn = document.createElement("button");
+  btn.className = "evidence-btn visible";
+  btn.dataset.evidence = key;
+  btn.innerHTML = `${data.icon}<span>${data.title}</span>`;
+
+  btn.addEventListener("click", () => {
+    openEvidence(key);
+  });
+
+  evidenceIcons.appendChild(btn);
+}
+
+function addToInvestigationProgress(key) {
+  if (!investigationKeys.includes(key)) return;
+  if (investigatedItems.has(key)) return;
+
+  investigatedItems.add(key);
+  progressCount.textContent = `${investigatedItems.size} / 6`;
+}
+
+function queueEvidenceReward(key) {
+  if (!coreEvidenceKeys.includes(key)) return;
+  if (collectedEvidence.has(key)) return;
+  pendingEvidenceRewards.add(key);
+}
+
+function queueInvestigationReward(key) {
+  if (!investigationKeys.includes(key)) return;
+  if (investigatedItems.has(key)) return;
+  pendingInvestigationRewards.add(key);
+}
+
+function checkCollapseTrigger() {
+  if (collapseStarted) return;
+  if (collectedEvidence.size < 3) return;
+  if (investigatedItems.size < 6) return;
+
+  collapseStarted = true;
+  startCollapseSequence();
+}
 /* =========================
    7. 打开证据弹窗
 ========================== */
+
+function queueEvidenceReward(key) {
+  if (!coreEvidenceKeys.includes(key)) return;
+  if (collectedEvidence.has(key)) return;
+  pendingEvidenceRewards.add(key);
+}
+ function queueInvestigationReward(key) {
+  if (!investigationKeys.includes(key)) return;
+  if (investigatedItems.has(key)) return;
+  pendingInvestigationRewards.add(key);
+}
+
 function openEvidence(key) {
   const data = evidenceData[key];
   if (!data) return;
 
-  const isFirstTime = !discovered.has(key);
-  discovered.add(key);
+  currentOpenEvidenceKey = key;
+  pendingEvidenceRewards.clear();
+  pendingInvestigationRewards.clear();
+
+  if (key === "computer") {
+    queueEvidenceReward("computer");
+    queueInvestigationReward("computer");
+  }
+
+  if (key === "mirror" || key === "camera" || key === "polaroid") {
+    queueInvestigationReward(key);
+  }
 
   modalMark.textContent = data.icon;
   modalTitle.textContent = data.title;
-  modalSubtitle.textContent = data.subtitle;
+  modalSubtitle.textContent = data.subtitle || "";
 
-  if (key === "photo") {
-    renderPhotoStack(data);
+  if (key === "photo" || key === "photoMirror") {
+  renderPhotoStack(data);
   } else if (key === "doll") {
     renderDollInteraction(data);
+  } else if (key === "mirror") {
+    const mirrorSrc = mirrorCorrupted ? "images/mirror2.png" : "images/mirror1.png";
+    const mirrorSubtitle = mirrorCorrupted
+      ? "它这次映出的不再是原来的东西"
+      : (data.subtitle || "");
+
+    modalSubtitle.textContent = mirrorSubtitle;
+
+    artifactView.innerHTML = `
+      <img class="artifact-image" src="${mirrorSrc}" alt="${data.title}">
+    `;
   } else {
     artifactView.innerHTML = `
       <img class="artifact-image" src="${data.image}" alt="${data.title}">
     `;
   }
 
-  artifactNote.innerHTML = data.note;
+  if (key === "mirror" && mirrorCorrupted) {
+    artifactNote.innerHTML = `
+      <p><strong>镜面已经改变。</strong> 你现在看到的，不再是最初那面镜子。</p>
+    `;
+    storyText.innerHTML = `
+      <p>镜面沉默地停留在那张新的脸上。</p>
+      <p>它像已经记住了你，也拒绝恢复原状。</p>
+    `;
+  } else {
+    artifactNote.innerHTML = data.note || "";
+    storyText.innerHTML = data.story || "";
+  }
 
   evidenceModal.classList.add("active");
   roomImage.classList.add("blurred");
-  storyText.innerHTML = data.story;
-
-  const hotspot = document.querySelector(`.hotspot[data-evidence="${key}"]`);
-  if (hotspot) {
-    hotspot.classList.add("discovered");
-  }
-
-  const evidenceBtn = document.querySelector(`.evidence-btn[data-evidence="${key}"]`);
-  if (evidenceBtn) {
-    evidenceBtn.classList.add("visible");
-  }
-
-  progressCount.textContent = `${discovered.size} / 6`;
-
-  if (isFirstTime && discovered.size === 6) {
-    storyText.innerHTML += `
-      <p><strong>你已经找到第一轮的全部物证。</strong> 这个房间显然不只是凶案现场，更像是一套围绕“观看女性”运转的装置。</p>
-    `;
-  }
 }
 
 /* =========================
    8. 关闭弹窗
 ========================== */
 function closeModal() {
+  if (!isClosingForCollapse) {
+    pendingEvidenceRewards.forEach((key) => {
+      addEvidenceToPanel(key);
+    });
+
+    pendingInvestigationRewards.forEach((key) => {
+      addToInvestigationProgress(key);
+    });
+  }
+
+  pendingEvidenceRewards.clear();
+  pendingInvestigationRewards.clear();
+
   evidenceModal.classList.remove("active");
   roomImage.classList.remove("blurred");
 
@@ -525,8 +681,95 @@ function closeModal() {
     document.removeEventListener("keydown", evidenceModal._photoKeyHandler);
     evidenceModal._photoKeyHandler = null;
   }
+
+  if (!allCoreEvidenceUnlocked && collectedEvidence.size === 3) {
+    allCoreEvidenceUnlocked = true;
+    storyText.innerHTML = `
+      <p><strong>三个关键证据已经齐了。</strong> 这个房间不是普通的案发现场，而是一个围绕偷窥、记录与隐藏而运转的装置。</p>
+    `;
+  }
+
+  checkCollapseTrigger();
+  currentOpenEvidenceKey = null;
+  isClosingForCollapse = false;
 }
 
+
+//动画
+function startCollapseSequence() {
+  isClosingForCollapse = true;
+  closeModal();
+
+  storyText.innerHTML = `
+    <p>房间忽然开始不稳定地震颤。</p>
+    <p>像有什么东西终于被看见，也终于决定反过来看你。</p>
+  `;
+
+  stopCollapseSequence();
+
+  roomImage.classList.add("image-blackout-stage-1");
+
+  collapseTimers.push(setTimeout(() => {
+    roomImage.classList.add("image-shake-stage-2");
+    roomImage.classList.remove("image-blackout-stage-1");
+    roomImage.classList.add("image-blackout-stage-2");
+  }, 3000));
+
+  collapseTimers.push(setTimeout(() => {
+    document.body.classList.add("borders-flicker-stage-3");
+  }, 10000));
+
+  collapseTimers.push(setTimeout(() => {
+    document.body.classList.add("text-chaos-stage-4");
+    document.body.classList.add("global-flicker-stage-4");
+  }, 15000));
+
+  collapseTimers.push(setTimeout(() => {
+    roomImage.classList.remove("image-blackout-stage-2");
+    roomImage.classList.add("image-blackout-stage-5");
+
+    gameScreenInner.classList.add("whole-screen-shake-stage-5");
+    document.body.classList.remove("global-flicker-stage-4");
+    document.body.classList.add("global-flicker-stage-5");
+  }, 20000));
+
+  collapseTimers.push(setTimeout(() => {
+    document.body.classList.add("final-blackout-stage");
+    gameScreenInner.classList.add("final-image-takeover");
+  }, 27000));
+
+  collapseTimers.push(setTimeout(() => {
+    stopCollapseSequence();
+    showMirrorFinale();
+  }, 30000));
+}
+//结束
+function stopCollapseSequence() {
+  collapseFinished = true;
+
+  collapseTimers.forEach((timerId) => clearTimeout(timerId));
+  collapseTimers = [];
+
+  roomImage.classList.remove(
+    "image-blackout-stage-1",
+    "image-shake-stage-2",
+    "image-blackout-stage-2",
+    "image-blackout-stage-5"
+  );
+
+  gameScreenInner.classList.remove(
+    "whole-screen-shake-stage-5",
+    "final-image-takeover"
+  );
+
+  document.body.classList.remove(
+    "borders-flicker-stage-3",
+    "text-chaos-stage-4",
+    "global-flicker-stage-4",
+    "global-flicker-stage-5",
+    "final-blackout-stage"
+  );
+}
 /* =========================
    9. 绑定页面事件
 ========================== */
@@ -567,3 +810,67 @@ document.addEventListener("keydown", (event) => {
     closeModal();
   }
 });
+
+function showMirrorFinale() {
+  const data = evidenceData.mirror;
+  if (!data) return;
+
+  mirrorCorrupted = true;
+
+  modalMark.textContent = data.icon;
+  modalTitle.textContent = "镜子再次亮起";
+  modalSubtitle.textContent = "它这次映出的不再是原来的东西";
+
+  artifactView.innerHTML = `
+    <div class="mirror-finale-wrap">
+      <img
+        id="finalMirrorImage"
+        class="artifact-image mirror-finale-image"
+        src="images/mirror1.png"
+        alt="镜子"
+      />
+    </div>
+  `;
+
+  artifactNote.innerHTML = `
+    <p>镜面像接触不良一样闪烁。</p>
+    <p>它正在切换成另一个画面。</p>
+    <p><strong>等画面稳定后，点击镜子继续。</strong></p>
+  `;
+
+  evidenceModal.classList.add("active");
+  roomImage.classList.add("blurred");
+
+  const finalMirrorImage = document.getElementById("finalMirrorImage");
+
+  setTimeout(() => {
+    finalMirrorImage.classList.add("mirror-flashing");
+  }, 120);
+
+  setTimeout(() => {
+    finalMirrorImage.src = "images/mirror2.png";
+    finalMirrorImage.classList.remove("mirror-flashing");
+    finalMirrorImage.classList.add("mirror-final-form");
+  }, 1400);
+
+  setTimeout(() => {
+    finalMirrorImage.addEventListener("click", handleMirrorFinalClick, { once: true });
+  }, 1500);
+}
+
+function handleMirrorFinalClick() {
+  closeModal();
+  openScreen(gameScreen2);
+
+  if (storyText2) {
+    storyText2.innerHTML = `
+      <p>你穿过镜面，进入了另一个房间。</p>
+      <p>布局与刚才几乎一致，只是方向被彻底颠倒了。</p>
+    `;
+  }
+}
+
+  // 这里先留空，后面你可以接：
+  // 1. 切第二关
+  // 2. 跳转新页面
+  // 3. 播放新的过场
