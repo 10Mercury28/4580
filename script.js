@@ -38,6 +38,79 @@ const gameScreen2 = document.getElementById("gameScreen2");
 const backPage1Btn = document.getElementById("backPage1Btn");
 const roomImage2 = document.getElementById("roomImage2");
 const storyText2 = document.getElementById("storyText2");
+
+const bgm1 = document.getElementById("bgm1");
+const bgm2 = document.getElementById("bgm2");
+
+let bgm1Started = false;
+let bgm2Started = false;
+
+const CLICK_SOUND_SRC = "audio/click.mp3";
+
+function playClickSound() {
+  const clickAudio = new Audio(CLICK_SOUND_SRC);
+  clickAudio.volume = 0.5;
+  clickAudio.play().catch((err) => {
+    console.log("Click sound blocked:", err);
+  });
+}
+
+document.addEventListener("click", (event) => {
+  const clickable = event.target.closest("button");
+  if (!clickable) return;
+  if (clickable.closest("#scaffoldNav")) return;
+  playClickSound();
+});
+
+function safePlay(audioEl) {
+  if (!audioEl) return;
+  audioEl.play().catch((err) => {
+    console.log("Audio play blocked:", err);
+  });
+}
+
+function startBgm1() {
+  if (!bgm1 || bgm1Started) return;
+
+  bgm1.volume = 0.6;
+  if (bgm2) bgm2.volume = 0.75;
+
+  bgm1.currentTime = 0;
+  safePlay(bgm1);
+
+  bgm1Started = true;
+  bgm2Started = false;
+}
+
+function switchToBgm2() {
+  if (!bgm2 || bgm2Started) return;
+
+  if (bgm1) {
+    bgm1.pause();
+    bgm1.currentTime = 0;
+  }
+
+  bgm2.currentTime = 0;
+  safePlay(bgm2);
+
+  bgm1Started = false;
+  bgm2Started = true;
+}
+
+function stopAllBgm() {
+  if (bgm1) {
+    bgm1.pause();
+    bgm1.currentTime = 0;
+  }
+
+  if (bgm2) {
+    bgm2.pause();
+    bgm2.currentTime = 0;
+  }
+
+  bgm1Started = false;
+  bgm2Started = false;
+}
 /* =========================
    2. 记录已发现证据
 ========================== */
@@ -549,6 +622,7 @@ function addEvidenceToPanel(key) {
   evidenceIcons.appendChild(btn);
 }
 
+
 function addToInvestigationProgress(key) {
   if (!investigationKeys.includes(key)) return;
   if (investigatedItems.has(key)) return;
@@ -620,7 +694,7 @@ function openEvidence(key) {
   } else if (key === "mirror") {
     const mirrorSrc = mirrorCorrupted ? "images/mirror2.png" : "images/mirror1.png";
     const mirrorSubtitle = mirrorCorrupted
-      ? "它这次映出的不再是原来的东西"
+      ? "It refused to reflect what it sees."
       : (data.subtitle || "");
 
     modalSubtitle.textContent = mirrorSubtitle;
@@ -636,11 +710,7 @@ function openEvidence(key) {
 
   if (key === "mirror" && mirrorCorrupted) {
     artifactNote.innerHTML = `
-      <p><strong>镜面已经改变。</strong> 你现在看到的，不再是最初那面镜子。</p>
-    `;
-    storyText.innerHTML = `
-      <p>镜面沉默地停留在那张新的脸上。</p>
-      <p>它像已经记住了你，也拒绝恢复原状。</p>
+      <p><strong>The mirror surface has changed.</strong> What you see now is no longer the mirror you saw at the beginning.</p>
     `;
   } else {
     artifactNote.innerHTML = data.note || "";
@@ -688,6 +758,8 @@ function closeModal() {
 
 //动画
 function startCollapseSequence() {
+  switchToBgm2();
+
   isClosingForCollapse = true;
   closeModal();
 
@@ -766,10 +838,13 @@ function stopCollapseSequence() {
 ========================== */
 startGameBtn.addEventListener("click", () => {
   openScreen(gameScreen);
+  startBgm1();
 });
+
 
 backIntroBtn.addEventListener("click", () => {
   openScreen(introScreen);
+  stopAllBgm();
 });
 
 backPage1Btn.addEventListener("click", () => {
@@ -813,8 +888,8 @@ function showMirrorFinale() {
   mirrorCorrupted = true;
 
   modalMark.textContent = data.icon;
-  modalTitle.textContent = "镜子再次亮起";
-  modalSubtitle.textContent = "它这次映出的不再是原来的东西";
+  modalTitle.textContent = "The mirror has changed";
+  modalSubtitle.textContent = "It no longer reflects what it sees, or... does it?";
 
   artifactView.innerHTML = `
     <div class="mirror-finale-wrap">
@@ -825,12 +900,6 @@ function showMirrorFinale() {
         alt="镜子"
       />
     </div>
-  `;
-
-  artifactNote.innerHTML = `
-    <p>镜面像接触不良一样闪烁。</p>
-    <p>它正在切换成另一个画面。</p>
-    <p><strong>等画面稳定后，点击镜子继续。</strong></p>
   `;
 
   evidenceModal.classList.add("active");
@@ -860,8 +929,8 @@ function handleMirrorFinalClick() {
 
   if (storyText2) {
     storyText2.innerHTML = `
-      <p>你穿过镜面，进入了另一个房间。</p>
-      <p>布局与刚才几乎一致，只是方向被彻底颠倒了。</p>
+      <p>You passed through the mirror and entered another room.</p>
+      <p>This room is completely mirrored in layout with the crime scene</p>
     `;
   }
 }

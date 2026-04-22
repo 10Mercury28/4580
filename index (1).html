@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>鬼屋调查：第一关</title>
+  <title>Chapter one: crime scene</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <audio id="bgm1" src="audio/bgm1.mp3" loop preload="auto"></audio>
+  <audio id="bgm2" src="audio/bgm2.mp3" loop preload="auto"></audio>
   <section class="screen intro-screen active" id="introScreen">
     <div class="intro-overlay"></div>
 
@@ -25,8 +27,8 @@
   <section class="screen game-screen" id="gameScreen">
     <header class="top-bar">
       <div>
-        <h2>第一关：案发现场</h2>
-        <p>点击房间中的关键区域，调查证据。</p>
+        <h2>Chapter one: crime scene</h2>
+        <p>click and investigate</p>
       </div>
 
       <button id="backIntroBtn" class="secondary-btn">返回首页</button>
@@ -53,19 +55,19 @@
 
       <aside class="side-panel">
         <div class="panel-block">
-          <h3>当前叙事</h3>
+          <h3>Report</h3>
           <div id="storyText" class="story-text">
-            <p>你站在门口。先检查房间里那些被摆放、被观看、被隐藏起来的东西。</p>
+            <p>Identify what seems strange, and, report them to your assistant Mercury and Yolanda</p>
           </div>
         </div>
 
         <div class="panel-block">
-          <h3>证据栏</h3>
+          <h3>Evidence column</h3>
           <div class="evidence-icons" id="evidenceIcons"></div>
         </div>
 
         <div class="panel-block">
-          <h3>调查进度</h3>
+          <h3>Investigation progress</h3>
           <p id="progressCount">0 / 6</p>
         </div>
       </aside>
@@ -75,8 +77,8 @@
   <section class="screen game-screen" id="gameScreen2">
     <header class="top-bar">
       <div>
-        <h2>第二关：镜中房间</h2>
-        <p>这个房间与刚才相似，但一切都被反转了。</p>
+        <h2>Chapter one: the inner world</h2>
+        <p>It seems that everything has been mirrored and reversed</p>
       </div>
 
       <button id="backPage1Btn" class="secondary-btn">返回上一页</button>
@@ -98,9 +100,9 @@
 
       <aside class="side-panel">
         <div class="panel-block">
-          <h3>当前叙事</h3>
+          <h3>Chapter one: the inner world</h3>
           <div id="storyText2" class="story-text">
-            <p>镜子另一侧的房间像是原房间的镜像。桌上仍压着一叠照片。</p>
+            <p>It seems that everything has been mirrored and reversed</p>
           </div>
         </div>
       </aside>
@@ -128,10 +130,13 @@
 
   <script src="script.js"></script>
 
-  <div id="scaffoldNav" class="scaffold-nav">
-  <button id="goIntroBtn" type="button">Intro</button>
-  <button id="goRoom1Btn" type="button">Room 1</button>
-  <button id="goRoom2Btn" type="button">Room 2</button>
-</div>
-</body>
+    <audio id="bgm1" src="audio/bgm1.mp3" loop preload="auto"></audio>
+    <audio id="bgm2" src="audio/bgm2.mp3" loop preload="auto"></audio>
+
+    <div id="scaffoldNav" class="scaffold-nav">
+      <button id="goIntroBtn" type="button">Intro</button>
+      <button id="goRoom1Btn" type="button">Room 1</button>
+      <button id="goRoom2Btn" type="button">Room 2</button>
+    </div>
+  </body>
 </html>
