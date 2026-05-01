@@ -204,6 +204,28 @@ const evidenceData = {
     title: "The victim's PC",
     subtitle: "The deceased's private video is saved in Cloud Drive a of the computer",
     image: "images/computer.png",
+    note: `
+    <p><strong>女人：</strong>你在录像吗？</p>
+    <p><strong>Woman:</strong> Are you recording me?</p>
+    <p><strong>男人：</strong>宝贝，对不起，你太美了，我就想要录下来，我就是自己看，没和别人分享。</p>
+    <p><strong>Man:</strong> Baby, I'm sorry. You're just too beautiful. I wanted to record you. It's only for me to watch. I haven't shared it with anyone else.</p>
+    <p><strong>女人：</strong>什么！你把我当成什么了！别录了，我说别录了！难道你忘了我对你说的！一旦被人看见，我将万劫不复！你不能理解吗？</p>
+    <p><strong>Woman:</strong> What? What do you think I am? Stop recording. I said stop recording! Did you forget what I told you? If anyone sees this, I'll be ruined forever. Don't you understand?</p>
+    <p><strong>男人：</strong>闭上嘴！我把你录下来是欣赏你的肉体，你别不识好歹。长成这样不就是给人看的吗，不然我还花时间和精力和你约会做什么？我从小刻苦考进大厂就是为了老婆孩子热炕头，你读大学和天天打扮不就是为了嫁得好，那既然给我了，我想咋看就咋看。（击打声）</p>
+    <p><strong>Man:</strong> Shut up! I recorded you because I enjoy looking at your body, so don't act ungrateful. Isn't a body like yours meant to be looked at? Otherwise why would I spend all this time and energy dating you? I studied my whole life and fought my way into a top company so I could have a wife, kids, and a warm bed at home. Didn't you go to college and dress yourself up every day so you could marry well? Now that you're with me, I can look at you however I want. <em>(sound of a blow)</em></p>
+    <p><strong>女人：</strong>（哭声）我曾经就被机器记录过伤害过。你答应我的事呢？我大学就和你约会了。我以为你尊重我，我以为你拿我当人。</p>
+    <p><strong>Woman:</strong> <em>(crying)</em> I was hurt before because of machines that recorded me. What about what you promised me? I've been with you since college. I thought you respected me. I thought you saw me as a person.</p>
+    <p><strong>男人：</strong>给脸不要。你大学就把贞洁给我了，你以为你是什么好货色？别人好要你吗，婊子。你该庆幸有人看你。我可给你们家彩礼了，你整个人都是我的了。当人？当然当人看，前提你得该做啥做啥。床上，家里，做饭，生孩子，你都干好了才能有资格叫，有资格提要求。还尊重？互联网女权你这是。女权可以叫，要排在阶级、民族的后面。你以为的。</p>
+    <p><strong>Man:</strong> Don't push your luck. You gave me your virginity back in college. What makes you think you're still some kind of prize? Who else would even want you, slut? You should be grateful anyone is willing to look at you. I paid bride price to your family. That means you belong to me, completely. A person? Sure, I'll treat you like a person—if you do what you're supposed to do. In bed, at home, cooking, having children. Only when you do all of that do you earn the right to complain, the right to ask for anything. Respect? This is that internet feminism talking. Women can talk about rights only after class and nation come first. That's how it really is.</p>
+    <p><strong>女人：</strong>啊！</p>
+    <p><strong>Woman:</strong> Ah!</p>
+    <p><strong>男人：</strong>还哭，我和你说，这间房子是我婚前财产，你再哭我给你扫地出门！</p>
+    <p><strong>Man:</strong> Still crying? Let me tell you something. This house is my premarital property. If you keep crying, I'll throw you out with nothing!</p>
+    <p><strong>女人：</strong>这是什么？你又做什么！啊！</p>
+    <p><strong>Woman:</strong> What is this? What are you doing now? Ah!</p>
+    <p><strong>男人：</strong>（也开始尖叫）好烫！我的眼睛。</p>
+    <p><strong>Man:</strong> <em>(also screaming)</em> It's burning! My eyes!</p>
+  `
   },
 
   camera: {

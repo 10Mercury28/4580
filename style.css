@@ -1035,16 +1035,15 @@ body.final-blackout-stage::after {
   border-color: transparent !important;
 }
 
+
+
 .artifact-note {
-  display: none;
+  display: block;
+  line-height: 1.85;
 }
 
 .modal-content {
   grid-template-columns: 1fr;
-}
-
-.artifact-view {
-  width: 100%;
 }
 
 
