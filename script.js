@@ -26,6 +26,7 @@ const storyText = document.getElementById("storyText");
 const storyText2 = document.getElementById("storyText2");
 
 const progressCount = document.getElementById("progressCount");
+const progressStatusText = document.getElementById("progressStatusText");
 const evidenceIcons = document.getElementById("evidenceIcons");
 
 const evidenceModal = document.getElementById("evidenceModal");
@@ -428,29 +429,7 @@ function getReportHtml(letter) {
   return `
     <div class="report-entry" data-report="${letter}">
       <div class="report-entry-body${specialClass}">
-        ${segments
-          .map((text, index) => {
-            const segmentKey = getSegmentPlaybackKey(letter, index);
-            const isNew = isLatestUnlockedSegment(letter, index);
-            const alreadyPlayed = typedSegmentsPlayed.has(segmentKey);
-
-            let extraClass = "";
-            if (alreadyPlayed) {
-              extraClass = "is-done";
-            } else if (isNew) {
-              extraClass = "typewriter-line";
-            }
-
-            return `
-              <p
-                class="${extraClass}"
-                data-segment-letter="${letter}"
-                data-segment-index="${index}"
-                data-segment-key="${segmentKey}"
-              >${text}</p>
-            `;
-          })
-          .join("")}
+        ${segments.map((text) => `<p>${text}</p>`).join("")}
       </div>
     </div>
   `;
@@ -597,11 +576,13 @@ function wait(ms) {
 
 async function runSequentialTypewriterInModal() {
   if (!artifactNote || latestUnlockedSegments.length === 0) return;
-  if (typewriterQueueRunning) return;
 
   typewriterQueueRunning = true;
 
-  for (const segment of latestUnlockedSegments) {
+  const segmentsToPlay = [...latestUnlockedSegments];
+  latestUnlockedSegments = [];
+
+  for (const segment of segmentsToPlay) {
     const segmentKey = getSegmentPlaybackKey(segment.letter, segment.index);
 
     if (typedSegmentsPlayed.has(segmentKey)) {
@@ -619,18 +600,21 @@ async function runSequentialTypewriterInModal() {
     node.classList.remove("is-done");
     node.classList.add("is-typing");
 
-    await wait(950);
+    await wait(650);
 
     node.classList.remove("is-typing");
     node.classList.add("is-done");
 
     typedSegmentsPlayed.add(segmentKey);
 
-    await wait(120);
+    await wait(80);
   }
 
   typewriterQueueRunning = false;
-  latestUnlockedSegments = [];
+
+  if (latestUnlockedSegments.length > 0) {
+    runSequentialTypewriterInModal();
+  }
 }
 
 function scrollModalNoteToLatest() {
@@ -1064,6 +1048,8 @@ function openEvidence(key) {
   if (key === "polaroid") unlockReport("c", reportState.c.segments.length);
   if (key === "mirror") unlockReport("d", reportState.d.segments.length);
   if (key === "doll") unlockReport("e", reportState.e.segments.length);
+  if (key === "dollHidden") unlockReport("f", reportState.f.segments.length);
+  if (key === "photoReveal") unlockReport("g", reportState.g.segments.length);
   if (key === "computer") unlockReport("h", reportState.h.segments.length);
 
   currentOpenEvidenceKey = key;
@@ -1088,19 +1074,28 @@ function openEvidence(key) {
   } else if (key === "doll") {
     renderDollInteraction(data);
   } else if (key === "mirror") {
-    const mirrorSrc = mirrorCorrupted ? "images/mirror2.png" : "images/mirror1.png";
-    const mirrorSubtitle = mirrorCorrupted ? "It refused to reflect what it sees." : (data.subtitle || "");
+  const mirrorSrc = mirrorCorrupted ? "images/mirror2.png" : "images/mirror1.png";
+  const mirrorSubtitle = mirrorCorrupted
+    ? "It refused to reflect what it sees."
+    : (data.subtitle || "");
 
-    modalSubtitle.textContent = mirrorSubtitle;
-    artifactView.innerHTML = `<img class="artifact-image" src="${mirrorSrc}" alt="${data.title}">`;
-  } else {
-    artifactView.innerHTML = `<img class="artifact-image" src="${data.image}" alt="${data.title}">`;
+  modalSubtitle.textContent = mirrorSubtitle;
+
+  artifactView.innerHTML = `
+    <img
+      id="mirrorEvidenceImage"
+      class="artifact-image ${mirrorCorrupted ? "mirror-final-form" : ""}"
+      src="${mirrorSrc}"
+      alt="${data.title}"
+    >
+  `;
+
+  if (mirrorCorrupted) {
+    const mirrorEvidenceImage = document.getElementById("mirrorEvidenceImage");
+    if (mirrorEvidenceImage) {
+      mirrorEvidenceImage.addEventListener("click", handleMirrorFinalClick, { once: true });
+    }
   }
-
-  refreshCurrentModalNote();
-
-  evidenceModal.classList.add("active");
-  roomImage.classList.add("blurred");
 }
 
 /* =========================
@@ -1146,10 +1141,12 @@ function startCollapseSequence() {
   isClosingForCollapse = true;
   closeModal();
 
-  storyText.innerHTML = `
-    <p>The room suddenly began to tremble unstably.</p>
-    <p>It's as if something has finally been seen and has finally decided to look at you in the opposite direction.</p>
-  `;
+  if (progressStatusText) {
+    progressStatusText.innerHTML = `
+      <p>The room suddenly began to tremble unstably.</p>
+      <p>It's as if something has finally been seen and has finally decided to look at you in the opposite direction.</p>
+    `;
+  }
 
   stopCollapseSequence();
 
@@ -1299,6 +1296,10 @@ if (backIntroBtn) {
   backIntroBtn.addEventListener("click", () => {
     openScreen(introScreen);
     stopAllBgm();
+
+    if (progressStatusText) {
+      progressStatusText.innerHTML = "";
+    }
   });
 }
 
