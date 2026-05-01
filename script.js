@@ -1,18 +1,30 @@
 /* =========================
    1. 获取页面元素
 ========================== */
-//手脚架！！！一定要删掉
+// 手脚架调试按钮
 const goIntroBtn = document.getElementById("goIntroBtn");
+const goBriefingBtn = document.getElementById("goBriefingBtn");
 const goRoom1Btn = document.getElementById("goRoom1Btn");
 const goRoom2Btn = document.getElementById("goRoom2Btn");
-//
+
 const introScreen = document.getElementById("introScreen");
+const briefingScreen = document.getElementById("briefingScreen");
 const gameScreen = document.getElementById("gameScreen");
+const gameScreen2 = document.getElementById("gameScreen2");
+
 const startGameBtn = document.getElementById("startGameBtn");
+const enterSceneBtn = document.getElementById("enterSceneBtn");
 const backIntroBtn = document.getElementById("backIntroBtn");
+const backPage1Btn = document.getElementById("backPage1Btn");
+
+const briefingScroll = document.getElementById("briefingScroll");
 
 const roomImage = document.getElementById("roomImage");
+const roomImage2 = document.getElementById("roomImage2");
+
 const storyText = document.getElementById("storyText");
+const storyText2 = document.getElementById("storyText2");
+
 const progressCount = document.getElementById("progressCount");
 const evidenceIcons = document.getElementById("evidenceIcons");
 
@@ -24,20 +36,7 @@ const modalSubtitle = document.getElementById("modalSubtitle");
 const artifactView = document.getElementById("artifactView");
 const artifactNote = document.getElementById("artifactNote");
 
-//晃动动画
-const gameLayout = document.querySelector(".game-layout");
-const scenePanel = document.querySelector(".scene-panel");
-const sidePanel = document.querySelector(".side-panel");
-const topBar = document.querySelector(".top-bar");
 const gameScreenInner = document.getElementById("gameScreen");
-const panelBlocks = document.querySelectorAll(".panel-block");
-const storyPanelText = document.querySelectorAll(".story-text, .panel-block h3, .panel-block p, .top-bar h2, .top-bar p");
-const evidenceButtons = document.querySelectorAll(".evidence-btn");
-
-const gameScreen2 = document.getElementById("gameScreen2");
-const backPage1Btn = document.getElementById("backPage1Btn");
-const roomImage2 = document.getElementById("roomImage2");
-const storyText2 = document.getElementById("storyText2");
 
 const bgm1 = document.getElementById("bgm1");
 const bgm2 = document.getElementById("bgm2");
@@ -47,6 +46,9 @@ let bgm2Started = false;
 
 const CLICK_SOUND_SRC = "audio/click.mp3";
 
+/* =========================
+   2. 音频
+========================== */
 function playClickSound() {
   const clickAudio = new Audio(CLICK_SOUND_SRC);
   clickAudio.volume = 0.5;
@@ -111,11 +113,50 @@ function stopAllBgm() {
   bgm1Started = false;
   bgm2Started = false;
 }
-/* =========================
-   2. 记录已发现证据
-========================== */
-const discovered = new Set();
 
+/* =========================
+   3. 页面切换
+========================== */
+function openScreen(screenToOpen) {
+  introScreen.classList.remove("active");
+  briefingScreen.classList.remove("active");
+  gameScreen.classList.remove("active");
+  gameScreen2.classList.remove("active");
+
+  if (screenToOpen) {
+    screenToOpen.classList.add("active");
+  }
+}
+
+function resetBriefingProgress() {
+  if (!briefingScroll || !enterSceneBtn) return;
+
+  briefingScroll.scrollTop = 0;
+  enterSceneBtn.classList.remove("visible");
+
+  requestAnimationFrame(() => {
+    const noScrollNeeded = briefingScroll.scrollHeight <= briefingScroll.clientHeight + 4;
+    if (noScrollNeeded) {
+      enterSceneBtn.classList.add("visible");
+    }
+  });
+}
+
+function checkBriefingScroll() {
+  if (!briefingScroll || !enterSceneBtn) return;
+
+  const threshold = 24;
+  const reachedBottom =
+    briefingScroll.scrollTop + briefingScroll.clientHeight >= briefingScroll.scrollHeight - threshold;
+
+  if (reachedBottom) {
+    enterSceneBtn.classList.add("visible");
+  }
+}
+
+/* =========================
+   4. 记录已发现证据
+========================== */
 const coreEvidenceKeys = ["dollHidden", "computer", "photoReveal"];
 const investigationKeys = ["dollHidden", "computer", "photoReveal", "mirror", "camera", "polaroid"];
 
@@ -125,36 +166,35 @@ const investigatedItems = new Set();
 let currentOpenEvidenceKey = null;
 const pendingEvidenceRewards = new Set();
 const pendingInvestigationRewards = new Set();
+
 let isClosingForCollapse = false;
 let mirrorCorrupted = false;
-
 let allCoreEvidenceUnlocked = false;
 
 let collapseStarted = false;
-let collapseFinished = false;
 let collapseTimers = [];
 
 /* =========================
-   3. 证据数据
-   你只需要改图片路径和文字内容
+   5. 证据数据
 ========================== */
 const evidenceData = {
   photo: {
     icon: "🖼️",
     title: "A series of photo taken under the table glass",
-    subtitle: "The photos cover the victim from childhood to adulthood. He is from Harbin. After graduation, he worked as a white-collar worker doing homework in Shanghai and loved watching thirsty trap videos and livestreaming profitting on male gaze",
+    subtitle:
+      "The photos cover the victim from childhood to adulthood. He is from Harbin. After graduation, he worked as a white-collar worker doing homework in Shanghai and loved watching thirsty trap videos and livestreaming profitting on male gaze",
     photos: [
       "images/photo1.png",
       "images/photo2.png",
       "images/photo3.png",
       "images/photo4.png",
-      "images/photo5.png"
+      "images/photo5.png",
     ],
     hiddenBackImage: "images/polaroid.png",
     story: `
-      <p>The victim displays this five photos to identify and fashion his identity</p>
-      <p>When you turn to the last one, you can clearly feel that this cardboard is thicker and there seems to be something else hidden behind it</p>
-    `
+      <p>The victim displays this five photos to identify and fashion his identity.</p>
+      <p>When you turn to the last one, you can clearly feel that this cardboard is thicker and there seems to be something else hidden behind it.</p>
+    `,
   },
 
   mirror: {
@@ -167,11 +207,12 @@ const evidenceData = {
   doll: {
     icon: "🧸",
     title: "Doll on the bed",
-    subtitle: "Unlike the softness of the head and limbs, the filling in the abdominal cavity of the doll seems to be harder",
+    subtitle:
+      "Unlike the softness of the head and limbs, the filling in the abdominal cavity of the doll seems to be harder",
     image: "images/doll.png",
     story: `
       <p>You reached deep into the suture and found a miniature lens buried in the filling.</p>
-    `
+    `,
   },
 
   dollHidden: {
@@ -195,43 +236,44 @@ const evidenceData = {
       "images/photo7.png",
       "images/photo8.png",
       "images/photo9.png",
-      "images/photo10.png"
+      "images/photo10.png",
     ],
   },
 
   computer: {
     icon: "💻",
     title: "The victim's PC",
-    subtitle: "The deceased's private video is saved in Cloud Drive a of the computer",
+    subtitle: "The deceased's private video is saved in Cloud Drive of the computer",
     image: "images/computer.png",
     note: `
-    <p><strong>女人：</strong>你在录像吗？</p>
-    <p><strong>Woman:</strong> Are you recording me?</p>
-    <p><strong>男人：</strong>宝贝，对不起，你太美了，我就想要录下来，我就是自己看，没和别人分享。</p>
-    <p><strong>Man:</strong> Baby, I'm sorry. You're just too beautiful. I wanted to record you. It's only for me to watch. I haven't shared it with anyone else.</p>
-    <p><strong>女人：</strong>什么！你把我当成什么了！别录了，我说别录了！难道你忘了我对你说的！一旦被人看见，我将万劫不复！你不能理解吗？</p>
-    <p><strong>Woman:</strong> What? What do you think I am? Stop recording. I said stop recording! Did you forget what I told you? If anyone sees this, I'll be ruined forever. Don't you understand?</p>
-    <p><strong>男人：</strong>闭上嘴！我把你录下来是欣赏你的肉体，你别不识好歹。长成这样不就是给人看的吗，不然我还花时间和精力和你约会做什么？我从小刻苦考进大厂就是为了老婆孩子热炕头，你读大学和天天打扮不就是为了嫁得好，那既然给我了，我想咋看就咋看。（击打声）</p>
-    <p><strong>Man:</strong> Shut up! I recorded you because I enjoy looking at your body, so don't act ungrateful. Isn't a body like yours meant to be looked at? Otherwise why would I spend all this time and energy dating you? I studied my whole life and fought my way into a top company so I could have a wife, kids, and a warm bed at home. Didn't you go to college and dress yourself up every day so you could marry well? Now that you're with me, I can look at you however I want. <em>(sound of a blow)</em></p>
-    <p><strong>女人：</strong>（哭声）我曾经就被机器记录过伤害过。你答应我的事呢？我大学就和你约会了。我以为你尊重我，我以为你拿我当人。</p>
-    <p><strong>Woman:</strong> <em>(crying)</em> I was hurt before because of machines that recorded me. What about what you promised me? I've been with you since college. I thought you respected me. I thought you saw me as a person.</p>
-    <p><strong>男人：</strong>给脸不要。你大学就把贞洁给我了，你以为你是什么好货色？别人好要你吗，婊子。你该庆幸有人看你。我可给你们家彩礼了，你整个人都是我的了。当人？当然当人看，前提你得该做啥做啥。床上，家里，做饭，生孩子，你都干好了才能有资格叫，有资格提要求。还尊重？互联网女权你这是。女权可以叫，要排在阶级、民族的后面。你以为的。</p>
-    <p><strong>Man:</strong> Don't push your luck. You gave me your virginity back in college. What makes you think you're still some kind of prize? Who else would even want you, slut? You should be grateful anyone is willing to look at you. I paid bride price to your family. That means you belong to me, completely. A person? Sure, I'll treat you like a person—if you do what you're supposed to do. In bed, at home, cooking, having children. Only when you do all of that do you earn the right to complain, the right to ask for anything. Respect? This is that internet feminism talking. Women can talk about rights only after class and nation come first. That's how it really is.</p>
-    <p><strong>女人：</strong>啊！</p>
-    <p><strong>Woman:</strong> Ah!</p>
-    <p><strong>男人：</strong>还哭，我和你说，这间房子是我婚前财产，你再哭我给你扫地出门！</p>
-    <p><strong>Man:</strong> Still crying? Let me tell you something. This house is my premarital property. If you keep crying, I'll throw you out with nothing!</p>
-    <p><strong>女人：</strong>这是什么？你又做什么！啊！</p>
-    <p><strong>Woman:</strong> What is this? What are you doing now? Ah!</p>
-    <p><strong>男人：</strong>（也开始尖叫）好烫！我的眼睛。</p>
-    <p><strong>Man:</strong> <em>(also screaming)</em> It's burning! My eyes!</p>
-  `
+      <p><strong>女人：</strong>你在录像吗？</p>
+      <p><strong>Woman:</strong> Are you recording me?</p>
+      <p><strong>男人：</strong>宝贝，对不起，你太美了，我就想要录下来，我就是自己看，没和别人分享。</p>
+      <p><strong>Man:</strong> Baby, I'm sorry. You're just too beautiful. I wanted to record you. It's only for me to watch. I haven't shared it with anyone else.</p>
+      <p><strong>女人：</strong>什么！你把我当成什么了！别录了，我说别录了！难道你忘了我对你说的！一旦被人看见，我将万劫不复！你不能理解吗？</p>
+      <p><strong>Woman:</strong> What? What do you think I am? Stop recording. I said stop recording! Did you forget what I told you? If anyone sees this, I'll be ruined forever. Don't you understand?</p>
+      <p><strong>男人：</strong>闭上嘴！我把你录下来是欣赏你的肉体，你别不识好歹。长成这样不就是给人看的吗，不然我还花时间和精力和你约会做什么？我从小刻苦考进大厂就是为了老婆孩子热炕头，你读大学和天天打扮不就是为了嫁得好，那既然给我了，我想咋看就咋看。（击打声）</p>
+      <p><strong>Man:</strong> Shut up! I recorded you because I enjoy looking at your body, so don't act ungrateful. Isn't a body like yours meant to be looked at? Otherwise why would I spend all this time and energy dating you? I studied my whole life and fought my way into a top company so I could have a wife, kids, and a warm bed at home. Didn't you go to college and dress yourself up every day so you could marry well? Now that you're with me, I can look at you however I want. <em>(sound of a blow)</em></p>
+      <p><strong>女人：</strong>（哭声）我曾经就被机器记录过伤害过。你答应我的事呢？我大学就和你约会了。我以为你尊重我，我以为你拿我当人。</p>
+      <p><strong>Woman:</strong> <em>(crying)</em> I was hurt before because of machines that recorded me. What about what you promised me? I've been with you since college. I thought you respected me. I thought you saw me as a person.</p>
+      <p><strong>男人：</strong>给脸不要。你大学就把贞洁给我了，你以为你是什么好货色？别人好要你吗，婊子。你该庆幸有人看你。我可给你们家彩礼了，你整个人都是我的了。当人？当然当人看，前提你得该做啥做啥。床上，家里，做饭，生孩子，你都干好了才能有资格叫，有资格提要求。还尊重？互联网女权你这是。女权可以叫，要排在阶级、民族的后面。你以为的。</p>
+      <p><strong>Man:</strong> Don't push your luck. You gave me your virginity back in college. What makes you think you're still some kind of prize? Who else would even want you, slut? You should be grateful anyone is willing to look at you. I paid bride price to your family. That means you belong to me, completely. A person? Sure, I'll treat you like a person—if you do what you're supposed to do. In bed, at home, cooking, having children. Only when you do all of that do you earn the right to complain, the right to ask for anything. Respect? This is that internet feminism talking. Women can talk about rights only after class and nation come first. That's how it really is.</p>
+      <p><strong>女人：</strong>啊！</p>
+      <p><strong>Woman:</strong> Ah!</p>
+      <p><strong>男人：</strong>还哭，我和你说，这间房子是我婚前财产，你再哭我给你扫地出门！</p>
+      <p><strong>Man:</strong> Still crying? Let me tell you something. This house is my premarital property. If you keep crying, I'll throw you out with nothing!</p>
+      <p><strong>女人：</strong>这是什么？你又做什么！啊！</p>
+      <p><strong>Woman:</strong> What is this? What are you doing now? Ah!</p>
+      <p><strong>男人：</strong>（也开始尖叫）好烫！我的眼睛。</p>
+      <p><strong>Man:</strong> <em>(also screaming)</em> It's burning! My eyes!</p>
+    `,
   },
 
   camera: {
     icon: "📷",
-    title: "The victim's camera colelction",
-    subtitle: "It seems that the deceased was a person who loved taking photos and videos. This seems to have little to do with his engineering career, but it's quite reasonable - a science and engineering guy who loves machinery, right?",
+    title: "The victim's camera collection",
+    subtitle:
+      "It seems that the deceased was a person who loved taking photos and videos. This seems to have little to do with his engineering career, but it's quite reasonable — a science and engineering guy who loves machinery, right?",
     image: "images/camera.png",
   },
 
@@ -239,50 +281,271 @@ const evidenceData = {
     icon: "🧾",
     title: "The Polaroid camera placed on the table",
     image: "images/pc.png",
+  },
+};
+
+const reportState = {
+  a: {
+    label: "A",
+    visible: false,
+    unlockedCount: 0,
+    segments: [
+      "From the details in the image, the victim appears to have been born in Heilongjiang. He was probably an only child, and a much-loved one. In the early 1990s, his family already owned a camera and used it to record ordinary moments of his childhood. That alone says something. His life was not luxurious, but it was carefully preserved.",
+      "He later became an engineering student and, after graduation, found work at an internet company in Shanghai.",
+      "In contemporary mainland China, this was almost a textbook path of middle-class mobility: leaving a second- or third-tier city, arriving in the country’s most developed capitalist metropolis, and hoping, eventually, to secure a Shanghai household registration. If he had not died, if he had married and had children, his child might have become a Shanghai resident. That child could have attended an international school, prepared for migration to the United States, and gained access to first-rate educational resources. Even the national college entrance exam would have been easier there than in many other parts of China.",
+      "His hometown in the Northeast followed a different trajectory. After China’s market reforms, the region that had once functioned as a major industrial base supporting the entire nation was gradually recast as abandoned ground: emptied factories, aging neighborhoods, and landscapes left behind by development. Only in recent years has it begun to recover part of its economic vitality through the service sector, especially by tailoring local culture, snow, food, and nostalgia for tourists from the South.",
+      "There are also signs that he spent a great deal of time on short-video platforms and social media. He likely killed time by binge-watching videos, a common habit among contemporary knowledge workers whose labor exhausts the mind without exhausting the body. Pressed under the desk is a screenshot from a group livestream performance. This type of livestream depends on prolonged emotional labor, synchronized collective dancing, and sometimes thirst-trap aesthetics to satisfy the male gaze and the interactive desires of male viewers. The performers’ costumes are highly modular. Each member, each group, each visual style can be replaced, exchanged, or reproduced at any time. It is not only entertainment. It is an assembly line of self-media bodies."
+    ]
+  },
+
+  b: {
+    label: "B",
+    visible: false,
+    unlockedCount: 0,
+    segments: [
+      "A set of professional and various cameras on the first layer of the shelf. As an engineering student, his interest in the mechanics of cameras appears, at first, to fit his profile. The metal body, the shutter, the lens, the precision of the device: all of these seem consistent with the kind of masculine technical taste he likely wanted to inhabit.",
+      "And yet there is a gap between the equipment and the evidence of actual practice. Apart from a few scattered photographs, he does not seem to have produced a coherent body of work. There is no proper portfolio. His social media accounts show little sustained photographic activity, and the SD card contains far fewer images than the number of cameras would suggest.",
+      "The cameras themselves were not stored in a dry, shock-resistant camera bag, as one would expect from someone who regularly used and cared for them. Instead, they were placed openly on the table, almost like objects on display.",
+      "This suggests that the cameras functioned less as tools than as symbols. They were part of how he performed his identity as an engineering man: rational, technical, precise, quietly refined. He may not even have needed an audience for this performance. The act of purchasing, owning, and arranging the machines was already enough to confirm the image of himself he wanted to believe.",
+      "On the second layer, perfumes and facial cream are stored."
+    ]
+  },
+
+  c: {
+    label: "C",
+    visible: false,
+    unlockedCount: 0,
+    segments: [
+      "A Polaroid camera is sitting on the table, as if it had been left there before anyone had time to put it back into a cabinet or store it somewhere else. But there are no Polaroid photographs displayed on the wall, tucked into the mirror, or stored in the cabinet. Nothing in the room suggests that instant photography was part of his visible photographic habit.",
+      "This is strange, because the rest of the apartment is carefully arranged. His desk, shelves, and belongings all suggest a controlled and orderly domestic space. The camera, by contrast, looks casually displaced, almost too casual. Was his neatness not really his own? Was this apartment kept in order by someone else’s domestic labor? Or did someone disturb the scene after the incident, but only to look at the Polaroid?",
+      "The camera itself also does not quite belong with the others. Its matte white surface and rounded lines clash with the darker, more mechanical cameras elsewhere in the room. Compared with the devices he displayed as markers of technical taste, this one feels softer, more private, and harder to explain."
+    ]
+  },
+
+  d: {
+    label: "D",
+    visible: false,
+    unlockedCount: 0,
+    segments: [
+      "A full-length mirror stands in the room. It looks like the kind of mirror used for checking outfits before leaving the apartment, an ordinary domestic object with no obvious connection to.",
+      "It may have belonged to his girlfriend, along with the cosmetics that she had moved in with him."
+    ]
+  },
+
+  e: {
+    label: "E",
+    visible: false,
+    unlockedCount: 0,
+    segments: [
+      "It appears to be harmless, perhaps something kept there for comfort or companionship during sleep."
+    ]
+  },
+
+  f: {
+    label: "F",
+    visible: false,
+    unlockedCount: 0,
+    segments: [
+      "But there is a camera hidden inside it. It appears to have been used to record private videos without consent. At this stage, it is still unclear whether the victim kept these videos for himself or circulated them for attention, profit, or status. But the distinction does not lessen the violation. Whether private or public, the act itself is already an abuse of intimacy and trust."
+    ]
+  },
+
+  g: {
+    label: "G",
+    visible: false,
+    unlockedCount: 0,
+    segments: [
+      "The victim had hidden a photograph of a sleeping woman underneath the group livestream screenshot. Unlike the other five photographs, which were developed after being taken elsewhere, this one was made with a Polaroid camera. It is intimate and immediate. And because the entire process of production happens under the photographer’s eyes, it also carries a particular claim to authenticity: the image appears, slowly and irreversibly, in the same space where the act of photographing took place.",
+      "But the fact that this photograph was hidden behind another image changes its meaning. The woman in the photograph likely did not know she was being photographed at the time. There is also no evidence that she was told before or after. The victim did not seek her consent. Instead, he buried the evidence of his own voyeurism beneath the appearance of a harmless photographic hobby.",
+      "This makes the victim harder to read as merely innocent. He preserved childhood, hometown, work, and online entertainment through images, but he also used photography to take something from another person without permission. The camera was not only a tool of memory. In his hands, it also became a private instrument of possession and concealment."
+    ]
+  },
+
+  h: {
+    label: "H",
+    visible: false,
+    unlockedCount: 0,
+    segments: [
+      "A video project is still open on the victim’s computer.",
+      "The file appears to be in progress, not yet exported. It contains an intimate video of the victim and his girlfriend. The angle seems to come from somewhere on or near the bed, not from a device openly held by either person.",
+      "One detail is especially difficult to ignore: the man appears to glance toward the direction of the lens, while the woman never makes eye contact with it. Her gaze does not meet the camera at any point. This strongly suggests that she did not know the camera was there.",
+      "The project file also contains an audio track captured through the system’s built-in real-time recording function. It recorded part of a conversation between the man and the woman.",
+      "What exactly happened to him?"
+    ]
   }
 };
 
-/* =========================
-   4. 页面切换
-========================== */
-function openScreen(screenToOpen) {
-  introScreen.classList.remove("active");
-  gameScreen.classList.remove("active");
-  gameScreen2.classList.remove("active");
-  screenToOpen.classList.add("active");
+const reportOrder = ["a", "b", "c", "d", "e", "f", "g", "h"];
+
+function unlockReport(letter, count = 1) {
+  const entry = reportState[letter];
+  if (!entry) return;
+
+  const prevVisible = entry.visible;
+  const prevCount = entry.unlockedCount;
+
+  entry.visible = true;
+  entry.unlockedCount = Math.min(
+    entry.segments.length,
+    Math.max(entry.unlockedCount, count)
+  );
+
+  if (entry.visible !== prevVisible || entry.unlockedCount !== prevCount) {
+    renderReportColumn();
+    refreshCurrentModalNote();
+  }
 }
 
+function getReportHtml(letter) {
+  const entry = reportState[letter];
+  if (!entry || !entry.visible || entry.unlockedCount <= 0) return "";
+
+  const segments = entry.segments.slice(0, entry.unlockedCount);
+
+  return `
+    <div class="report-entry" data-report="${letter}">
+      <div class="report-entry-label">${entry.label}</div>
+      <div class="report-entry-body">
+        ${segments.map((text) => `<p>${text}</p>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderReportColumn() {
+  if (!storyText) return;
+
+  const visibleEntries = reportOrder
+    .filter((letter) => reportState[letter].visible)
+    .map((letter) => getReportHtml(letter))
+    .join("");
+
+  storyText.innerHTML = `
+  <div class="report-scroll">
+    <div class="report-entry">
+      <div class="report-entry-label">Report</div>
+      <div class="report-entry-body">
+        <p>No analytical notes have been unlocked yet.</p>
+      </div>
+    </div>
+  </div>
+`;
+
+  storyText.innerHTML = `
+    <div class="report-scroll">
+      ${visibleEntries}
+    </div>
+  `;
+}
+
+function getModalReportHtml(letter) {
+  const entry = reportState[letter];
+  if (!entry || !entry.visible || entry.unlockedCount <= 0) return "";
+
+  return `
+    <div class="report-entry">
+      <div class="report-entry-label">${entry.label}</div>
+      <div class="report-entry-body">
+        ${entry.segments
+          .slice(0, entry.unlockedCount)
+          .map((text) => `<p>${text}</p>`)
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
+function buildArtifactNoteHtml(key) {
+  if (!key) return "";
+
+  if (key === "photo") {
+    const aHtml = getModalReportHtml("a");
+    const gHtml = reportState.g.visible ? getModalReportHtml("g") : "";
+    return `${aHtml}${gHtml}`;
+  }
+
+  if (key === "doll") {
+    const eHtml = getModalReportHtml("e");
+    const fHtml = reportState.f.visible ? getModalReportHtml("f") : "";
+    return `${eHtml}${fHtml}`;
+  }
+
+  if (key === "computer") {
+    const hHtml = getModalReportHtml("h");
+    return `
+      ${hHtml}
+      <div class="report-entry">
+        <div class="report-entry-label">Transcript</div>
+        <div class="report-entry-body">
+          ${evidenceData.computer.note || ""}
+        </div>
+      </div>
+    `;
+  }
+
+  if (key === "mirror" && mirrorCorrupted) {
+    const dHtml = getModalReportHtml("d");
+    return `
+      ${dHtml}
+      <div class="report-entry">
+        <div class="report-entry-body">
+          <p><strong>The mirror surface has changed.</strong> What you see now is no longer the mirror you saw at the beginning.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  const letter = evidenceToReportLetter[key];
+  if (!letter) {
+    return `<p>${evidenceData[key]?.note || ""}</p>`;
+  }
+
+  return getModalReportHtml(letter) || `<p>${evidenceData[key]?.note || ""}</p>`;
+}
+
+function refreshCurrentModalNote() {
+  if (!artifactNote || !currentOpenEvidenceKey) return;
+  artifactNote.innerHTML = buildArtifactNoteHtml(currentOpenEvidenceKey);
+}
+
+const evidenceToReportLetter = {
+  photo: "a",
+  camera: "b",
+  polaroid: "c",
+  mirror: "d",
+  doll: "e",
+  dollHidden: "f",
+  photoReveal: "g",
+  computer: "h"
+};
+
 /* =========================
-   5. 照片堆叠组件状态
+   6. 照片堆叠组件状态
 ========================== */
 let photoStackIndex = 0;
 let photoStackFlipped = false;
-
-/* 滚轮分页控制 */
 let wheelLocked = false;
 let wheelGestureReady = true;
 let wheelReleaseTimer = null;
 
 /* =========================
-   6. 渲染照片堆叠组件
+   7. 照片堆叠组件
 ========================== */
 function renderPhotoStack(photoData) {
   artifactView.innerHTML = `
     <div class="photo-stack-shell ${photoData.vintageStyle ? "photo-stack-shell-vintage" : ""}">
-      <p class="photo-stack-instruction">
-        examine the photos with your mouse
-      </p>
+      <p class="photo-stack-instruction">Examine the photos with your mouse.</p>
 
       <div class="photo-stack-stage ${photoData.vintageStyle ? "photo-stage-vintage" : ""}" id="photoStackStage"></div>
 
       <div class="photo-stack-footer">
-        <button type="button" id="photoPrevBtn">← 上一张</button>
-        <div class="photo-stack-counter" id="photoStackCounter">照片 1 / ${photoData.photos.length}</div>
-        <button type="button" id="photoNextBtn">下一张 →</button>
+        <button type="button" id="photoPrevBtn">← Previous</button>
+        <div class="photo-stack-counter" id="photoStackCounter">Photo 1 / ${photoData.photos.length}</div>
+        <button type="button" id="photoNextBtn">Next →</button>
       </div>
 
       <div class="photo-stack-footer" style="margin-top: 8px;">
-        <div class="photo-stack-hint" id="photoStackHint">滚轮或按钮切换照片</div>
+        <div class="photo-stack-hint" id="photoStackHint">Use the mouse wheel or buttons to switch photos.</div>
         <button type="button" id="photoFlipBtn" class="photo-flip-btn">Flip</button>
       </div>
     </div>
@@ -302,13 +565,10 @@ function renderPhotoStack(photoData) {
   stage.innerHTML = photoData.photos
     .map((src, index) => {
       const isLast = index === photoData.photos.length - 1;
-      const vintageCardClass = photoData.vintageStyle ? " photo-card-vintage" : "";
-      const vintageFrontClass = photoData.vintageStyle ? " photo-card-front-vintage" : "";
-
       return `
-        <div class="photo-card${vintageCardClass}" data-index="${index}">
-          <div class="photo-card-face photo-card-front${vintageFrontClass}">
-            <img src="${src}" alt="照片 ${index + 1}">
+        <div class="photo-card" data-index="${index}">
+          <div class="photo-card-face photo-card-front">
+            <img src="${src}" alt="Photo ${index + 1}">
           </div>
 
           ${
@@ -316,7 +576,7 @@ function renderPhotoStack(photoData) {
               ? `
                 <div class="photo-card-face photo-card-back">
                   <div class="photo-back-inner">
-                    <img src="${photoData.hiddenBackImage}" alt="翻开的最后一张照片">
+                    <img src="${photoData.hiddenBackImage}" alt="Back of the final photo">
                   </div>
                 </div>
               `
@@ -332,14 +592,7 @@ function renderPhotoStack(photoData) {
 
   function updatePhotoStack() {
     cards.forEach((card, i) => {
-      card.classList.remove(
-        "is-hidden",
-        "is-back-2",
-        "is-back-1",
-        "is-active",
-        "is-next-1",
-        "is-next-2"
-      );
+      card.classList.remove("is-hidden", "is-back-2", "is-back-1", "is-active", "is-next-1", "is-next-2");
 
       if (i < photoStackIndex - 2 || i > photoStackIndex + 2) {
         card.classList.add("is-hidden");
@@ -362,7 +615,7 @@ function renderPhotoStack(photoData) {
       lastCard.classList.remove("flipped");
     }
 
-    counter.textContent = `照片 ${photoStackIndex + 1} / ${photoData.photos.length}`;
+    counter.textContent = `Photo ${photoStackIndex + 1} / ${photoData.photos.length}`;
 
     if (
       photoData.hiddenBackImage &&
@@ -370,27 +623,24 @@ function renderPhotoStack(photoData) {
       !photoStackFlipped
     ) {
       flipBtn.style.display = "inline-flex";
-    } else {
-      flipBtn.style.display = "none";
-    }
-
-    if (
-      photoData.hiddenBackImage &&
-      photoStackIndex === photoData.photos.length - 1 &&
-      !photoStackFlipped
-    ) {
-      hint.textContent = "这张照片有点厚，可以点击 Flip，或左右拖拽翻面。";
+      hint.textContent = "This photo feels thicker. Click Flip or drag left and right to turn it over.";
       hint.classList.add("important");
     } else if (photoStackFlipped) {
-      hint.textContent = "你翻到了背面。";
+      flipBtn.style.display = "none";
+      hint.textContent = "You turned the photo over.";
       hint.classList.add("important");
     } else {
-      hint.textContent = "滚轮或按钮切换照片";
+      flipBtn.style.display = "none";
+      hint.textContent = "Use the mouse wheel or buttons to switch photos.";
       hint.classList.remove("important");
     }
 
     prevBtn.disabled = photoStackIndex === 0 || photoStackFlipped;
     nextBtn.disabled = photoStackIndex === photoData.photos.length - 1 || photoStackFlipped;
+
+    if (currentOpenEvidenceKey === "photo") {
+      unlockReport("a", photoStackIndex + 1);
+    }
   }
 
   function goPrev() {
@@ -420,13 +670,17 @@ function renderPhotoStack(photoData) {
     photoStackFlipped = true;
     queueEvidenceReward("photoReveal");
     queueInvestigationReward("photoReveal");
+    unlockReport("g", reportState.g.segments.length);
+
     lastCard.style.transform = "";
     lastCard.classList.add("flipped");
-    hint.textContent = "你翻到了背面：隐藏证物 evidence3。";
+    hint.textContent = "You turned the photo over and found a hidden image.";
     hint.classList.add("important");
     prevBtn.disabled = true;
     nextBtn.disabled = true;
     flipBtn.style.display = "none";
+
+    refreshCurrentModalNote();
   });
 
   stage.addEventListener(
@@ -494,7 +748,6 @@ function renderPhotoStack(photoData) {
 
     lastCard.addEventListener("pointermove", (event) => {
       if (!isDragging) return;
-
       currentDragX = event.clientX - dragStartX;
       const rotate = Math.max(-14, Math.min(14, currentDragX / 10));
       lastCard.style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
@@ -515,12 +768,15 @@ function renderPhotoStack(photoData) {
         photoStackFlipped = true;
         lastCard.style.transform = "";
         lastCard.classList.add("flipped");
-        hint.textContent = "你翻到了背面：隐藏证物";
+        hint.textContent = "You turned the photo over and found a hidden image.";
         hint.classList.add("important");
         prevBtn.disabled = true;
         nextBtn.disabled = true;
         queueEvidenceReward("photoReveal");
         queueInvestigationReward("photoReveal");
+        unlockReport("g", reportState.g.segments.length);
+
+        refreshCurrentModalNote();
       } else {
         resetLastCardPosition();
       }
@@ -532,12 +788,11 @@ function renderPhotoStack(photoData) {
   }
 
   updatePhotoStack();
-
   evidenceModal._photoKeyHandler = keyHandler;
 }
 
 /* =========================
-   娃娃腹部交互状态
+   8. 娃娃交互
 ========================== */
 let dollStage = 1;
 
@@ -546,8 +801,6 @@ function renderDollInteraction(dollData) {
 
   artifactView.innerHTML = `
     <div class="doll-shell">
-
-
       <div class="doll-stage" id="dollStage">
         <img
           id="dollMainImage"
@@ -559,7 +812,7 @@ function renderDollInteraction(dollData) {
         <button
           id="dollBellyHotspot"
           class="doll-belly-hotspot"
-          aria-label="点击娃娃腹部"
+          aria-label="Inspect the doll's abdomen"
         ></button>
 
         <div id="dollDissolveOverlay" class="doll-dissolve-overlay"></div>
@@ -587,42 +840,25 @@ function renderDollInteraction(dollData) {
         dollDissolveOverlay.classList.remove("active");
       }, 520);
 
-      const noteBlock = document.getElementById("artifactNote");
-      if (noteBlock) {
-        noteBlock.innerHTML = `
-          <p><strong>你发现了异常：</strong>娃娃腹部的质感发生了变化，表面像被重新缝补过。</p>
-          <p><strong>继续操作：</strong>再点击一次腹部，锁定具体异常位置。</p>
-        `;
-      }
-
       return;
     }
 
     if (dollStage === 2) {
       dollStage = 3;
-
       dollRedCircle.classList.add("visible");
 
       queueEvidenceReward("dollHidden");
       queueInvestigationReward("dollHidden");
+      unlockReport("f", reportState.f.segments.length);
 
-      const noteBlock = document.getElementById("artifactNote");
-      if (noteBlock) {
-        noteBlock.innerHTML = `
-          <p><strong>已锁定：</strong>红圈处就是娃娃腹部的异常位置。</p>
-          <p><strong>关闭这个弹窗后，证物会正式加入右侧证据栏。</strong></p>
-        `;
-      }
-
-      storyText.innerHTML = `
-        <p>你按压娃娃腹部后，发现其中并不是棉絮的柔软感，而是被隐藏的硬物轮廓。</p>
-        <p>那个位置被红圈标记出来。伪装成玩具的监视装置，终于露出具体形状。</p>
-      `;
-
-      return;
+      refreshCurrentModalNote();
     }
   });
 }
+
+/* =========================
+   9. 证据与进度
+========================== */
 function addEvidenceToPanel(key) {
   if (!coreEvidenceKeys.includes(key)) return;
   if (collectedEvidence.has(key)) return;
@@ -643,7 +879,6 @@ function addEvidenceToPanel(key) {
 
   evidenceIcons.appendChild(btn);
 }
-
 
 function addToInvestigationProgress(key) {
   if (!investigationKeys.includes(key)) return;
@@ -673,24 +908,19 @@ function checkCollapseTrigger() {
   collapseStarted = true;
   startCollapseSequence();
 }
+
 /* =========================
-   7. 打开证据弹窗
+   10. 打开证据弹窗
 ========================== */
-
-function queueEvidenceReward(key) {
-  if (!coreEvidenceKeys.includes(key)) return;
-  if (collectedEvidence.has(key)) return;
-  pendingEvidenceRewards.add(key);
-}
- function queueInvestigationReward(key) {
-  if (!investigationKeys.includes(key)) return;
-  if (investigatedItems.has(key)) return;
-  pendingInvestigationRewards.add(key);
-}
-
 function openEvidence(key) {
   const data = evidenceData[key];
   if (!data) return;
+
+  if (key === "camera") unlockReport("b", reportState.b.segments.length);
+  if (key === "polaroid") unlockReport("c", reportState.c.segments.length);
+  if (key === "mirror") unlockReport("d", reportState.d.segments.length);
+  if (key === "doll") unlockReport("e", reportState.e.segments.length);
+  if (key === "computer") unlockReport("h", reportState.h.segments.length);
 
   currentOpenEvidenceKey = key;
   pendingEvidenceRewards.clear();
@@ -710,41 +940,27 @@ function openEvidence(key) {
   modalSubtitle.textContent = data.subtitle || "";
 
   if (key === "photo" || key === "photoMirror") {
-  renderPhotoStack(data);
+    renderPhotoStack(data);
   } else if (key === "doll") {
     renderDollInteraction(data);
   } else if (key === "mirror") {
     const mirrorSrc = mirrorCorrupted ? "images/mirror2.png" : "images/mirror1.png";
-    const mirrorSubtitle = mirrorCorrupted
-      ? "It refused to reflect what it sees."
-      : (data.subtitle || "");
+    const mirrorSubtitle = mirrorCorrupted ? "It refused to reflect what it sees." : (data.subtitle || "");
 
     modalSubtitle.textContent = mirrorSubtitle;
-
-    artifactView.innerHTML = `
-      <img class="artifact-image" src="${mirrorSrc}" alt="${data.title}">
-    `;
+    artifactView.innerHTML = `<img class="artifact-image" src="${mirrorSrc}" alt="${data.title}">`;
   } else {
-    artifactView.innerHTML = `
-      <img class="artifact-image" src="${data.image}" alt="${data.title}">
-    `;
+    artifactView.innerHTML = `<img class="artifact-image" src="${data.image}" alt="${data.title}">`;
   }
 
-  if (key === "mirror" && mirrorCorrupted) {
-    artifactNote.innerHTML = `
-      <p><strong>The mirror surface has changed.</strong> What you see now is no longer the mirror you saw at the beginning.</p>
-    `;
-  } else {
-    artifactNote.innerHTML = data.note || "";
-    storyText.innerHTML = data.story || "";
-  }
+  artifactNote.innerHTML = buildArtifactNoteHtml(key);
 
   evidenceModal.classList.add("active");
   roomImage.classList.add("blurred");
 }
 
 /* =========================
-   8. 关闭弹窗
+   11. 关闭弹窗
 ========================== */
 function closeModal() {
   if (!isClosingForCollapse) {
@@ -777,8 +993,9 @@ function closeModal() {
   isClosingForCollapse = false;
 }
 
-
-//动画
+/* =========================
+   12. 崩坏动画
+========================== */
 function startCollapseSequence() {
   switchToBgm2();
 
@@ -828,10 +1045,8 @@ function startCollapseSequence() {
     showMirrorFinale();
   }, 30000));
 }
-//结束
-function stopCollapseSequence() {
-  collapseFinished = true;
 
+function stopCollapseSequence() {
   collapseTimers.forEach((timerId) => clearTimeout(timerId));
   collapseTimers = [];
 
@@ -855,54 +1070,10 @@ function stopCollapseSequence() {
     "final-blackout-stage"
   );
 }
+
 /* =========================
-   9. 绑定页面事件
+   13. 镜子 finale
 ========================== */
-startGameBtn.addEventListener("click", () => {
-  openScreen(gameScreen);
-  startBgm1();
-});
-
-
-backIntroBtn.addEventListener("click", () => {
-  openScreen(introScreen);
-  stopAllBgm();
-});
-
-backPage1Btn.addEventListener("click", () => {
-  openScreen(gameScreen);
-});
-
-document.querySelectorAll(".hotspot").forEach((hotspot) => {
-  hotspot.addEventListener("click", () => {
-    const key = hotspot.dataset.evidence;
-    openEvidence(key);
-  });
-});
-
-document.querySelectorAll(".evidence-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    if (btn.classList.contains("visible")) {
-      const key = btn.dataset.evidence;
-      openEvidence(key);
-    }
-  });
-});
-
-closeModalBtn.addEventListener("click", closeModal);
-
-evidenceModal.addEventListener("click", (event) => {
-  if (event.target === evidenceModal) {
-    closeModal();
-  }
-});
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    closeModal();
-  }
-});
-
 function showMirrorFinale() {
   const data = evidenceData.mirror;
   if (!data) return;
@@ -924,6 +1095,7 @@ function showMirrorFinale() {
     </div>
   `;
 
+  artifactNote.innerHTML = "";
   evidenceModal.classList.add("active");
   roomImage.classList.add("blurred");
 
@@ -942,7 +1114,6 @@ function showMirrorFinale() {
   setTimeout(() => {
     finalMirrorImage.addEventListener("click", handleMirrorFinalClick, { once: true });
   }, 1500);
-  
 }
 
 function handleMirrorFinalClick() {
@@ -952,24 +1123,92 @@ function handleMirrorFinalClick() {
   if (storyText2) {
     storyText2.innerHTML = `
       <p>You passed through the mirror and entered another room.</p>
-      <p>This room is completely mirrored in layout with the crime scene</p>
+      <p>This room is completely mirrored in layout with the crime scene.</p>
     `;
   }
 }
 
-  // 这里先留空，后面你可以接：
-  // 1. 切第二关
-  // 2. 跳转新页面
-  // 3. 播放新的过场
-  
+/* =========================
+   14. 事件绑定
+========================== */
+renderReportColumn();
+
+if (briefingScroll) {
+  briefingScroll.addEventListener("scroll", checkBriefingScroll);
+}
+
+if (startGameBtn) {
+  startGameBtn.addEventListener("click", () => {
+    openScreen(briefingScreen);
+    resetBriefingProgress();
+  });
+}
+
+if (enterSceneBtn) {
+  enterSceneBtn.addEventListener("click", () => {
+    openScreen(gameScreen);
+    startBgm1();
+  });
+}
+
+if (backIntroBtn) {
+  backIntroBtn.addEventListener("click", () => {
+    openScreen(introScreen);
+    stopAllBgm();
+  });
+}
+
+if (backPage1Btn) {
+  backPage1Btn.addEventListener("click", () => {
+    openScreen(gameScreen);
+  });
+}
+
+document.querySelectorAll(".hotspot").forEach((hotspot) => {
+  hotspot.addEventListener("click", () => {
+    const key = hotspot.dataset.evidence;
+    openEvidence(key);
+  });
+});
+
+closeModalBtn.addEventListener("click", closeModal);
+
+evidenceModal.addEventListener("click", (event) => {
+  if (event.target === evidenceModal) {
+    closeModal();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && evidenceModal.classList.contains("active")) {
+    closeModal();
+  }
+});
+
+/* =========================
+   15. scaffold 调试按钮
+========================== */
+if (goIntroBtn) {
   goIntroBtn.addEventListener("click", () => {
     openScreen(introScreen);
   });
+}
 
+if (goBriefingBtn) {
+  goBriefingBtn.addEventListener("click", () => {
+    openScreen(briefingScreen);
+    resetBriefingProgress();
+  });
+}
+
+if (goRoom1Btn) {
   goRoom1Btn.addEventListener("click", () => {
     openScreen(gameScreen);
   });
+}
 
+if (goRoom2Btn) {
   goRoom2Btn.addEventListener("click", () => {
     openScreen(gameScreen2);
-  });//一定要删掉
+  });
+}
