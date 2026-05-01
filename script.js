@@ -376,6 +376,9 @@ const reportState = {
 };
 
 const reportOrder = ["a", "b", "c", "d", "e", "f", "g", "h"];
+let latestUnlockedSegments = [];
+let typewriterQueueRunning = false;
+const typedSegmentsPlayed = new Set();
 
 function unlockReport(letter, count = 1) {
   const entry = reportState[letter];
@@ -391,9 +394,28 @@ function unlockReport(letter, count = 1) {
   );
 
   if (entry.visible !== prevVisible || entry.unlockedCount !== prevCount) {
+    latestUnlockedSegments = [];
+
+    for (let i = prevCount; i < entry.unlockedCount; i += 1) {
+      latestUnlockedSegments.push({
+        letter,
+        index: i
+      });
+    }
+
     renderReportColumn();
     refreshCurrentModalNote();
   }
+}
+
+function isLatestUnlockedSegment(letter, index) {
+  return latestUnlockedSegments.some(
+    (item) => item.letter === letter && item.index === index
+  );
+}
+
+function getSegmentPlaybackKey(letter, index) {
+  return `${letter}-${index}`;
 }
 
 function getReportHtml(letter) {
@@ -401,12 +423,34 @@ function getReportHtml(letter) {
   if (!entry || !entry.visible || entry.unlockedCount <= 0) return "";
 
   const segments = entry.segments.slice(0, entry.unlockedCount);
+  const specialClass = ["f", "g", "h"].includes(letter) ? " report-entry-body-emphasis" : "";
 
   return `
     <div class="report-entry" data-report="${letter}">
-      <div class="report-entry-label">${entry.label}</div>
-      <div class="report-entry-body">
-        ${segments.map((text) => `<p>${text}</p>`).join("")}
+      <div class="report-entry-body${specialClass}">
+        ${segments
+          .map((text, index) => {
+            const segmentKey = getSegmentPlaybackKey(letter, index);
+            const isNew = isLatestUnlockedSegment(letter, index);
+            const alreadyPlayed = typedSegmentsPlayed.has(segmentKey);
+
+            let extraClass = "";
+            if (alreadyPlayed) {
+              extraClass = "is-done";
+            } else if (isNew) {
+              extraClass = "typewriter-line";
+            }
+
+            return `
+              <p
+                class="${extraClass}"
+                data-segment-letter="${letter}"
+                data-segment-index="${index}"
+                data-segment-key="${segmentKey}"
+              >${text}</p>
+            `;
+          })
+          .join("")}
       </div>
     </div>
   `;
@@ -420,16 +464,18 @@ function renderReportColumn() {
     .map((letter) => getReportHtml(letter))
     .join("");
 
-  storyText.innerHTML = `
-  <div class="report-scroll">
-    <div class="report-entry">
-      <div class="report-entry-label">Report</div>
-      <div class="report-entry-body">
-        <p>No analytical notes have been unlocked yet.</p>
+  if (!visibleEntries) {
+    storyText.innerHTML = `
+      <div class="report-scroll">
+        <div class="report-entry">
+          <div class="report-entry-body">
+            <p>No analytical notes have been unlocked yet.</p>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-`;
+    `;
+    return;
+  }
 
   storyText.innerHTML = `
     <div class="report-scroll">
@@ -442,13 +488,34 @@ function getModalReportHtml(letter) {
   const entry = reportState[letter];
   if (!entry || !entry.visible || entry.unlockedCount <= 0) return "";
 
+  const specialClass = ["f", "g", "h"].includes(letter) ? " report-entry-body-emphasis" : "";
+
   return `
     <div class="report-entry">
-      <div class="report-entry-label">${entry.label}</div>
-      <div class="report-entry-body">
+      <div class="report-entry-body${specialClass}">
         ${entry.segments
           .slice(0, entry.unlockedCount)
-          .map((text) => `<p>${text}</p>`)
+          .map((text, index) => {
+            const segmentKey = getSegmentPlaybackKey(letter, index);
+            const isNew = isLatestUnlockedSegment(letter, index);
+            const alreadyPlayed = typedSegmentsPlayed.has(segmentKey);
+
+            let extraClass = "";
+            if (alreadyPlayed) {
+              extraClass = "is-done";
+            } else if (isNew) {
+              extraClass = "typewriter-line";
+            }
+
+            return `
+              <p
+                class="${extraClass}"
+                data-segment-letter="${letter}"
+                data-segment-index="${index}"
+                data-segment-key="${segmentKey}"
+              >${text}</p>
+            `;
+          })
           .join("")}
       </div>
     </div>
@@ -506,6 +573,83 @@ function buildArtifactNoteHtml(key) {
 function refreshCurrentModalNote() {
   if (!artifactNote || !currentOpenEvidenceKey) return;
   artifactNote.innerHTML = buildArtifactNoteHtml(currentOpenEvidenceKey);
+  runSequentialTypewriterInModal();
+}
+
+function scrollModalNoteToSegment(letter, index) {
+  if (!artifactNote) return;
+
+  const target = artifactNote.querySelector(
+    `[data-segment-letter="${letter}"][data-segment-index="${index}"]`
+  );
+
+  if (target) {
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+  }
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runSequentialTypewriterInModal() {
+  if (!artifactNote || latestUnlockedSegments.length === 0) return;
+  if (typewriterQueueRunning) return;
+
+  typewriterQueueRunning = true;
+
+  for (const segment of latestUnlockedSegments) {
+    const segmentKey = getSegmentPlaybackKey(segment.letter, segment.index);
+
+    if (typedSegmentsPlayed.has(segmentKey)) {
+      continue;
+    }
+
+    const node = artifactNote.querySelector(
+      `[data-segment-letter="${segment.letter}"][data-segment-index="${segment.index}"]`
+    );
+
+    if (!node) continue;
+
+    scrollModalNoteToSegment(segment.letter, segment.index);
+
+    node.classList.remove("is-done");
+    node.classList.add("is-typing");
+
+    await wait(950);
+
+    node.classList.remove("is-typing");
+    node.classList.add("is-done");
+
+    typedSegmentsPlayed.add(segmentKey);
+
+    await wait(120);
+  }
+
+  typewriterQueueRunning = false;
+  latestUnlockedSegments = [];
+}
+
+function scrollModalNoteToLatest() {
+  if (!artifactNote || latestUnlockedSegments.length === 0) return;
+
+  const firstNew = latestUnlockedSegments[0];
+
+  requestAnimationFrame(() => {
+    const newest = artifactNote.querySelector(
+      `[data-segment-letter="${firstNew.letter}"][data-segment-index="${firstNew.index}"]`
+    );
+
+    if (newest) {
+      newest.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    }
+  });
 }
 
 const evidenceToReportLetter = {
@@ -953,7 +1097,7 @@ function openEvidence(key) {
     artifactView.innerHTML = `<img class="artifact-image" src="${data.image}" alt="${data.title}">`;
   }
 
-  artifactNote.innerHTML = buildArtifactNoteHtml(key);
+  refreshCurrentModalNote();
 
   evidenceModal.classList.add("active");
   roomImage.classList.add("blurred");
