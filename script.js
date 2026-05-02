@@ -1489,27 +1489,57 @@ document.addEventListener("keydown", (event) => {
 /* =========================
    15. scaffold 调试按钮
 ========================== */
+
+function scaffoldJumpTo(screenToOpen) {
+  // 关闭当前弹窗，不走正常 closeModal 的奖励/进度逻辑
+  if (evidenceModal) {
+    evidenceModal.classList.remove("active");
+  }
+
+  if (roomImage) {
+    roomImage.classList.remove("blurred");
+  }
+
+  if (roomImage2) {
+    roomImage2.classList.remove("blurred");
+  }
+
+  // 清掉当前打开证据状态
+  currentOpenEvidenceKey = null;
+  pendingEvidenceRewards.clear();
+  pendingInvestigationRewards.clear();
+  isClosingForCollapse = false;
+
+  // 如果正在崩坏动画，也停止
+  stopCollapseSequence();
+
+  // 切换页面
+  openScreen(screenToOpen);
+}
+
 if (goIntroBtn) {
   goIntroBtn.addEventListener("click", () => {
-    openScreen(introScreen);
+    scaffoldJumpTo(introScreen);
+    stopAllBgm();
   });
 }
 
 if (goBriefingBtn) {
   goBriefingBtn.addEventListener("click", () => {
-    openScreen(briefingScreen);
+    scaffoldJumpTo(briefingScreen);
     resetBriefingProgress();
   });
 }
 
 if (goRoom1Btn) {
   goRoom1Btn.addEventListener("click", () => {
-    openScreen(gameScreen);
+    scaffoldJumpTo(gameScreen);
+    startBgm1();
   });
 }
 
 if (goRoom2Btn) {
   goRoom2Btn.addEventListener("click", () => {
-    openScreen(gameScreen2);
+    scaffoldJumpTo(gameScreen2);
   });
 }
