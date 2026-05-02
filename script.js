@@ -232,13 +232,124 @@ const evidenceData = {
   photoMirror: {
     icon: "🖼️",
     title: "The photos in the file folder",
+    subtitle: "A stack of historical images lies inside the mirrored room.",
+    room2ObjectStyle: true,
+    instructionText: "Examine the photographs with your mouse.",
+    counterLabel: "Photo",
+    defaultHint: "Use the mouse wheel or buttons to switch photos.",
     photos: [
-      "images/photo6.png",
       "images/photo7.png",
       "images/photo8.png",
       "images/photo9.png",
-      "images/photo10.png",
+      "images/photo10.png",   // 如果你已经把 10 的两张图上下拼成一张，就用这个
+      "images/photo11.png",
+      "images/photo12.png",
+      "images/photo13.png"
     ],
+    notes: [
+      {
+        title: "What is this...",
+        bodyHtml: `
+          <p>A roster of those who participated in the Epidemic Prevention and Water Supply Department.The Japanese military’s Remaining Personnel Register of the Kwantung Army Epidemic Prevention and Water Supply Department recorded a total of 3,497 individuals. During the fascist war, these people committed atrocities of live human experimentation against civilians in China, the Soviet Union, and Korea. There is no blood on this document, no screaming—only names, ranks, and identification numbers.</p>
+          <p>That is precisely what makes it more terrifying. It proves that these atrocities were not accidental eruptions of chaos, but part of a bureaucratic machine capable of registration, deployment, demobilization, and continued silence. This was an internal personnel record preserved and used by the Japanese administrative system itself.</p>
+          <p>On the one hand, when retreating, the Japanese military systematically burned and destroyed evidence of the experiments and the victims in order to deny the existence of atrocities such as those of Unit 731. On the other hand, at least until 1999, this roster continued to be preserved within the system of Japan’s Ministry of Health, Labour and Welfare, and was even used to provide pensions to former participants of Unit 731.</p>
+          <p>This systematic, institutionalized terror has not ended. It still continues because it has attempted to erase and thus stain the world’s shared public memory.</p>
+        `
+      },
+      {
+        title: "What is this...",
+        bodyHtml: `
+          <p>Bodies, corpses, lined up in a row, stripped of all dignity, exposed to gaze, control, and record.This violence does not belong only to the well-dressed researchers of the invading army standing before the lens in their rational-looking lab coats. It also belongs to the photographer behind the lens, to the militarist system, and to the camera itself—that supposedly objective lens, and to the narrator who tries to wrap himself in the language of science, objectivity, modernity, and civilization.</p>
+        `
+      },
+      {
+        title: "Do you see that living person?",
+        bodyHtml: `
+          <p>Do you see his face? He is staring at you, staring at the camera, staring at the man behind the camera who tries to hide himself behind the mechanical machine that claims absolute objectivity.</p>
+          <p>Is he a human being? No. He is a cultivated devil: someone who watches a living body being cut open before him, feels a restrained thrill at the potential outcome of his work, and presses the shutter while pretending to record everything with scientific professionalism and objectivity.</p>
+          <p>Are they human? No. They do not even show their faces. What they present instead are professional side profiles, bodies wrapped in lab coats, evil spirits hidden beneath research uniforms, sheltered by institutions and militarist narratives.</p>
+          <p>Is he human? No. He is a subject—an experimental subject, and the subject matter of the photograph.</p>
+          <p>How horrifying. Under the lens, this is what he becomes. The image invites its viewers to see him this way. And yet his gaze clearly tells whoever looks through the camera that he is human. But he is pinned down by an outside force, framed by the lens. To those who are in collusion with the camera, that gaze sparks a manic joy: yes, that one can dominate at will an object with a human physique; his anger, fear, and pain are proof of one’s power.</p>
+          <p>How terrible—when I look at this image, I find myself catching sight of the very same scene, through the refraction of light, alongside the vile viewer and accomplice the camera had already anticipated. And yet once I understand their collusion, I can no longer accuse them from a safe distance.</p>
+        `
+      },
+      {
+        bodyHtml: `
+          <p>Front and back views: an anatomical specimen of a Soviet woman, recorded “objectively” by a Japanese military documentarian.</p>
+        `
+      },
+      {
+        title: "There is always one more way to persecute women, isn’t there?",
+        bodyHtml: `
+          <p>Sexual violence—though at its core it is all the same power dynamic, the same institutionalized crushing of bodies under a civilized exterior.</p>
+          <p>With militarized uniformity, the Japanese army wrapped “comfort women” into formation. They enjoyed the collectivity, the identity, and the conveniences that came with it. Backed by military barbed wire, these men carved out a corner in which gendered and national violence could be infinitely tolerated.</p>
+          <p>The women kneel, faces drained. Some are Chinese, some are Korean. They did not know one another before. Now they have been forced into a social formation built by another gender, by another group of strangers, centered entirely around those strangers. They are forced to adapt, forced to change, forced to endure violence.</p>
+        `
+      },
+      {
+        bodyHtml: `
+          <p>Under the pressure of the smiling men looking into the camera, the photographer, and the eyes of those who originally circulated the image—what are the five of you in the middle?</p>
+        `
+      },
+      {
+        title: "Women’s Volunteer Corps.",
+        bodyHtml: `
+          <p>Government propagandists said they were being sent to hospitals in Manchuria to serve as nurses, to bring comfort to the brave men at the front, emphasizing “serving the nation” and “sacrifice.” In reality, 60% of Japanese “comfort women” were recruited through this kind of deception. Many of them were female students misled by so-called patriotic education.</p>
+        `
+      }
+    ]
+  },
+
+  archiveFolder: {
+    icon: "📁",
+    title: "Archive folder on the desk",
+    subtitle: "A thin file and two slips of writing are tucked together.",
+    room2ObjectStyle: true,
+    instructionText: "Examine the materials with your mouse.",
+    counterLabel: "Item",
+    defaultHint: "Use the mouse wheel or buttons to switch materials.",
+    flipHint: "This slip seems to have writing on the back. Click Flip or drag left and right to turn it over.",
+    flippedHint: "You turned the slip over.",
+    photos: [
+      "images/file.png",
+      "images/wFront.png"
+    ],
+    hiddenBackImage: "images/wBack.png",
+    notes: [
+      {
+        title: "yellowed report sheet with three tables",
+        bodyHtml: `
+          <p><strong>List of bacterial and infectious disease experiments:</strong></p>
+          <p>1. Plague<br>
+          2. Cholera<br>
+          3. Typhoid / Paratyphoid<br>
+          4. Anthrax<br>
+          5. Dysentery<br>
+          6. Experiments related to tuberculosis, syphilis, and other infectious diseases</p>
+
+          <p><strong>Purposes of the experiments:</strong></p>
+          <p>1. To spread plague through fleas<br>
+          2. To contaminate water sources, food, or land<br>
+          3. To disseminate pathogens through bombs, ceramic shells, spraying, and similar methods<br>
+          4. To conduct field tests of bacteriological warfare in Chinese cities and villages</p>
+
+          <p><strong>Experimental materials:</strong></p>
+          <p>1. Vivisection performed on living “logs” (maruta) in order to investigate the effects of infection, frostbite, burns, poison gas, and other chemical and biological agents</p>
+        `
+      },
+      {
+        title: "two slips of hand writing",
+        bodyHtml: `
+          <p>One slip, written neatly and cut with clean edges, reads:</p>
+          <p>“Kantō-gun Army Epidemic Prevention and Water Supply Department.”</p>
+          <p>On the back, it reads:</p>
+          <p>“Bacterial Weapons Research and Production Base.”</p>
+          <p>The other reads:</p>
+          <p>“Sunwu County Hall for Japanese Soldiers during the Occupation.”</p>
+          <p>The handwriting is messy, and the paper is clearly torn from somewhere else. Small yellowish stains mark its surface.</p>
+        `
+      }
+    ]
   },
 
   computer: {
@@ -501,8 +612,31 @@ function getModalReportHtml(letter) {
   `;
 }
 
+function buildStackNoteHtml(data) {
+  if (!data || !Array.isArray(data.notes) || data.notes.length === 0) return "";
+
+  const safeIndex = Math.max(0, Math.min(photoStackIndex, data.notes.length - 1));
+  const note = data.notes[safeIndex];
+  if (!note) return "";
+
+  return `
+    <div class="report-entry">
+      ${note.title ? `<div class="report-entry-label">${note.title}</div>` : ""}
+      <div class="report-entry-body">
+        ${note.bodyHtml || `<p>${note.body || ""}</p>`}
+      </div>
+    </div>
+  `;
+}
+
 function buildArtifactNoteHtml(key) {
   if (!key) return "";
+
+  const data = evidenceData[key];
+
+  if (data && Array.isArray(data.notes) && data.notes.length > 0) {
+    return buildStackNoteHtml(data);
+  }
 
   if (key === "photo") {
     const aHtml = getModalReportHtml("a");
@@ -661,23 +795,29 @@ let wheelReleaseTimer = null;
 ========================== */
 function renderPhotoStack(photoData) {
   artifactView.innerHTML = `
-    <div class="photo-stack-shell ${photoData.vintageStyle ? "photo-stack-shell-vintage" : ""}">
-      <p class="photo-stack-instruction">Examine the photos with your mouse.</p>
+  <div class="photo-stack-shell ${photoData.vintageStyle ? "photo-stack-shell-vintage" : ""} ${photoData.room2ObjectStyle ? "room2-object-stack" : ""}">
+    <p class="photo-stack-instruction">
+      ${photoData.instructionText || "Examine the photos with your mouse."}
+    </p>
 
-      <div class="photo-stack-stage ${photoData.vintageStyle ? "photo-stage-vintage" : ""}" id="photoStackStage"></div>
+    <div class="photo-stack-stage ${photoData.vintageStyle ? "photo-stage-vintage" : ""} ${photoData.room2ObjectStyle ? "room2-object-stage" : ""}" id="photoStackStage"></div>
 
-      <div class="photo-stack-footer">
-        <button type="button" id="photoPrevBtn">← Previous</button>
-        <div class="photo-stack-counter" id="photoStackCounter">Photo 1 / ${photoData.photos.length}</div>
-        <button type="button" id="photoNextBtn">Next →</button>
+    <div class="photo-stack-footer">
+      <button type="button" id="photoPrevBtn">← Previous</button>
+      <div class="photo-stack-counter" id="photoStackCounter">
+        ${(photoData.counterLabel || "Photo")} 1 / ${photoData.photos.length}
       </div>
-
-      <div class="photo-stack-footer" style="margin-top: 8px;">
-        <div class="photo-stack-hint" id="photoStackHint">Use the mouse wheel or buttons to switch photos.</div>
-        <button type="button" id="photoFlipBtn" class="photo-flip-btn">Flip</button>
-      </div>
+      <button type="button" id="photoNextBtn">Next →</button>
     </div>
-  `;
+
+    <div class="photo-stack-footer" style="margin-top: 8px;">
+      <div class="photo-stack-hint" id="photoStackHint">
+        ${photoData.defaultHint || "Use the mouse wheel or buttons to switch photos."}
+      </div>
+      <button type="button" id="photoFlipBtn" class="photo-flip-btn">Flip</button>
+    </div>
+  </div>
+`;
 
   const stage = document.getElementById("photoStackStage");
   const counter = document.getElementById("photoStackCounter");
@@ -743,7 +883,7 @@ function renderPhotoStack(photoData) {
       lastCard.classList.remove("flipped");
     }
 
-    counter.textContent = `Photo ${photoStackIndex + 1} / ${photoData.photos.length}`;
+    counter.textContent = `${photoData.counterLabel || "Photo"} ${photoStackIndex + 1} / ${photoData.photos.length}`;
 
     if (
       photoData.hiddenBackImage &&
@@ -751,15 +891,18 @@ function renderPhotoStack(photoData) {
       !photoStackFlipped
     ) {
       flipBtn.style.display = "inline-flex";
-      hint.textContent = "This photo feels thicker. Click Flip or drag left and right to turn it over.";
+      hint.textContent =
+        photoData.flipHint ||
+        "This photo feels thicker. Click Flip or drag left and right to turn it over.";
       hint.classList.add("important");
     } else if (photoStackFlipped) {
       flipBtn.style.display = "none";
-      hint.textContent = "You turned the photo over.";
+      hint.textContent = photoData.flippedHint || "You turned the photo over.";
       hint.classList.add("important");
     } else {
       flipBtn.style.display = "none";
-      hint.textContent = "Use the mouse wheel or buttons to switch photos.";
+      hint.textContent =
+        photoData.defaultHint || "Use the mouse wheel or buttons to switch photos.";
       hint.classList.remove("important");
     }
 
@@ -769,6 +912,9 @@ function renderPhotoStack(photoData) {
     if (currentOpenEvidenceKey === "photo") {
       unlockReport("a", photoStackIndex + 1);
     }
+
+    refreshCurrentModalNote();
+
   }
 
   function goPrev() {
@@ -1069,7 +1215,7 @@ function openEvidence(key) {
   modalTitle.textContent = data.title;
   modalSubtitle.textContent = data.subtitle || "";
 
-  if (key === "photo" || key === "photoMirror") {
+  if (data.photos) {
     renderPhotoStack(data);
   } else if (key === "doll") {
     renderDollInteraction(data);

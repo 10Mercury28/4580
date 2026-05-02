@@ -324,12 +324,20 @@ button:hover {
   height: 12%;
 }
 
-.hs-photo-mirror {
+.hs-archive-mirror {
   left: 17%;
   top: 60%;
   width: 16%;
   height: 17%;
 }
+
+.hs-photo-mirror {
+  left: 28%;
+  top: 72%;
+  width: 14%;
+  height: 13%;
+}
+
 
 /* =========================
    右侧侧栏
@@ -1146,4 +1154,98 @@ body.final-blackout-stage::after {
   background: rgba(0,0,0,0.75);
   color: #fff;
   cursor: pointer;
+}
+
+/* =========================
+   第二关档案 / 历史照片专用显示
+   目标：
+   1. PNG 透明背景不被黑底污染
+   2. 不裁切
+   3. 不改变比例
+   4. 和 room1 照片卡视觉分开
+========================== */
+
+.room2-object-stack {
+  width: 100%;
+}
+
+.room2-object-stage {
+  height: 380px;
+  background: transparent !important;
+  border: none !important;
+  overflow: visible;
+}
+
+/* 第二关的卡片不要像 room1 那样固定 3:4 */
+.room2-object-stack .photo-card {
+  width: 86%;
+  max-width: 430px;
+  height: 330px;
+  aspect-ratio: auto;
+}
+
+/* 透明 PNG 不要黑色背景，不要裁切 */
+.room2-object-stack .photo-card-face {
+  background: transparent !important;
+  border-radius: 0;
+  overflow: visible;
+}
+
+/* 核心：保留原图比例，不压缩、不裁切 */
+.room2-object-stack .photo-card-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+  background: transparent !important;
+  display: block;
+}
+
+/* 背面也不要黑底 */
+.room2-object-stack .photo-card-back {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.room2-object-stack .photo-back-inner {
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.room2-object-stack .photo-back-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+  background: transparent !important;
+  display: block;
+}
+
+/* room2 的历史材料可以稍微大一点，避免透明图显得太小 */
+.room2-object-stack .photo-card.is-active {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* 保持堆叠感，但不要压扁图片 */
+.room2-object-stack .photo-card.is-back-2 {
+  transform: translate(-50%, -50%) scale(0.94) translateY(-8px);
+}
+
+.room2-object-stack .photo-card.is-back-1 {
+  transform: translate(-50%, -50%) scale(1) translateY(-4px);
+}
+
+.room2-object-stack .photo-card.is-next-1 {
+  transform: translate(-50%, -50%) scale(1.01) translateY(5px);
+}
+
+.room2-object-stack .photo-card.is-next-2 {
+  transform: translate(-50%, -50%) scale(0.96) translateY(10px);
+}
+
+/* flip 后也保持透明背景与原比例 */
+.room2-object-stack .photo-card.flipped {
+  transform: translate(-50%, -50%) rotateY(180deg) scale(1.08) !important;
 }
