@@ -386,9 +386,30 @@ button:hover {
 
 .report-entry-body p {
   margin: 0 0 0.9rem;
+  text-align: justify;
 }
 
 .report-entry-body p:last-child {
+  margin-bottom: 0;
+}
+
+.report-entry-body-emphasis p {
+  color: var(--gold);
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+}
+
+.progress-status-text {
+  margin-top: 12px;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.progress-status-text p {
+  margin: 0 0 0.75rem;
+}
+
+.progress-status-text p:last-child {
   margin-bottom: 0;
 }
 
@@ -495,17 +516,19 @@ button:hover {
   gap: 18px;
 }
 
-.artifact-view,
-.artifact-note {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 16px;
+
+.artifact-view {
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 460px;
+  min-height: 460px;
 }
 
 .artifact-image {
   width: 100%;
-  max-height: 420px;
+  height: 100%;
+  max-height: 120%;
   object-fit: contain;
   display: block;
   border-radius: 12px;
@@ -514,9 +537,79 @@ button:hover {
 
 .artifact-note {
   display: block;
-  line-height: 1.85;
+  line-height: 2;
 }
 
+.modal-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.artifact-note {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  min-height: 500px;
+  height: 500px;
+}
+
+.artifact-note {
+  display: block;
+  line-height: 2;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.report-entry {
+  margin: 0 0 1rem;
+  line-height: 2;
+}
+
+.report-entry:last-child {
+  margin-bottom: 0;
+}
+
+.report-entry-body p {
+  margin: 0 0 0.9rem;
+}
+
+.report-entry-body p:last-child {
+  margin-bottom: 0;
+}
+
+.report-entry-body-emphasis p {
+  color: var(--gold);
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+}
+
+/* 新解锁文字：打字机动画 */
+.typewriter-line {
+  opacity: 0;
+}
+
+.typewriter-line.is-typing {
+  opacity: 1;
+  animation: fadeInSegment 0.6s ease forwards;
+}
+
+.typewriter-line.is-done {
+  opacity: 1;
+}
+
+@keyframes fadeInSegment {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
 /* =========================
    响应式
 ========================== */
@@ -545,6 +638,7 @@ button:hover {
 ========================== */
 .photo-stack-shell {
   width: 100%;
+  padding-bottom: 12px;
 }
 
 .photo-stack-instruction {
@@ -557,11 +651,11 @@ button:hover {
 .photo-stack-stage {
   position: relative;
   width: 100%;
-  height: 460px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: linear-gradient(180deg, #16161c 0%, #0f0f14 100%);
-  border: 1px solid var(--border);
+  height: 360px;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+  border: none;
 }
 
 .photo-card {

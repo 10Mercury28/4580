@@ -1074,28 +1074,38 @@ function openEvidence(key) {
   } else if (key === "doll") {
     renderDollInteraction(data);
   } else if (key === "mirror") {
-  const mirrorSrc = mirrorCorrupted ? "images/mirror2.png" : "images/mirror1.png";
-  const mirrorSubtitle = mirrorCorrupted
-    ? "It refused to reflect what it sees."
-    : (data.subtitle || "");
+    const mirrorSrc = mirrorCorrupted ? "images/mirror2.png" : "images/mirror1.png";
+    const mirrorSubtitle = mirrorCorrupted
+      ? "The trembling has ceased. Beyond the mirror, you can make out a room arranged much like this one. It no longer reflects what it sees — or does it?"
+      : (data.subtitle || "");
 
-  modalSubtitle.textContent = mirrorSubtitle;
+    modalSubtitle.textContent = mirrorSubtitle;
 
-  artifactView.innerHTML = `
-    <img
-      id="mirrorEvidenceImage"
-      class="artifact-image ${mirrorCorrupted ? "mirror-final-form" : ""}"
-      src="${mirrorSrc}"
-      alt="${data.title}"
-    >
-  `;
+    artifactView.innerHTML = `
+      <img
+        id="mirrorEvidenceImage"
+        class="artifact-image ${mirrorCorrupted ? "mirror-final-form" : ""}"
+        src="${mirrorSrc}"
+        alt="${data.title}"
+      >
+    `;
 
-  if (mirrorCorrupted) {
-    const mirrorEvidenceImage = document.getElementById("mirrorEvidenceImage");
-    if (mirrorEvidenceImage) {
-      mirrorEvidenceImage.addEventListener("click", handleMirrorFinalClick, { once: true });
+    if (mirrorCorrupted) {
+      const mirrorEvidenceImage = document.getElementById("mirrorEvidenceImage");
+      if (mirrorEvidenceImage) {
+        mirrorEvidenceImage.addEventListener("click", handleMirrorFinalClick, { once: true });
+      }
     }
+  } else {
+    artifactView.innerHTML = `
+      <img class="artifact-image" src="${data.image}" alt="${data.title}">
+    `;
   }
+
+  refreshCurrentModalNote();
+
+  evidenceModal.classList.add("active");
+  roomImage.classList.add("blurred");
 }
 
 /* =========================
@@ -1223,7 +1233,7 @@ function showMirrorFinale() {
 
   modalMark.textContent = data.icon;
   modalTitle.textContent = "The mirror has changed";
-  modalSubtitle.textContent = "It no longer reflects what it sees, or... does it?";
+  modalSubtitle.textContent = "The trembling has ceased. Beyond the mirror, you can make out a room arranged much like this one. It no longer reflects what it sees — or does it?";
 
   artifactView.innerHTML = `
     <div class="mirror-finale-wrap">

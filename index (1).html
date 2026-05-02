@@ -9,6 +9,7 @@
 <body>
   <audio id="bgm1" src="audio/bgm1.mp3" loop preload="auto"></audio>
   <audio id="bgm2" src="audio/bgm2.mp3" loop preload="auto"></audio>
+
   <section class="screen intro-screen active" id="introScreen">
     <div class="intro-overlay"></div>
 
@@ -21,6 +22,65 @@
       </p>
 
       <button id="startGameBtn">Clear</button>
+    </div>
+  </section>
+
+  <section class="screen briefing-screen" id="briefingScreen">
+    <div class="briefing-shell">
+      <div class="briefing-card">
+        <div class="briefing-header">
+          <h2>Case Briefing</h2>
+          <p>Assistant Mercury</p>
+        </div>
+
+        <div class="briefing-scroll" id="briefingScroll">
+          <div class="briefing-content">
+            <p>Welcome, officers.</p>
+
+            <p>
+              I am Mercury, your assistant for this investigation.<br />
+              Your other assistant is now distributing the case files.<br />
+              Please take one and keep it with you throughout the briefing.
+            </p>
+
+            <p>
+              Allow me to introduce the case, along with the preliminary findings
+              from the forensic examination.
+            </p>
+
+            <p>
+              At 12:00 p.m. on April 5th, 2026, Qingming Festival, a man was found dead.
+              The victim was a salesman with a relatively simple social background and no
+              immediately obvious network of complicated associates. According to the initial
+              investigation, he had been in a long-term relationship with a woman he first met
+              in college, and that relationship appears to have continued up to the time of his death.
+              At present, this woman is missing.
+            </p>
+
+            <p>
+              The body was discovered face down on the floor. Initial forensic observation
+              indicates severe burning damage to the face. The victim’s eyes appear to have been
+              the point where the burning began, and the damage seems to have spread outward
+              from that area. His glasses were found partially melted at the scene.
+            </p>
+
+            <p>
+              At this stage, the cause of death remains under investigation.
+            </p>
+
+            <p class="briefing-task">
+              Your task is to examine the evidence, reconstruct the victim’s final hours,
+              and determine what happened in this room.
+            </p>
+          </div>
+        </div>
+
+        <div class="briefing-footer">
+          <button id="enterSceneBtn" class="briefing-enter-btn" type="button">
+            Enter the scene
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -57,7 +117,7 @@
         <div class="panel-block">
           <h3>Report</h3>
           <div id="storyText" class="story-text">
-            <p>Identify what seems strange, and, report them to your assistant Mercury and Yolanda</p>
+            <p>Identify what seems strange, and report them to your assistant Mercury and Yolanda.</p>
           </div>
         </div>
 
@@ -69,6 +129,7 @@
         <div class="panel-block">
           <h3>Investigation progress</h3>
           <p id="progressCount">0 / 6</p>
+          <div id="progressStatusText" class="progress-status-text"></div>
         </div>
       </aside>
     </main>
@@ -130,13 +191,11 @@
 
   <script src="script.js"></script>
 
-    <audio id="bgm1" src="audio/bgm1.mp3" loop preload="auto"></audio>
-    <audio id="bgm2" src="audio/bgm2.mp3" loop preload="auto"></audio>
-
-    <div id="scaffoldNav" class="scaffold-nav">
-      <button id="goIntroBtn" type="button">Intro</button>
-      <button id="goRoom1Btn" type="button">Room 1</button>
-      <button id="goRoom2Btn" type="button">Room 2</button>
-    </div>
-  </body>
+  <div id="scaffoldNav" class="scaffold-nav">
+    <button id="goIntroBtn" type="button">Intro</button>
+    <button id="goBriefingBtn" type="button">Briefing</button>
+    <button id="goRoom1Btn" type="button">Room 1</button>
+    <button id="goRoom2Btn" type="button">Room 2</button>
+  </div>
+</body>
 </html>
