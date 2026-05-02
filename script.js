@@ -50,6 +50,7 @@ const bgm2 = document.getElementById("bgm2");
 
 let bgm1Started = false;
 let bgm2Started = false;
+let bgm3Started = false;
 
 const CLICK_SOUND_SRC = "audio/click.mp3";
 
@@ -81,14 +82,23 @@ function safePlay(audioEl) {
 function startBgm1() {
   if (!bgm1 || bgm1Started) return;
 
-  bgm1.volume = 0.6;
-  if (bgm2) bgm2.volume = 0.75;
+  if (bgm2) {
+    bgm2.pause();
+    bgm2.currentTime = 0;
+  }
 
+  if (bgm3) {
+    bgm3.pause();
+    bgm3.currentTime = 0;
+  }
+
+  bgm1.volume = 0.6;
   bgm1.currentTime = 0;
   safePlay(bgm1);
 
   bgm1Started = true;
   bgm2Started = false;
+  bgm3Started = false;
 }
 
 function switchToBgm2() {
@@ -99,11 +109,40 @@ function switchToBgm2() {
     bgm1.currentTime = 0;
   }
 
+  if (bgm3) {
+    bgm3.pause();
+    bgm3.currentTime = 0;
+  }
+
+  bgm2.volume = 0.75;
   bgm2.currentTime = 0;
   safePlay(bgm2);
 
   bgm1Started = false;
   bgm2Started = true;
+  bgm3Started = false;
+}
+
+function switchToBgm3() {
+  if (!bgm3 || bgm3Started) return;
+
+  if (bgm1) {
+    bgm1.pause();
+    bgm1.currentTime = 0;
+  }
+
+  if (bgm2) {
+    bgm2.pause();
+    bgm2.currentTime = 0;
+  }
+
+  bgm3.volume = 0.78;
+  bgm3.currentTime = 0;
+  safePlay(bgm3);
+
+  bgm1Started = false;
+  bgm2Started = false;
+  bgm3Started = true;
 }
 
 function stopAllBgm() {
@@ -117,8 +156,14 @@ function stopAllBgm() {
     bgm2.currentTime = 0;
   }
 
+  if (bgm3) {
+    bgm3.pause();
+    bgm3.currentTime = 0;
+  }
+
   bgm1Started = false;
   bgm2Started = false;
+  bgm3Started = false;
 }
 
 /* =========================
@@ -1069,6 +1114,8 @@ function stopRoom2AcceleratedSequenceVisuals() {
 }
 
 function startRoom2FinalSequence() {
+  switchToBgm3();
+
   room2State.finalTriggered = true;
   renderRoom2Status();
 
