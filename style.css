@@ -1413,10 +1413,6 @@ body.final-blackout-stage::after {
   display: block;
 }
 
-#gameScreen2.room2-shaking .scene-panel {
-  animation: wholeScreenShakeHard 0.08s infinite;
-}
-
 #gameScreen2.room2-fullscreen .room2-scene-controls {
   position: fixed;
   left: 50%;
@@ -1430,3 +1426,67 @@ body.final-blackout-stage::after {
   cursor: pointer;
 }
 
+/* =========================
+   Room2 终局：三阶段摇晃层次
+========================== */
+
+@keyframes room2ShakeBasic {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1.01); }
+  20%  { transform: translate(-2px, 1px) rotate(-0.2deg) scale(1.012); }
+  40%  { transform: translate(2px, -1px) rotate(0.2deg) scale(1.01); }
+  60%  { transform: translate(-1px, 2px) rotate(-0.15deg) scale(1.012); }
+  80%  { transform: translate(1px, -2px) rotate(0.15deg) scale(1.01); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1.01); }
+}
+
+/* 5s 后开始：左右幅度逐渐变大，持续 10s */
+@keyframes room2ShakeLateralGrow {
+  0% {
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1.01);
+  }
+  15% {
+    transform: translateX(-5px) translateY(1px) rotate(-0.25deg) scale(1.012);
+  }
+  30% {
+    transform: translateX(7px) translateY(-1px) rotate(0.3deg) scale(1.014);
+  }
+  45% {
+    transform: translateX(-11px) translateY(2px) rotate(-0.45deg) scale(1.016);
+  }
+  60% {
+    transform: translateX(15px) translateY(-2px) rotate(0.55deg) scale(1.018);
+  }
+  75% {
+    transform: translateX(-20px) translateY(3px) rotate(-0.7deg) scale(1.02);
+  }
+  90% {
+    transform: translateX(25px) translateY(-3px) rotate(0.85deg) scale(1.022);
+  }
+  100% {
+    transform: translateX(-28px) translateY(2px) rotate(-0.9deg) scale(1.024);
+  }
+}
+
+/* 15s 后：大幅度高频摇晃 */
+@keyframes room2ShakeViolent {
+  0%   { transform: translate(0, 0) rotate(0deg) scale(1.035); }
+  10%  { transform: translate(-24px, 10px) rotate(-1.4deg) scale(1.04); }
+  20%  { transform: translate(28px, -12px) rotate(1.6deg) scale(1.045); }
+  35%  { transform: translate(-34px, 8px) rotate(-1.9deg) scale(1.04); }
+  50%  { transform: translate(36px, -15px) rotate(2deg) scale(1.048); }
+  65%  { transform: translate(-30px, 13px) rotate(-1.7deg) scale(1.044); }
+  80%  { transform: translate(26px, -10px) rotate(1.5deg) scale(1.04); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1.035); }
+}
+
+#gameScreen2.room2-shake-basic .scene-panel {
+  animation: room2ShakeBasic 0.14s infinite;
+}
+
+#gameScreen2.room2-shake-lateral .scene-panel {
+  animation: room2ShakeLateralGrow 10s linear forwards;
+}
+
+#gameScreen2.room2-shake-violent .scene-panel {
+  animation: room2ShakeViolent 0.065s infinite;
+}

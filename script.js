@@ -803,6 +803,7 @@ const ROOM2_TOTAL_REQUIRED = 10;
 
 const room2State = {
   seen: new Set(),
+  finalPending: false,
   finalTriggered: false,
   fullscreenActive: false,
   doorFlipUnlocked: false,
@@ -826,12 +827,45 @@ function setBlinkOverlay(active) {
   blinkOverlay.classList.toggle("active", active);
 }
 
+function clearRoom2ShakeClasses() {
+  if (!gameScreen2) return;
+
+  gameScreen2.classList.remove(
+    "room2-shaking",
+    "room2-shake-basic",
+    "room2-shake-lateral",
+    "room2-shake-violent"
+  );
+}
+
+function stopRoom2FullscreenShake() {
+  clearRoom2ShakeClasses();
+}
+
 function activateRoom2Fullscreen() {
   if (room2State.fullscreenActive) return;
   room2State.fullscreenActive = true;
 
   gameScreen2.classList.add("room2-fullscreen");
-  gameScreen2.classList.add("room2-shaking");
+
+  clearRoom2ShakeClasses();
+  gameScreen2.classList.add("room2-shake-basic");
+
+  // 5s 后：在原摇晃基础上进入左右幅度逐渐增大的阶段
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      gameScreen2.classList.remove("room2-shake-basic");
+      gameScreen2.classList.add("room2-shake-lateral");
+    }, 5000)
+  );
+
+  // 再过 10s，也就是全屏摇晃 15s 后：大幅度高频摇晃
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      gameScreen2.classList.remove("room2-shake-lateral");
+      gameScreen2.classList.add("room2-shake-violent");
+    }, 15000)
+  );
 }
 
 function runRoom2Blink(count = 1, onComplete = null) {
@@ -869,42 +903,54 @@ function runRoom2Blink(count = 1, onComplete = null) {
 function scheduleRoom2BlinkPatternAfterFirstBlink() {
   if (!room2State.persistentBlink) return;
 
-  room2State.blinkTimers.push(
-    setTimeout(() => {
-      runRoom2Blink(1);
-    }, 3000)
-  );
-
-  room2State.blinkTimers.push(
-    setTimeout(() => {
-      runRoom2Blink(2);
-    }, 8000)
-  );
-
+  // 当前这次眨眼算作第一次眨眼
+  // 3s 后：眨一次
   room2State.blinkTimers.push(
     setTimeout(() => {
       if (!room2State.persistentBlink) return;
       runRoom2Blink(1);
-      scheduleRoom2BlinkPatternAfterFirstBlink();
-    }, 12400)
+    }, 3000)
+  );
+
+  // 再隔 5s，也就是 8s 后：眨一次
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      if (!room2State.persistentBlink) return;
+      runRoom2Blink(1);
+    }, 8000)
+  );
+
+  // 再隔 4s，也就是 12s 后：连续眨两次，然后重新循环
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      if (!room2State.persistentBlink) return;
+
+      runRoom2Blink(2, () => {
+        scheduleRoom2BlinkPatternAfterFirstBlink();
+      });
+    }, 12000)
   );
 }
 
 function startRoom2PersistentBlinkFromNow() {
   clearRoom2BlinkTimers();
   room2State.persistentBlink = true;
+  room2State.doorFlipUnlocked = false;
+  room2State.doorVisible = false;
 
+  if (room2FlipBtn) {
+    room2FlipBtn.hidden = true;
+  }
+
+  // 第一次眨眼：进入全屏 + 开始 20s 摇晃
   runRoom2Blink(1);
   scheduleRoom2BlinkPatternAfterFirstBlink();
 
+  // 20s 后：先眨眼，然后自动 flip 到 door.png
   room2State.blinkTimers.push(
     setTimeout(() => {
       room2State.doorFlipUnlocked = true;
-      if (room2FlipBtn) {
-        room2FlipBtn.hidden = false;
-        room2FlipBtn.textContent = room2State.doorVisible ? "Flip Back" : "Flip";
-      }
-      renderRoom2Status();
+      flipRoom2MainImageAfterBlink({ auto: true });
     }, 20000)
   );
 }
@@ -923,9 +969,16 @@ function renderRoom2Status() {
   room2ProgressCount.textContent = `${room2State.seen.size} / ${ROOM2_TOTAL_REQUIRED}`;
 
   if (!room2State.finalTriggered) {
-    storyText2.innerHTML = `
-      <p>Look for documents and reports that might objectively tell you where you are.</p>
-    `;
+    if (room2State.finalPending) {
+      storyText2.innerHTML = `
+        <p>You have found enough documents.</p>
+        <p>Close the file and return to the room.</p>
+      `;
+    } else {
+      storyText2.innerHTML = `
+        <p>Look for documents and reports that might objectively tell you where you are.</p>
+      `;
+    }
     return;
   }
 
@@ -957,8 +1010,11 @@ function markRoom2DocumentSeen(docId) {
   room2State.seen.add(docId);
   renderRoom2Status();
 
-  if (room2State.seen.size >= ROOM2_TOTAL_REQUIRED && !room2State.finalTriggered) {
-    startRoom2FinalSequence();
+  if (
+    room2State.seen.size >= ROOM2_TOTAL_REQUIRED &&
+    !room2State.finalTriggered
+  ) {
+    room2State.finalPending = true;
   }
 }
 
@@ -1063,25 +1119,42 @@ function startRoom2FinalSequence() {
   );
 }
 
-function toggleRoom2MainImage() {
-  if (!room2State.doorFlipUnlocked) return;
+function flipRoom2MainImageAfterBlink(options = {}) {
+  const { auto = false } = options;
+
+  if (!auto && !room2State.doorFlipUnlocked) return;
 
   clearRoom2BlinkTimers();
+  room2State.persistentBlink = true;
 
   runRoom2Blink(1, () => {
+    // 自动第一次翻到门的时候，20s 摇晃结束
+    if (auto) {
+      stopRoom2FullscreenShake();
+    }
+
     room2State.doorVisible = !room2State.doorVisible;
 
-    roomImage2.src = room2State.doorVisible ? "images/door.png" : "images/room2.png";
+    roomImage2.src = room2State.doorVisible
+      ? "images/door.png"
+      : "images/room2.png";
 
     if (room2FlipBtn) {
+      room2FlipBtn.hidden = false;
       room2FlipBtn.textContent = room2State.doorVisible ? "Flip Back" : "Flip";
     }
 
     gameScreen2.classList.toggle("room2-door-visible", room2State.doorVisible);
 
     renderRoom2Status();
+
+    // 这次翻转时的眨眼视作新一轮第一次眨眼
     scheduleRoom2BlinkPatternAfterFirstBlink();
   });
+}
+
+function toggleRoom2MainImage() {
+  flipRoom2MainImageAfterBlink({ auto: false });
 }
 
 function goToNextRoomFromDoor() {
@@ -1629,8 +1702,21 @@ function closeModal() {
   }
 
   checkCollapseTrigger();
+
+  const shouldStartRoom2Final =
+    gameScreen2 &&
+    gameScreen2.classList.contains("active") &&
+    room2State &&
+    room2State.finalPending &&
+    !room2State.finalTriggered;
+
   currentOpenEvidenceKey = null;
   isClosingForCollapse = false;
+
+  if (shouldStartRoom2Final) {
+    room2State.finalPending = false;
+    startRoom2FinalSequence();
+  }
 }
 
 /* =========================
