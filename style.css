@@ -1334,3 +1334,99 @@ body.final-blackout-stage::after {
     height: 380px;
   }
 }
+
+/* =========================
+   Room 2 侧栏 + 终局眨眼 / 翻转 / 门
+========================== */
+
+.room2-progress-wrap {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.room2-progress-count {
+  margin: 0;
+  color: var(--gold);
+  font-size: 1.04rem;
+  letter-spacing: 0.04em;
+}
+
+.room2-scene-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.room2-flip-btn[hidden] {
+  display: none !important;
+}
+
+/* 全屏黑屏眨眼遮罩 */
+.blink-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 12000;
+  transition: opacity 0.08s linear;
+}
+
+.blink-overlay.active {
+  opacity: 1;
+}
+
+/* Room2 进入全屏阶段 */
+#gameScreen2.room2-fullscreen .top-bar,
+#gameScreen2.room2-fullscreen .side-panel {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+#gameScreen2.room2-fullscreen .scene-panel {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 11000;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  background: #000 !important;
+  box-shadow: none !important;
+}
+
+#gameScreen2.room2-fullscreen .scene-wrapper {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0 !important;
+  background: #000;
+}
+
+#gameScreen2.room2-fullscreen .scene-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#gameScreen2.room2-shaking .scene-panel {
+  animation: wholeScreenShakeHard 0.08s infinite;
+}
+
+#gameScreen2.room2-fullscreen .room2-scene-controls {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 11001;
+  margin-top: 0;
+}
+
+#gameScreen2.room2-door-visible #roomImage2 {
+  cursor: pointer;
+}
+

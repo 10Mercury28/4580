@@ -138,7 +138,7 @@
   <section class="screen game-screen" id="gameScreen2">
     <header class="top-bar">
       <div>
-        <h2>Chapter two: the inner world</h2>
+        <h2>Chapter one: the inner world</h2>
         <p>It seems that everything has been mirrored and reversed</p>
       </div>
 
@@ -147,7 +147,7 @@
 
     <main class="game-layout">
       <section class="scene-panel">
-        <div class="scene-wrapper">
+        <div class="scene-wrapper" id="room2SceneWrapper">
           <img
             id="roomImage2"
             class="scene-image"
@@ -155,16 +155,23 @@
             alt="镜中房间"
           />
 
-          <button class="hotspot hs-photo-mirror" data-evidence="photoMirror" aria-label="第二页照片"></button>
           <button class="hotspot hs-archive-mirror" data-evidence="archiveFolder" aria-label="档案袋"></button>
+          <button class="hotspot hs-photo-mirror" data-evidence="photoMirror" aria-label="第二页照片"></button>
+        </div>
+
+        <div class="room2-scene-controls">
+          <button id="room2FlipBtn" class="secondary-btn room2-flip-btn" type="button" hidden>
+            Flip
+          </button>
         </div>
       </section>
 
       <aside class="side-panel">
-        <div class="panel-block">
-          <h3>Chapter one: the inner world</h3>
-          <div id="storyText2" class="story-text">
-            <p>It seems that everything has been mirrored and reversed</p>
+        <div class="panel-block room2-status-block">
+          <h3>figure out where you are:</h3>
+          <div id="storyText2" class="story-text"></div>
+          <div class="room2-progress-wrap">
+            <p id="room2ProgressCount" class="room2-progress-count">0 / 10</p>
           </div>
         </div>
       </aside>
@@ -196,7 +203,9 @@
     <button id="goRoom1Btn" type="button">Room 1</button>
     <button id="goRoom2Btn" type="button">Room 2</button>
   </div>
-
+  
+  <div id="blinkOverlay" class="blink-overlay"></div>
+  
   <script src="script.js"></script>
 </body>
 </html>

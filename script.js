@@ -22,6 +22,12 @@ const briefingScroll = document.getElementById("briefingScroll");
 const roomImage = document.getElementById("roomImage");
 const roomImage2 = document.getElementById("roomImage2");
 
+const room2SceneWrapper = document.getElementById("room2SceneWrapper");
+const room2FlipBtn = document.getElementById("room2FlipBtn");
+const room2ProgressCount = document.getElementById("room2ProgressCount");
+const blinkOverlay = document.getElementById("blinkOverlay");
+const gameScreen3 = document.getElementById("gameScreen3");
+
 const storyText = document.getElementById("storyText");
 const storyText2 = document.getElementById("storyText2");
 
@@ -791,33 +797,332 @@ let wheelGestureReady = true;
 let wheelReleaseTimer = null;
 
 /* =========================
+   6.5 Room 2 进度 / 眨眼 / 终局
+========================== */
+const ROOM2_TOTAL_REQUIRED = 10;
+
+const room2State = {
+  seen: new Set(),
+  finalTriggered: false,
+  fullscreenActive: false,
+  doorFlipUnlocked: false,
+  doorVisible: false,
+  persistentBlink: false,
+  blinkTimers: [],
+  dragActive: false,
+  dragStartX: 0
+};
+
+function clearRoom2BlinkTimers() {
+  room2State.blinkTimers.forEach((timerId) => clearTimeout(timerId));
+  room2State.blinkTimers = [];
+  if (blinkOverlay) {
+    blinkOverlay.classList.remove("active");
+  }
+}
+
+function setBlinkOverlay(active) {
+  if (!blinkOverlay) return;
+  blinkOverlay.classList.toggle("active", active);
+}
+
+function activateRoom2Fullscreen() {
+  if (room2State.fullscreenActive) return;
+  room2State.fullscreenActive = true;
+
+  gameScreen2.classList.add("room2-fullscreen");
+  gameScreen2.classList.add("room2-shaking");
+}
+
+function runRoom2Blink(count = 1, onComplete = null) {
+  let totalDelay = 0;
+
+  for (let i = 0; i < count; i += 1) {
+    room2State.blinkTimers.push(
+      setTimeout(() => {
+        if (room2State.finalTriggered && !room2State.fullscreenActive) {
+          activateRoom2Fullscreen();
+        }
+
+        setBlinkOverlay(true);
+
+        room2State.blinkTimers.push(
+          setTimeout(() => {
+            setBlinkOverlay(false);
+          }, 140)
+        );
+      }, totalDelay)
+    );
+
+    totalDelay += 280;
+  }
+
+  if (onComplete) {
+    room2State.blinkTimers.push(
+      setTimeout(() => {
+        onComplete();
+      }, totalDelay)
+    );
+  }
+}
+
+function scheduleRoom2BlinkPatternAfterFirstBlink() {
+  if (!room2State.persistentBlink) return;
+
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      runRoom2Blink(1);
+    }, 3000)
+  );
+
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      runRoom2Blink(2);
+    }, 8000)
+  );
+
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      if (!room2State.persistentBlink) return;
+      runRoom2Blink(1);
+      scheduleRoom2BlinkPatternAfterFirstBlink();
+    }, 12400)
+  );
+}
+
+function startRoom2PersistentBlinkFromNow() {
+  clearRoom2BlinkTimers();
+  room2State.persistentBlink = true;
+
+  runRoom2Blink(1);
+  scheduleRoom2BlinkPatternAfterFirstBlink();
+
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      room2State.doorFlipUnlocked = true;
+      if (room2FlipBtn) {
+        room2FlipBtn.hidden = false;
+        room2FlipBtn.textContent = room2State.doorVisible ? "Flip Back" : "Flip";
+      }
+      renderRoom2Status();
+    }, 20000)
+  );
+}
+
+function restartRoom2BlinkFromImmediateBlink() {
+  clearRoom2BlinkTimers();
+  room2State.persistentBlink = true;
+
+  runRoom2Blink(1);
+  scheduleRoom2BlinkPatternAfterFirstBlink();
+}
+
+function renderRoom2Status() {
+  if (!storyText2 || !room2ProgressCount) return;
+
+  room2ProgressCount.textContent = `${room2State.seen.size} / ${ROOM2_TOTAL_REQUIRED}`;
+
+  if (!room2State.finalTriggered) {
+    storyText2.innerHTML = `
+      <p>Look for documents and reports that might objectively tell you where you are.</p>
+    `;
+    return;
+  }
+
+  if (!room2State.doorFlipUnlocked) {
+    storyText2.innerHTML = `
+      <p>The room has started trembling again.</p>
+      <p>Something here is reacting to what you have uncovered.</p>
+    `;
+    return;
+  }
+
+  if (room2State.doorVisible) {
+    storyText2.innerHTML = `
+      <p>A door has appeared.</p>
+      <p>Click it to continue. You may also flip the scene back.</p>
+    `;
+    return;
+  }
+
+  storyText2.innerHTML = `
+    <p>The room keeps blinking in and out.</p>
+    <p>Drag the scene or press Flip to turn it over.</p>
+  `;
+}
+
+function markRoom2DocumentSeen(docId) {
+  if (!docId || room2State.seen.has(docId)) return;
+
+  room2State.seen.add(docId);
+  renderRoom2Status();
+
+  if (room2State.seen.size >= ROOM2_TOTAL_REQUIRED && !room2State.finalTriggered) {
+    startRoom2FinalSequence();
+  }
+}
+
+function maybeTrackCurrentRoom2Document() {
+  if (currentOpenEvidenceKey === "photoMirror") {
+    const photoIds = [
+      "photo7",
+      "photo8",
+      "photo9",
+      "photo10",
+      "photo11",
+      "photo12",
+      "photo13"
+    ];
+
+    const docId = photoIds[photoStackIndex];
+    markRoom2DocumentSeen(docId);
+    return;
+  }
+
+  if (currentOpenEvidenceKey === "archiveFolder") {
+    if (photoStackIndex === 0) {
+      markRoom2DocumentSeen("archive-file");
+      return;
+    }
+
+    if (photoStackIndex === 1 && !photoStackFlipped) {
+      markRoom2DocumentSeen("archive-slip-front");
+      return;
+    }
+
+    if (photoStackIndex === 1 && photoStackFlipped) {
+      markRoom2DocumentSeen("archive-slip-back");
+    }
+  }
+}
+
+function stopRoom2AcceleratedSequenceVisuals() {
+  roomImage2.classList.remove(
+    "image-blackout-stage-1",
+    "image-shake-stage-2",
+    "image-blackout-stage-2",
+    "image-blackout-stage-5"
+  );
+
+  document.body.classList.remove(
+    "borders-flicker-stage-3",
+    "text-chaos-stage-4",
+    "global-flicker-stage-4",
+    "global-flicker-stage-5"
+  );
+}
+
+function startRoom2FinalSequence() {
+  room2State.finalTriggered = true;
+  renderRoom2Status();
+
+  if (evidenceModal.classList.contains("active")) {
+    closeModal();
+  }
+
+  clearRoom2BlinkTimers();
+  stopRoom2AcceleratedSequenceVisuals();
+
+  roomImage2.classList.add("image-blackout-stage-1");
+
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      roomImage2.classList.remove("image-blackout-stage-1");
+      roomImage2.classList.add("image-shake-stage-2");
+      roomImage2.classList.add("image-blackout-stage-2");
+    }, 2000)
+  );
+
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      document.body.classList.add("borders-flicker-stage-3");
+    }, 4000)
+  );
+
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      document.body.classList.add("text-chaos-stage-4");
+      document.body.classList.add("global-flicker-stage-4");
+    }, 6000)
+  );
+
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      roomImage2.classList.remove("image-blackout-stage-2");
+      roomImage2.classList.add("image-blackout-stage-5");
+      document.body.classList.remove("global-flicker-stage-4");
+      document.body.classList.add("global-flicker-stage-5");
+    }, 8000)
+  );
+
+  room2State.blinkTimers.push(
+    setTimeout(() => {
+      stopRoom2AcceleratedSequenceVisuals();
+      startRoom2PersistentBlinkFromNow();
+    }, 10000)
+  );
+}
+
+function toggleRoom2MainImage() {
+  if (!room2State.doorFlipUnlocked) return;
+
+  clearRoom2BlinkTimers();
+
+  runRoom2Blink(1, () => {
+    room2State.doorVisible = !room2State.doorVisible;
+
+    roomImage2.src = room2State.doorVisible ? "images/door.png" : "images/room2.png";
+
+    if (room2FlipBtn) {
+      room2FlipBtn.textContent = room2State.doorVisible ? "Flip Back" : "Flip";
+    }
+
+    gameScreen2.classList.toggle("room2-door-visible", room2State.doorVisible);
+
+    renderRoom2Status();
+    scheduleRoom2BlinkPatternAfterFirstBlink();
+  });
+}
+
+function goToNextRoomFromDoor() {
+  if (!room2State.doorVisible) return;
+
+  if (gameScreen3) {
+    openScreen(gameScreen3);
+    return;
+  }
+
+  alert("Next room not added yet. Create an element with id='gameScreen3'.");
+}
+
+/* =========================
    7. 照片堆叠组件
 ========================== */
 function renderPhotoStack(photoData) {
   artifactView.innerHTML = `
-  <div class="photo-stack-shell ${photoData.vintageStyle ? "photo-stack-shell-vintage" : ""} ${photoData.room2ObjectStyle ? "room2-object-stack" : ""}">
-    <p class="photo-stack-instruction">
-      ${photoData.instructionText || "Examine the photos with your mouse."}
-    </p>
+    <div class="photo-stack-shell ${photoData.vintageStyle ? "photo-stack-shell-vintage" : ""} ${photoData.room2ObjectStyle ? "room2-object-stack" : ""}">
+      <p class="photo-stack-instruction">
+        ${photoData.instructionText || "Examine the photos with your mouse."}
+      </p>
 
-    <div class="photo-stack-stage ${photoData.vintageStyle ? "photo-stage-vintage" : ""} ${photoData.room2ObjectStyle ? "room2-object-stage" : ""}" id="photoStackStage"></div>
+      <div class="photo-stack-stage ${photoData.vintageStyle ? "photo-stage-vintage" : ""} ${photoData.room2ObjectStyle ? "room2-object-stage" : ""}" id="photoStackStage"></div>
 
-    <div class="photo-stack-footer">
-      <button type="button" id="photoPrevBtn">← Previous</button>
-      <div class="photo-stack-counter" id="photoStackCounter">
-        ${(photoData.counterLabel || "Photo")} 1 / ${photoData.photos.length}
+      <div class="photo-stack-footer">
+        <button type="button" id="photoPrevBtn">← Previous</button>
+        <div class="photo-stack-counter" id="photoStackCounter">
+          ${(photoData.counterLabel || "Photo")} 1 / ${photoData.photos.length}
+        </div>
+        <button type="button" id="photoNextBtn">Next →</button>
       </div>
-      <button type="button" id="photoNextBtn">Next →</button>
-    </div>
 
-    <div class="photo-stack-footer" style="margin-top: 8px;">
-      <div class="photo-stack-hint" id="photoStackHint">
-        ${photoData.defaultHint || "Use the mouse wheel or buttons to switch photos."}
+      <div class="photo-stack-footer" style="margin-top: 8px;">
+        <div class="photo-stack-hint" id="photoStackHint">
+          ${photoData.defaultHint || "Use the mouse wheel or buttons to switch photos."}
+        </div>
+        <button type="button" id="photoFlipBtn" class="photo-flip-btn">Flip</button>
       </div>
-      <button type="button" id="photoFlipBtn" class="photo-flip-btn">Flip</button>
     </div>
-  </div>
-`;
+  `;
 
   const stage = document.getElementById("photoStackStage");
   const counter = document.getElementById("photoStackCounter");
@@ -829,10 +1134,12 @@ function renderPhotoStack(photoData) {
   photoStackIndex = 0;
   photoStackFlipped = false;
   wheelLocked = false;
+  wheelGestureReady = true;
 
   stage.innerHTML = photoData.photos
     .map((src, index) => {
       const isLast = index === photoData.photos.length - 1;
+
       return `
         <div class="photo-card" data-index="${index}">
           <div class="photo-card-face photo-card-front">
@@ -860,7 +1167,14 @@ function renderPhotoStack(photoData) {
 
   function updatePhotoStack() {
     cards.forEach((card, i) => {
-      card.classList.remove("is-hidden", "is-back-2", "is-back-1", "is-active", "is-next-1", "is-next-2");
+      card.classList.remove(
+        "is-hidden",
+        "is-back-2",
+        "is-back-1",
+        "is-active",
+        "is-next-1",
+        "is-next-2"
+      );
 
       if (i < photoStackIndex - 2 || i > photoStackIndex + 2) {
         card.classList.add("is-hidden");
@@ -915,10 +1229,14 @@ function renderPhotoStack(photoData) {
 
     refreshCurrentModalNote();
 
+    if (typeof maybeTrackCurrentRoom2Document === "function") {
+      maybeTrackCurrentRoom2Document();
+    }
   }
 
   function goPrev() {
     if (photoStackFlipped) return;
+
     if (photoStackIndex > 0) {
       photoStackIndex -= 1;
       updatePhotoStack();
@@ -927,6 +1245,7 @@ function renderPhotoStack(photoData) {
 
   function goNext() {
     if (photoStackFlipped) return;
+
     if (photoStackIndex < photoData.photos.length - 1) {
       photoStackIndex += 1;
       updatePhotoStack();
@@ -942,19 +1261,28 @@ function renderPhotoStack(photoData) {
     if (photoStackFlipped) return;
 
     photoStackFlipped = true;
-    queueEvidenceReward("photoReveal");
-    queueInvestigationReward("photoReveal");
-    unlockReport("g", reportState.g.segments.length);
+
+    if (currentOpenEvidenceKey === "photo") {
+      queueEvidenceReward("photoReveal");
+      queueInvestigationReward("photoReveal");
+      unlockReport("g", reportState.g.segments.length);
+    }
 
     lastCard.style.transform = "";
     lastCard.classList.add("flipped");
-    hint.textContent = "You turned the photo over and found a hidden image.";
+
+    hint.textContent = photoData.flippedHint || "You turned the photo over.";
     hint.classList.add("important");
+
     prevBtn.disabled = true;
     nextBtn.disabled = true;
     flipBtn.style.display = "none";
 
     refreshCurrentModalNote();
+
+    if (typeof maybeTrackCurrentRoom2Document === "function") {
+      maybeTrackCurrentRoom2Document();
+    }
   });
 
   stage.addEventListener(
@@ -997,7 +1325,9 @@ function renderPhotoStack(photoData) {
 
     if (event.key === "ArrowLeft") {
       goPrev();
-    } else if (event.key === "ArrowRight") {
+    }
+
+    if (event.key === "ArrowRight") {
       goNext();
     }
   }
@@ -1016,14 +1346,17 @@ function renderPhotoStack(photoData) {
       isDragging = true;
       dragStartX = event.clientX;
       currentDragX = 0;
+
       lastCard.classList.add("dragging");
       lastCard.setPointerCapture(event.pointerId);
     });
 
     lastCard.addEventListener("pointermove", (event) => {
       if (!isDragging) return;
+
       currentDragX = event.clientX - dragStartX;
       const rotate = Math.max(-14, Math.min(14, currentDragX / 10));
+
       lastCard.style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
     });
 
@@ -1040,17 +1373,28 @@ function renderPhotoStack(photoData) {
 
       if (Math.abs(currentDragX) > 55) {
         photoStackFlipped = true;
+
+        if (currentOpenEvidenceKey === "photo") {
+          queueEvidenceReward("photoReveal");
+          queueInvestigationReward("photoReveal");
+          unlockReport("g", reportState.g.segments.length);
+        }
+
         lastCard.style.transform = "";
         lastCard.classList.add("flipped");
-        hint.textContent = "You turned the photo over and found a hidden image.";
+
+        hint.textContent = photoData.flippedHint || "You turned the photo over.";
         hint.classList.add("important");
+
         prevBtn.disabled = true;
         nextBtn.disabled = true;
-        queueEvidenceReward("photoReveal");
-        queueInvestigationReward("photoReveal");
-        unlockReport("g", reportState.g.segments.length);
+        flipBtn.style.display = "none";
 
         refreshCurrentModalNote();
+
+        if (typeof maybeTrackCurrentRoom2Document === "function") {
+          maybeTrackCurrentRoom2Document();
+        }
       } else {
         resetLastCardPosition();
       }
@@ -1126,6 +1470,7 @@ function renderDollInteraction(dollData) {
       unlockReport("f", reportState.f.segments.length);
 
       refreshCurrentModalNote();
+      maybeTrackCurrentRoom2Document();
     }
   });
 }
@@ -1416,13 +1761,7 @@ function showMirrorFinale() {
 function handleMirrorFinalClick() {
   closeModal();
   openScreen(gameScreen2);
-
-  if (storyText2) {
-    storyText2.innerHTML = `
-      <p>You passed through the mirror and entered another room.</p>
-      <p>This room is completely mirrored in layout with the crime scene.</p>
-    `;
-  }
+  renderRoom2Status();
 }
 
 /* =========================
@@ -1543,3 +1882,43 @@ if (goRoom2Btn) {
     scaffoldJumpTo(gameScreen2);
   });
 }
+
+if (room2FlipBtn) {
+  room2FlipBtn.addEventListener("click", toggleRoom2MainImage);
+}
+
+if (roomImage2) {
+  roomImage2.addEventListener("click", () => {
+    if (room2State.doorVisible) {
+      goToNextRoomFromDoor();
+    }
+  });
+}
+
+if (room2SceneWrapper) {
+  room2SceneWrapper.addEventListener("pointerdown", (event) => {
+    if (!room2State.doorFlipUnlocked) return;
+    if (evidenceModal.classList.contains("active")) return;
+
+    room2State.dragActive = true;
+    room2State.dragStartX = event.clientX;
+    room2SceneWrapper.setPointerCapture(event.pointerId);
+  });
+
+  room2SceneWrapper.addEventListener("pointerup", (event) => {
+    if (!room2State.dragActive) return;
+
+    const deltaX = event.clientX - room2State.dragStartX;
+    room2State.dragActive = false;
+
+    if (Math.abs(deltaX) > 60) {
+      toggleRoom2MainImage();
+    }
+  });
+
+  room2SceneWrapper.addEventListener("pointercancel", () => {
+    room2State.dragActive = false;
+  });
+}
+
+renderRoom2Status();
