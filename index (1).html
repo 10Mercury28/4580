@@ -179,6 +179,83 @@
     </main>
   </section>
 
+  <section class="screen chase-screen" id="gameScreen3">
+    <!-- Chapter 3 黑屏标题 -->
+    <div id="chaseChapterIntro" class="chase-chapter-intro" hidden>
+      <div class="chase-chapter-intro-inner">
+        <div class="chase-chapter-title">Chapter 3: The Chase</div>
+        <div class="chase-chapter-subtitle">Click anywhere to continue</div>
+      </div>
+    </div>
+
+    <!-- spirit / item 演出层 -->
+    <div id="chaseEncounterLayer" class="chase-encounter-layer" hidden>
+      <img id="chaseSpiritImage" class="chase-spirit-image" alt="Spirit">
+      <div id="chaseItemCard" class="chase-item-card">
+        <img id="chaseItemImage" class="chase-item-image" alt="Item">
+      </div>
+    </div>
+    
+    <div class="chase-scene" id="chaseScene">
+      <img
+        id="chaseImage"
+        class="chase-image"
+        src="images/room/影壁.png"
+        alt="chase scene"
+      />
+
+      <div id="chaseTransitionOverlay" class="chase-transition-overlay"></div>
+
+      <button id="chaseLeftBtn" class="chase-choice chase-choice-left" type="button">
+        <span class="chase-choice-label">Turn left</span>
+      </button>
+
+      <button id="chaseForwardBtn" class="chase-choice chase-choice-forward" type="button">
+        <span class="chase-choice-label">Forward</span>
+      </button>
+
+      <button id="chaseRightBtn" class="chase-choice chase-choice-right" type="button">
+        <span class="chase-choice-label">Turn right</span>
+      </button>
+
+      <div id="chaseDialogueBox" class="chase-dialogue-box">
+        <div class="chase-dialogue-header">
+          <div>
+            <p id="chaseNodeTitle" class="chase-node-title">Swaddling Clothes</p>
+            <h2 id="chaseQuestion">What were the people you saw in the room?</h2>
+          </div>
+          <p id="chaseProgressTag" class="chase-progress-tag">Chapter three</p>
+        </div>
+
+        <div id="chaseAnswerScroll" class="chase-answer-scroll">
+          <div id="chaseAnswerText" class="chase-answer-text">
+            Hover over a direction to preview your answer.
+          </div>
+        </div>
+
+        <button id="chaseProceedBtn" class="chase-proceed-btn" type="button" hidden>
+          Proceed
+        </button>
+      </div>
+
+      <div id="drumGamePanel" class="drum-game-panel" hidden>
+        <h2>Ritual</h2>
+        <p id="drumInstruction">
+          Watch the lights. Repeat the sequence by striking the four corners.
+        </p>
+
+        <div class="drum-board">
+          <button class="drum-pad drum-pad-tl" data-pad="0" type="button"></button>
+          <button class="drum-pad drum-pad-tr" data-pad="1" type="button"></button>
+          <button class="drum-pad drum-pad-bl" data-pad="2" type="button"></button>
+          <button class="drum-pad drum-pad-br" data-pad="3" type="button"></button>
+        </div>
+
+        <p id="drumRoundText" class="drum-round-text">Round 1 / 3</p>
+      </div>
+    </div>
+  </section>
+
   <div class="modal" id="evidenceModal">
     <div class="modal-card">
       <button id="closeModalBtn" class="modal-close">✕</button>
@@ -203,6 +280,7 @@
     <button id="goBriefingBtn" type="button">Briefing</button>
     <button id="goRoom1Btn" type="button">Room 1</button>
     <button id="goRoom2Btn" type="button">Room 2</button>
+    <button id="goRoom3Btn" type="button">Room 3</button>
   </div>
   
   <div id="blinkOverlay" class="blink-overlay"></div>
