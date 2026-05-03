@@ -1495,12 +1495,17 @@ body.final-blackout-stage::after {
   border-radius: 0 !important;
   box-shadow: none !important;
 
-  padding: 24px 42px 30px !important;
+  /* 关键：顶部距离缩小 */
+  padding: 14px 42px 24px !important;
 
   display: flex !important;
   flex-direction: column !important;
-  justify-content: flex-end !important;
-  gap: 10px !important;
+
+  /* 关键：内容从上往下排，不要压到底部 */
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+
+  gap: 4px !important;
 
   background: linear-gradient(
     180deg,
@@ -1533,7 +1538,8 @@ body.final-blackout-stage::after {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 4px;
+  margin-bottom: 0 !important;
+  align-items: flex-start;
 }
 
 #gameScreen3 #chaseNodeTitle {
@@ -1574,13 +1580,16 @@ body.final-blackout-stage::after {
 }
 
 #gameScreen3 #chaseAnswerScroll {
+  /* 关键：给答案区域预留固定高度，hover 前后就不会上下跳 */
+  min-height: 4.8rem !important;
   max-height: 16vh !important;
   overflow-y: hidden !important;
   padding-right: 10px;
+  margin-top: 2px !important;
 }
 
 #gameScreen3 #chaseAnswerText {
-  min-height: 1.5rem;
+  min-height: 4.2rem !important;
   font-family: "Georgia", "Times New Roman", serif;
   font-size: clamp(1rem, 1.25vw, 1.16rem);
   line-height: 1.88;
@@ -1761,14 +1770,25 @@ body.final-blackout-stage::after {
 }
 
 .chase-spirit-close {
-  width: min(78vw, 980px);
-  max-height: 110vh;
-  object-fit: contain;
+  /* 关键：固定一个更高的显示区域，做“上半身近景” */
+  width: min(72vw, 860px);
+  height: min(92vh, 900px);
+  max-height: none;
+
+  /* 关键：cover + top，裁掉下半部分，只保留上半身近景 */
+  object-fit: cover;
   object-position: center top;
+
   opacity: 0;
-  transform: translateY(-14vh) scale(1.25);
+
+  /* 关键：更靠上，同时更大 */
+  transform: translateY(-18vh) scale(1.55);
+
   animation: chaseSpiritCloseIn 0.46s ease forwards;
   filter: drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
+
+  /* 再裁一点底部，让它更像“上半身扑脸” */
+  clip-path: inset(0 0 24% 0);
 }
 
 .chase-spirit-close.zooming-out {
@@ -1787,13 +1807,13 @@ body.final-blackout-stage::after {
 @keyframes chaseSpiritCloseIn {
   from {
     opacity: 0;
-    transform: translateY(-12vh) scale(1.42);
-    filter: blur(10px) drop-shadow(0 0 34px rgba(255, 255, 255, 0.16));
+    transform: translateY(-24vh) scale(1.85);
+    filter: blur(12px) drop-shadow(0 0 34px rgba(255, 255, 255, 0.16));
   }
 
   to {
     opacity: 1;
-    transform: translateY(-10vh) scale(1.25);
+    transform: translateY(-18vh) scale(1.55);
     filter: blur(0) drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
   }
 }
@@ -1801,13 +1821,13 @@ body.final-blackout-stage::after {
 @keyframes chaseSpiritZoomOut {
   from {
     opacity: 1;
-    transform: translateY(-10vh) scale(1.25);
+    transform: translateY(-18vh) scale(1.55);
     filter: blur(0) drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(0.48);
+    transform: translateY(-2vh) scale(0.62);
     filter: blur(4px) drop-shadow(0 0 26px rgba(255, 255, 255, 0.16));
   }
 }
