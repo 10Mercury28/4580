@@ -1,5 +1,5 @@
 /* =========================
-   全局样式
+   Global variables / reset
 ========================== */
 :root {
   --bg: #0b0b11;
@@ -27,9 +27,6 @@ body {
   font-family: "Georgia", "Times New Roman", serif;
 }
 
-/* =========================
-   页面切换
-========================== */
 .screen {
   display: none;
   min-height: 100vh;
@@ -39,8 +36,37 @@ body {
   display: flex;
 }
 
+button {
+  appearance: none;
+  border: 1px solid rgba(200, 165, 107, 0.3);
+  background: linear-gradient(180deg, rgba(113, 28, 28, 0.7), rgba(53, 12, 12, 0.95));
+  color: #fff7ef;
+  padding: 12px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-size: 1rem;
+  font-family: "Georgia", "Times New Roman", serif;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.secondary-btn {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.12);
+  color: var(--muted);
+}
+
 /* =========================
-   首页样式
+   Intro
 ========================== */
 .intro-screen {
   position: relative;
@@ -83,7 +109,7 @@ body {
 }
 
 /* =========================
-   briefing 页面
+   Briefing
 ========================== */
 .briefing-screen {
   justify-content: center;
@@ -161,32 +187,7 @@ body {
 }
 
 /* =========================
-   通用按钮样式
-========================== */
-button {
-  appearance: none;
-  border: 1px solid rgba(200, 165, 107, 0.3);
-  background: linear-gradient(180deg, rgba(113, 28, 28, 0.7), rgba(53, 12, 12, 0.95));
-  color: #fff7ef;
-  padding: 12px 18px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: 0.2s ease;
-  font-size: 1rem;
-}
-
-button:hover {
-  transform: translateY(-2px);
-}
-
-.secondary-btn {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.12);
-  color: var(--muted);
-}
-
-/* =========================
-   游戏页面整体布局
+   Room 1 / Room 2 shared game layout
 ========================== */
 .game-screen {
   flex-direction: column;
@@ -220,9 +221,6 @@ button:hover {
   gap: 16px;
 }
 
-/* =========================
-   左侧场景区
-========================== */
 .scene-panel,
 .side-panel {
   background: rgba(10, 10, 16, 0.82);
@@ -258,7 +256,7 @@ button:hover {
 }
 
 /* =========================
-   热点区域
+   Hotspots
 ========================== */
 .hotspot {
   position: absolute;
@@ -279,9 +277,6 @@ button:hover {
   border-color: rgba(200, 165, 107, 0.3);
 }
 
-/* =========================
-   六个热点坐标
-========================== */
 .hs-photo {
   left: 67%;
   top: 60%;
@@ -338,9 +333,8 @@ button:hover {
   height: 13%;
 }
 
-
 /* =========================
-   右侧侧栏
+   Side panels / reports
 ========================== */
 .side-panel {
   padding: 16px;
@@ -421,9 +415,6 @@ button:hover {
   margin-bottom: 0;
 }
 
-/* =========================
-   证据栏图标
-========================== */
 .evidence-icons {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -455,7 +446,7 @@ button:hover {
 }
 
 /* =========================
-   弹窗样式
+   Modal
 ========================== */
 .modal {
   position: fixed;
@@ -466,6 +457,7 @@ button:hover {
   padding: 22px;
   background: rgba(0,0,0,0.72);
   backdrop-filter: blur(6px);
+  z-index: 9000;
 }
 
 .modal.active {
@@ -522,8 +514,8 @@ button:hover {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
+  align-items: stretch;
 }
-
 
 .artifact-view {
   display: block;
@@ -546,16 +538,8 @@ button:hover {
 .artifact-note {
   display: block;
   line-height: 2;
-}
-
-.modal-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  align-items: stretch;
-}
-
-.artifact-note {
+  overflow-y: auto;
+  overflow-x: hidden;
   background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -564,37 +548,9 @@ button:hover {
   height: 500px;
 }
 
-.artifact-note {
-  display: block;
-  line-height: 2;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.report-entry {
-  margin: 0 0 1rem;
-  line-height: 2;
-}
-
-.report-entry:last-child {
-  margin-bottom: 0;
-}
-
-.report-entry-body p {
-  margin: 0 0 0.9rem;
-}
-
-.report-entry-body p:last-child {
-  margin-bottom: 0;
-}
-
-.report-entry-body-emphasis p {
-  color: var(--gold);
-  font-size: 0.92rem;
-  letter-spacing: 0.04em;
-}
-
-/* 新解锁文字：打字机动画 */
+/* =========================
+   Typewriter
+========================== */
 .typewriter-line {
   opacity: 0;
 }
@@ -618,31 +574,9 @@ button:hover {
     filter: blur(0);
   }
 }
-/* =========================
-   响应式
-========================== */
-@media (max-width: 1100px) {
-  .game-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-content {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 760px) {
-  .evidence-icons {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .scene-wrapper {
-    aspect-ratio: 4 / 3;
-  }
-}
 
 /* =========================
-   照片卡片叠放组件
+   Photo stack
 ========================== */
 .photo-stack-shell {
   width: 100%;
@@ -788,16 +722,6 @@ button:hover {
   color: #f2d4a5;
 }
 
-@media (max-width: 760px) {
-  .photo-stack-stage {
-    height: 380px;
-  }
-
-  .photo-card {
-    width: 82%;
-  }
-}
-
 .photo-flip-btn {
   display: none;
   align-items: center;
@@ -812,7 +736,7 @@ button:hover {
 }
 
 /* =========================
-   娃娃交互组件
+   Doll interaction
 ========================== */
 .doll-shell {
   width: 100%;
@@ -891,7 +815,7 @@ button:hover {
 }
 
 /* =========================
-   动画
+   Collapse / mirror animations
 ========================== */
 body::after {
   content: "";
@@ -953,6 +877,10 @@ body::after {
   100% { transform: translate(0, 0) rotate(0deg) scale(1.01); }
 }
 
+.image-shake-stage-2 {
+  animation: imageShakeMedium 0.55s infinite;
+}
+
 @keyframes imageBlackoutMedium {
   0%   { filter: brightness(1); }
   15%  { filter: brightness(1); }
@@ -964,12 +892,22 @@ body::after {
   100% { filter: brightness(1); }
 }
 
-.image-shake-stage-2 {
-  animation: imageShakeMedium 0.55s infinite;
-}
-
 .image-blackout-stage-2 {
   animation: imageBlackoutMedium 0.95s infinite;
+}
+
+@keyframes imageBlackoutHard {
+  0%   { filter: brightness(1); }
+  14%  { filter: brightness(0.22); }
+  28%  { filter: brightness(0.04); }
+  46%  { filter: brightness(0.55); }
+  64%  { filter: brightness(0.02); }
+  82%  { filter: brightness(0.35); }
+  100% { filter: brightness(0.12); }
+}
+
+.image-blackout-stage-5 {
+  animation: imageBlackoutHard 0.28s infinite;
 }
 
 @keyframes borderPulseChaos {
@@ -1030,20 +968,6 @@ body.text-chaos-stage-4 .evidence-btn {
 
 body.global-flicker-stage-4::after {
   animation: bodyFlashStage4 0.5s infinite;
-}
-
-@keyframes imageBlackoutHard {
-  0%   { filter: brightness(1); }
-  14%  { filter: brightness(0.22); }
-  28%  { filter: brightness(0.04); }
-  46%  { filter: brightness(0.55); }
-  64%  { filter: brightness(0.02); }
-  82%  { filter: brightness(0.35); }
-  100% { filter: brightness(0.12); }
-}
-
-.image-blackout-stage-5 {
-  animation: imageBlackoutHard 0.28s infinite;
 }
 
 @keyframes wholeScreenShakeHard {
@@ -1135,7 +1059,7 @@ body.final-blackout-stage::after {
 }
 
 /* =========================
-   scaffold 调试按钮
+   Scaffold debug nav
 ========================== */
 .scaffold-nav {
   position: fixed;
@@ -1153,35 +1077,31 @@ body.final-blackout-stage::after {
 }
 
 /* =========================
-   第二关档案 / 历史照片专用显示
-   只影响 archiveFolder / photoMirror 弹窗
+   Room 2 archive / photo modal
 ========================== */
-
-/* room2 弹窗整体稍微变宽一点，让图片和文字都有空间 */
 .modal-card:has(.room2-object-stack) {
   width: min(1080px, 96vw);
 }
 
-/* room2 弹窗：左边图片，右边文字。文字比之前宽一些 */
 .modal-content:has(.room2-object-stack) {
   grid-template-columns: minmax(0, 1.12fr) minmax(340px, 0.88fr);
   gap: 14px;
   align-items: stretch;
 }
 
-/* 左侧图片区 */
-.modal-content:has(.room2-object-stack) .artifact-view {
+.modal-content:has(.room2-object-stack) .artifact-view,
+.modal-content:has(.room2-object-stack) .artifact-note {
   height: 540px;
   min-height: 540px;
+}
+
+.modal-content:has(.room2-object-stack) .artifact-view {
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-/* 右侧文字区：比之前宽，不要太窄 */
 .modal-content:has(.room2-object-stack) .artifact-note {
-  height: 540px;
-  min-height: 540px;
   padding: 18px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -1189,7 +1109,6 @@ body.final-blackout-stage::after {
   line-height: 1.85;
 }
 
-/* room2 文字排版 */
 .modal-content:has(.room2-object-stack) .report-entry {
   line-height: 1.85;
 }
@@ -1208,16 +1127,10 @@ body.final-blackout-stage::after {
   text-align: justify;
 }
 
-.modal-content:has(.room2-object-stack) .report-entry-body p:last-child {
-  margin-bottom: 0;
-}
-
-/* room2 stack 容器 */
 .room2-object-stack {
   width: 100%;
 }
 
-/* 关键：舞台占满左侧区域，避免中间出现奇怪空隙 */
 .room2-object-stage {
   position: relative;
   width: 100%;
@@ -1228,7 +1141,6 @@ body.final-blackout-stage::after {
   overflow: visible;
 }
 
-/* room2 图片卡：保持大图显示，不要缩小 */
 .room2-object-stack .photo-card {
   width: 96%;
   max-width: 560px;
@@ -1236,14 +1148,16 @@ body.final-blackout-stage::after {
   aspect-ratio: auto;
 }
 
-/* 透明 PNG 不要黑底，不裁切 */
-.room2-object-stack .photo-card-face {
+.room2-object-stack .photo-card-face,
+.room2-object-stack .photo-card-back,
+.room2-object-stack .photo-back-inner {
   background: transparent !important;
+  border: none !important;
   border-radius: 0;
   overflow: visible;
+  padding: 0 !important;
 }
 
-/* 保留原图比例，不变形，不裁切 */
 .room2-object-stack .photo-card-face img,
 .room2-object-stack .photo-back-inner img {
   width: 100%;
@@ -1253,27 +1167,12 @@ body.final-blackout-stage::after {
   display: block;
 }
 
-/* 背面也保持透明 */
-.room2-object-stack .photo-card-back {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-}
-
-.room2-object-stack .photo-back-inner {
-  width: 100%;
-  height: 100%;
-  background: transparent !important;
-  border-radius: 0;
-  overflow: visible;
-}
-
-/* active 图保持大，不再缩小 */
 .room2-object-stack .photo-card.is-active {
   transform: translate(-50%, -50%) scale(1.1);
+  opacity: 1;
+  z-index: 5;
 }
 
-/* 堆叠层级：保留轻微前后感 */
 .room2-object-stack .photo-card.is-back-2 {
   transform: translate(-50%, -50%) scale(0.96) translateY(-8px);
   opacity: 0.35;
@@ -1288,11 +1187,6 @@ body.final-blackout-stage::after {
   filter: blur(0.5px);
 }
 
-.room2-object-stack .photo-card.is-active {
-  opacity: 1;
-  z-index: 5;
-}
-
 .room2-object-stack .photo-card.is-next-1 {
   transform: translate(-50%, -50%) scale(1.02) translateY(5px);
   opacity: 0.6;
@@ -1305,40 +1199,18 @@ body.final-blackout-stage::after {
   z-index: 2;
 }
 
-/* flip 后仍然保持大图和透明背景 */
 .room2-object-stack .photo-card.flipped {
   transform: translate(-50%, -50%) rotateY(180deg) scale(1.1) !important;
 }
 
-/* room2 底部按钮跟随左侧区域，不另外制造横向空白 */
 .room2-object-stack .photo-stack-footer {
   width: 100%;
   margin-top: 18px;
 }
 
-/* 小屏幕下上下排列 */
-@media (max-width: 1100px) {
-  .modal-content:has(.room2-object-stack) {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-content:has(.room2-object-stack) .artifact-view,
-  .modal-content:has(.room2-object-stack) .artifact-note {
-    height: 500px;
-    min-height: 500px;
-  }
-
-  .room2-object-stack .photo-card {
-    width: 92%;
-    max-width: 560px;
-    height: 380px;
-  }
-}
-
 /* =========================
-   Room 2 侧栏 + 终局眨眼 / 翻转 / 门
+   Room 2 final / blinking / door
 ========================== */
-
 .room2-progress-wrap {
   margin-top: 14px;
   padding-top: 12px;
@@ -1362,7 +1234,6 @@ body.final-blackout-stage::after {
   display: none !important;
 }
 
-/* 全屏黑屏眨眼遮罩 */
 .blink-overlay {
   position: fixed;
   inset: 0;
@@ -1377,7 +1248,6 @@ body.final-blackout-stage::after {
   opacity: 1;
 }
 
-/* Room2 进入全屏阶段 */
 #gameScreen2.room2-fullscreen .top-bar,
 #gameScreen2.room2-fullscreen .side-panel {
   opacity: 0 !important;
@@ -1426,9 +1296,21 @@ body.final-blackout-stage::after {
   cursor: pointer;
 }
 
-/* =========================
-   Room2 终局：三阶段摇晃层次
-========================== */
+.room2-door-enter-zoom {
+  animation: room2DoorEnterZoom 0.82s ease forwards;
+  transform-origin: center center;
+}
+
+@keyframes room2DoorEnterZoom {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  100% {
+    transform: scale(1.16);
+    filter: brightness(0.85);
+  }
+}
 
 @keyframes room2ShakeBasic {
   0%   { transform: translate(0, 0) rotate(0deg) scale(1.01); }
@@ -1439,35 +1321,17 @@ body.final-blackout-stage::after {
   100% { transform: translate(0, 0) rotate(0deg) scale(1.01); }
 }
 
-/* 5s 后开始：左右幅度逐渐变大，持续 10s */
 @keyframes room2ShakeLateralGrow {
-  0% {
-    transform: translateX(0) translateY(0) rotate(0deg) scale(1.01);
-  }
-  15% {
-    transform: translateX(-5px) translateY(1px) rotate(-0.25deg) scale(1.012);
-  }
-  30% {
-    transform: translateX(7px) translateY(-1px) rotate(0.3deg) scale(1.014);
-  }
-  45% {
-    transform: translateX(-11px) translateY(2px) rotate(-0.45deg) scale(1.016);
-  }
-  60% {
-    transform: translateX(15px) translateY(-2px) rotate(0.55deg) scale(1.018);
-  }
-  75% {
-    transform: translateX(-20px) translateY(3px) rotate(-0.7deg) scale(1.02);
-  }
-  90% {
-    transform: translateX(25px) translateY(-3px) rotate(0.85deg) scale(1.022);
-  }
-  100% {
-    transform: translateX(-28px) translateY(2px) rotate(-0.9deg) scale(1.024);
-  }
+  0%   { transform: translateX(0) translateY(0) rotate(0deg) scale(1.01); }
+  15%  { transform: translateX(-5px) translateY(1px) rotate(-0.25deg) scale(1.012); }
+  30%  { transform: translateX(7px) translateY(-1px) rotate(0.3deg) scale(1.014); }
+  45%  { transform: translateX(-11px) translateY(2px) rotate(-0.45deg) scale(1.016); }
+  60%  { transform: translateX(15px) translateY(-2px) rotate(0.55deg) scale(1.018); }
+  75%  { transform: translateX(-20px) translateY(3px) rotate(-0.7deg) scale(1.02); }
+  90%  { transform: translateX(25px) translateY(-3px) rotate(0.85deg) scale(1.022); }
+  100% { transform: translateX(-28px) translateY(2px) rotate(-0.9deg) scale(1.024); }
 }
 
-/* 15s 后：大幅度高频摇晃 */
 @keyframes room2ShakeViolent {
   0%   { transform: translate(0, 0) rotate(0deg) scale(1.035); }
   10%  { transform: translate(-24px, 10px) rotate(-1.4deg) scale(1.04); }
@@ -1492,10 +1356,9 @@ body.final-blackout-stage::after {
 }
 
 /* =========================
-   Chapter 3: Chase / Courtyard
+   Chapter 3 / Chase
 ========================== */
-
-.chase-screen {
+#gameScreen3 {
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -1504,278 +1367,503 @@ body.final-blackout-stage::after {
   background: #000;
 }
 
-.chase-scene {
+#gameScreen3.active {
+  display: flex;
+}
+
+#chaseScene {
   position: relative;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   overflow: hidden;
   background: #000;
 }
 
-.chase-image {
+#chaseImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: filter 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
 }
 
-/* transition overlay */
-.chase-transition-overlay {
-  position: absolute;
+/* Chapter title */
+#chaseChapterIntro {
+  position: fixed;
   inset: 0;
-  z-index: 20;
-  pointer-events: none;
-  opacity: 0;
+  z-index: 30000;
+  display: grid;
+  place-items: center;
   background: #000;
-}
-
-.chase-transition-overlay.active {
-  opacity: 1;
-}
-
-.chase-scene.anim-left .chase-image {
-  animation: chaseBlurLeft 0.75s ease both;
-}
-
-.chase-scene.anim-right .chase-image {
-  animation: chaseBlurRight 0.75s ease both;
-}
-
-.chase-scene.anim-zoom .chase-image {
-  animation: chaseZoomIn 0.9s ease both;
-}
-
-.chase-scene.anim-dark .chase-transition-overlay {
-  animation: chaseDarkPulse 0.9s ease both;
-}
-
-@keyframes chaseBlurLeft {
-  0% {
-    transform: translateX(0) scale(1);
-    filter: blur(0) brightness(1);
-  }
-  50% {
-    transform: translateX(8%) scale(1.06);
-    filter: blur(8px) brightness(0.75);
-  }
-  100% {
-    transform: translateX(0) scale(1);
-    filter: blur(0) brightness(1);
-  }
-}
-
-@keyframes chaseBlurRight {
-  0% {
-    transform: translateX(0) scale(1);
-    filter: blur(0) brightness(1);
-  }
-  50% {
-    transform: translateX(-8%) scale(1.06);
-    filter: blur(8px) brightness(0.75);
-  }
-  100% {
-    transform: translateX(0) scale(1);
-    filter: blur(0) brightness(1);
-  }
-}
-
-@keyframes chaseZoomIn {
-  0% {
-    transform: scale(1);
-    filter: blur(0) brightness(1);
-  }
-  60% {
-    transform: scale(1.18);
-    filter: blur(4px) brightness(0.7);
-  }
-  100% {
-    transform: scale(1);
-    filter: blur(0) brightness(1);
-  }
-}
-
-@keyframes chaseDarkPulse {
-  0% {
-    opacity: 0;
-  }
-  45% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-/* direction choice zones */
-.chase-choice {
-  position: absolute;
-  z-index: 8;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-  padding: 0;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
   opacity: 0;
-  pointer-events: auto;
-  transition: opacity 0.2s ease;
+  pointer-events: none;
+  transition: opacity 0.24s ease;
 }
 
-.chase-choice:hover {
-  transform: none;
-}
-
-.chase-choice[hidden] {
-  display: none !important;
-}
-
-.chase-choice-left {
-  left: 0;
-  top: 0;
-  width: 19vw;
-  height: 100vh;
-  background: linear-gradient(90deg, rgba(180, 40, 40, 0.42), rgba(180, 40, 40, 0));
-}
-
-.chase-choice-right {
-  right: 0;
-  top: 0;
-  width: 19vw;
-  height: 100vh;
-  background: linear-gradient(270deg, rgba(180, 40, 40, 0.42), rgba(180, 40, 40, 0));
-}
-
-.chase-choice-forward {
-  left: 19vw;
-  right: 19vw;
-  top: 0;
-  height: 18vh;
-  width: auto;
-  background: linear-gradient(180deg, rgba(200, 165, 107, 0.38), rgba(200, 165, 107, 0));
-}
-
-.chase-choice:hover {
+#chaseChapterIntro.is-visible {
   opacity: 1;
+  pointer-events: auto;
 }
 
-.chase-choice-label {
-  position: absolute;
-  color: #fff7ef;
-  font-size: 1.1rem;
+#chaseChapterIntro.is-leaving {
+  animation: chaseChapterZoomIn 0.82s ease forwards;
+}
+
+.chase-chapter-intro-inner {
+  text-align: center;
+  padding: 24px;
+}
+
+.chase-chapter-title {
+  font-size: clamp(2.3rem, 5vw, 4rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-shadow: 0 2px 14px rgba(0,0,0,0.9);
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  margin-bottom: 18px;
 }
 
-.chase-choice:hover .chase-choice-label {
-  opacity: 1;
+.chase-chapter-subtitle {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.78);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.chase-choice-left .chase-choice-label {
-  left: 28px;
-  top: 50%;
-  transform: translateY(-50%) rotate(-90deg);
+@keyframes chaseChapterZoomIn {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+    filter: blur(10px);
+  }
 }
 
-.chase-choice-right .chase-choice-label {
-  right: 28px;
-  top: 50%;
-  transform: translateY(-50%) rotate(90deg);
+.chapter-zoom-in {
+  animation: chaseSceneZoomIn 0.82s ease;
 }
 
-.chase-choice-forward .chase-choice-label {
-  left: 50%;
-  top: 28px;
-  transform: translateX(-50%);
+@keyframes chaseSceneZoomIn {
+  0%   { transform: scale(1); filter: brightness(0.5); }
+  100% { transform: scale(1.08); filter: brightness(1); }
 }
 
-/* dialogue */
-.chase-dialogue-box {
+/* Bottom full-width text bar */
+#chaseDialogueBox {
   position: absolute;
-  left: 50%;
-  bottom: 24px;
-  z-index: 10;
-  transform: translateX(-50%);
-  width: min(860px, 84vw);
-  max-height: 38vh;
-  background: rgba(8, 8, 13, 0.58);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 22px;
-  box-shadow: 0 18px 50px rgba(0,0,0,0.45);
-  padding: 18px;
-  color: var(--text);
-  backdrop-filter: blur(7px);
-  opacity: 0.72;
-  transition: opacity 0.25s ease, background 0.25s ease;
-}
-
-.chase-dialogue-box.is-previewing {
-  opacity: 0.86;
-}
-
-.chase-dialogue-box.is-locked {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  z-index: 35;
+  width: 100vw;
+  max-width: none;
+  min-width: 0;
+  max-height: none;
+  transform: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 26px 40px 34px;
+  min-height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(164, 72, 72, 0.34) 0%,
+    rgba(18, 16, 24, 0.86) 34%,
+    rgba(10, 10, 16, 0.62) 72%,
+    rgba(10, 10, 16, 0) 100%
+  );
+  backdrop-filter: blur(4px);
   opacity: 1;
-  background: rgba(8, 8, 13, 0.9);
+  pointer-events: auto;
+}
+
+#chaseDialogueBox .chase-dialogue-header,
+#chaseAnswerScroll,
+#chaseProceedBtn {
+  width: min(1180px, calc(100vw - 80px));
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .chase-dialogue-header {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 
-.chase-node-title {
+#chaseNodeTitle {
   margin: 0 0 4px;
   color: var(--gold);
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  font-size: 0.82rem;
-}
-
-.chase-dialogue-header h2 {
-  margin: 0;
-  font-size: clamp(1.2rem, 2vw, 1.7rem);
+  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
   line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.chase-progress-tag {
+#chaseQuestion {
   margin: 0;
-  color: var(--muted);
+  color: #f7f2eb;
+  font-size: clamp(1rem, 1.55vw, 1.18rem);
+  line-height: 1.65;
+}
+
+#chaseProgressTag {
+  margin: 0;
+  color: rgba(255,255,255,0.62);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   white-space: nowrap;
-  font-size: 0.88rem;
 }
 
-.chase-answer-scroll {
-  max-height: 19vh;
+#chaseAnswerScroll {
+  max-height: 20vh;
   overflow-y: auto;
-  padding-right: 8px;
-  line-height: 1.8;
+  padding-right: 10px;
 }
 
-.chase-answer-text {
-  color: #f4eadc;
-  font-size: 1rem;
+#chaseAnswerText {
+  color: #fff;
+  font-size: clamp(1rem, 1.25vw, 1.16rem);
+  line-height: 1.9;
+  transition: color 0.22s ease, opacity 0.22s ease;
 }
 
-.chase-answer-text p {
-  margin: 0 0 0.8rem;
+#chaseAnswerText.answer-preview {
+  color: #fff;
 }
 
-.chase-proceed-btn {
-  margin-top: 12px;
+#chaseAnswerText.answer-locked {
+  color: var(--gold);
+}
+
+#chaseAnswerText p {
+  margin: 0 0 0.9rem;
+}
+
+#chaseAnswerText p:last-child {
+  margin-bottom: 0;
+}
+
+.chase-hint-line {
+  color: rgba(255,255,255,0.72);
+  font-style: italic;
+}
+
+#chaseProceedBtn {
+  width: auto;
+  align-self: center;
+  padding: 12px 26px;
+  margin-top: 10px;
+}
+
+/* Direction buttons */
+.chase-choice-btn {
+  position: absolute;
+  z-index: 40;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 0;
+  overflow: hidden;
+  min-width: 170px;
+  max-width: 240px;
+  box-shadow: none;
+  transform: none;
+}
+
+.chase-choice-btn:hover {
+  transform: none;
+}
+
+.chase-choice-btn[hidden] {
+  display: none !important;
+}
+
+.chase-choice-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
+
+.chase-choice-left {
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.chase-choice-left::before {
+  background: linear-gradient(90deg, rgba(164,72,72,0.44), rgba(164,72,72,0));
+}
+
+.chase-choice-right {
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.chase-choice-right::before {
+  background: linear-gradient(270deg, rgba(164,72,72,0.44), rgba(164,72,72,0));
+}
+
+.chase-choice-forward {
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+}
+
+.chase-choice-forward::before {
+  background: linear-gradient(180deg, rgba(164,72,72,0.44), rgba(164,72,72,0));
+}
+
+.chase-choice-btn:hover::before,
+.chase-choice-btn.is-preview::before {
+  opacity: 1;
+}
+
+.chase-choice-arrow {
+  position: relative;
+  z-index: 1;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: #fff;
+}
+
+.chase-choice-label {
+  position: relative;
+  z-index: 1;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: inherit;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* Encounter layer */
+.chase-encounter-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+}
+
+.chase-encounter-layer[hidden] {
+  display: none !important;
+}
+
+.chase-encounter-layer.is-dark {
+  background: rgba(0,0,0,0.38);
+  backdrop-filter: blur(10px) brightness(0.45);
+}
+
+.chase-encounter-layer.is-spirit,
+.chase-encounter-layer.is-item-question {
+  background: rgba(0,0,0,0.28);
+  backdrop-filter: blur(7px) brightness(0.5);
+}
+
+.chase-spirit-large {
+  width: min(34vw, 420px);
+  max-width: 76vw;
+  opacity: 0;
+  transform: translateY(6px) scale(0.95);
+  animation: chaseSpiritFadeIn 0.5s ease forwards;
+  filter: drop-shadow(0 0 28px rgba(255,255,255,0.18));
+}
+
+@keyframes chaseSpiritFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.92);
+    filter: blur(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.chase-encounter-card {
+  width: min(1100px, 90vw);
+  display: grid;
+  grid-template-columns: minmax(220px, 360px) 1fr;
+  gap: 30px;
+  align-items: center;
+}
+
+.chase-item-large {
+  width: min(30vw, 320px);
+  max-width: 100%;
+  justify-self: center;
+  filter: drop-shadow(0 0 22px rgba(255,255,255,0.12));
+}
+
+.chase-encounter-copy {
+  color: #fff;
+  line-height: 1.85;
+}
+
+.chase-encounter-speech {
+  margin-bottom: 18px;
+  font-size: clamp(1rem, 1.35vw, 1.12rem);
+}
+
+.chase-encounter-question {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  color: var(--gold);
+  line-height: 1.5;
+}
+
+.chase-encounter-hint {
+  margin-top: 18px;
+  color: rgba(255,255,255,0.72);
+  font-size: 0.96rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Chase transitions */
+.chase-transition-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  pointer-events: none;
+  display: none;
+}
+
+.chase-transition-overlay.active {
+  display: block;
+}
+
+.chase-pan-track {
+  position: absolute;
+  inset: 0;
+  width: 200%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  filter: blur(0);
+}
+
+.chase-pan-frame {
   width: 100%;
-  border-radius: 14px;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-/* drum game */
+/* Left turn: current left, next right, track moves left. */
+.chase-transition-overlay.slide-left .chase-pan-track {
+  transform: translateX(0);
+}
+
+.chase-transition-overlay.slide-left.play .chase-pan-track {
+  transition:
+    transform 0.92s cubic-bezier(0.18, 0.82, 0.24, 1),
+    filter 0.92s ease;
+  transform: translateX(-50%);
+  filter: blur(14px);
+}
+
+/* Right turn: next left, current right, track moves right. */
+.chase-transition-overlay.slide-right .chase-pan-track {
+  transform: translateX(-50%);
+}
+
+.chase-transition-overlay.slide-right.play .chase-pan-track {
+  transition:
+    transform 0.92s cubic-bezier(0.18, 0.82, 0.24, 1),
+    filter 0.92s ease;
+  transform: translateX(0);
+  filter: blur(14px);
+}
+
+.chase-zoom-stack {
+  position: absolute;
+  inset: 0;
+}
+
+.chase-zoom-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.chase-zoom-current {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+.chase-zoom-next {
+  opacity: 0;
+  transform: scale(1.08);
+  filter: blur(12px);
+}
+
+.chase-transition-overlay.zoom-transition.play .chase-zoom-current {
+  transition:
+    transform 0.82s cubic-bezier(0.18, 0.82, 0.24, 1),
+    filter 0.82s ease,
+    opacity 0.82s ease;
+  transform: scale(1.24);
+  filter: blur(14px);
+  opacity: 0;
+}
+
+.chase-transition-overlay.zoom-transition.play .chase-zoom-next {
+  transition:
+    transform 0.82s cubic-bezier(0.18, 0.82, 0.24, 1),
+    filter 0.82s ease,
+    opacity 0.82s ease;
+  transform: scale(1);
+  filter: blur(0);
+  opacity: 1;
+}
+
+.chase-dark-fill {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+}
+
+.chase-transition-overlay.dark-transition.play .chase-dark-fill {
+  transition: opacity 0.62s ease;
+  opacity: 1;
+}
+
+/* Drum game */
 .drum-game-panel {
   position: absolute;
   left: 50%;
   top: 50%;
-  z-index: 30;
+  z-index: 80;
   transform: translate(-50%, -50%);
   width: min(620px, 90vw);
   background: rgba(6, 6, 10, 0.9);
@@ -1800,7 +1888,7 @@ body.final-blackout-stage::after {
   margin: 20px auto;
   background:
     radial-gradient(circle, rgba(200,165,107,0.16), rgba(45,18,10,0.92)),
-    url("images/room/鼓.png");
+    url("images/room/é¼“.png");
   background-size: cover;
   background-position: center;
   border-radius: 50%;
@@ -1854,244 +1942,83 @@ body.final-blackout-stage::after {
   letter-spacing: 0.06em;
 }
 
-/* game over */
-.chase-scene.game-over .chase-image {
+/* Game over visual */
+#chaseScene.game-over #chaseImage {
   filter: brightness(0.18) blur(2px);
 }
 
-.chase-scene.game-over .chase-dialogue-box {
-  background: rgba(0,0,0,0.92);
-  border-color: rgba(164, 72, 72, 0.5);
-}
-
 /* =========================
-   Room 2 door enter zoom
+   Responsive
 ========================== */
-.room2-door-enter-zoom {
-  animation: room2DoorEnterZoom 0.82s ease forwards;
-  transform-origin: center center;
-}
-
-@keyframes room2DoorEnterZoom {
-  0% {
-    transform: scale(1);
-    filter: brightness(1);
+@media (max-width: 1100px) {
+  .game-layout,
+  .modal-content,
+  .modal-content:has(.room2-object-stack) {
+    grid-template-columns: 1fr;
   }
-  100% {
-    transform: scale(1.16);
-    filter: brightness(0.85);
+
+  .modal-content:has(.room2-object-stack) .artifact-view,
+  .modal-content:has(.room2-object-stack) .artifact-note {
+    height: 500px;
+    min-height: 500px;
   }
-}
 
-/* =========================
-   Chapter 3 intro
-========================== */
-.chase-chapter-intro {
-  position: fixed;
-  inset: 0;
-  z-index: 30000;
-  background: #000;
-  color: #fff;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.24s ease;
-  cursor: pointer;
-}
-
-.chase-chapter-intro.is-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.chase-chapter-intro-inner {
-  text-align: center;
-  padding: 24px;
-}
-
-.chase-chapter-title {
-  font-family: "Georgia", "Times New Roman", serif;
-  font-size: clamp(2.3rem, 5vw, 4rem);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-}
-
-.chase-chapter-subtitle {
-  font-size: 1rem;
-  color: rgba(255,255,255,0.78);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.chase-chapter-intro.is-leaving .chase-chapter-intro-inner {
-  animation: chaseIntroZoomIn 0.72s ease forwards;
-}
-
-@keyframes chaseIntroZoomIn {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.14);
-    opacity: 0;
+  .room2-object-stack .photo-card {
+    width: 92%;
+    max-width: 560px;
+    height: 380px;
   }
 }
 
-.chapter-zoom-in {
-  animation: chaseSceneZoomIn 0.72s ease;
-}
-
-@keyframes chaseSceneZoomIn {
-  0% {
-    transform: scale(1);
-    filter: brightness(0.5);
+@media (max-width: 900px) {
+  .chase-encounter-card {
+    grid-template-columns: 1fr;
+    text-align: center;
   }
-  100% {
-    transform: scale(1.08);
-    filter: brightness(1);
+
+  .chase-item-large {
+    width: min(48vw, 260px);
+  }
+
+  .chase-spirit-large {
+    width: min(48vw, 320px);
+  }
+
+  .chase-choice-btn {
+    min-width: 130px;
+    max-width: 170px;
+    padding: 12px 14px;
+  }
+
+  .chase-choice-label {
+    font-size: 0.95rem;
+  }
+
+  #chaseDialogueBox {
+    padding: 22px 24px 28px;
+  }
+
+  #chaseDialogueBox .chase-dialogue-header,
+  #chaseAnswerScroll,
+  #chaseProceedBtn {
+    width: min(100%, calc(100vw - 48px));
   }
 }
 
-/* =========================
-   Chase encounter layer
-========================== */
-.chase-scene,
-#chaseScene {
-  position: relative;
-  overflow: hidden;
-}
+@media (max-width: 760px) {
+  .evidence-icons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-.chase-encounter-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 8;
-  pointer-events: none;
-}
+  .scene-wrapper {
+    aspect-ratio: 4 / 3;
+  }
 
-.chase-spirit-image {
-  position: absolute;
-  left: 50%;
-  top: 22%;
-  transform: translate(-50%, 20px) scale(0.9);
-  width: min(16vw, 170px);
-  opacity: 0;
-  filter: drop-shadow(0 10px 18px rgba(255,255,255,0.18));
-  transition: opacity 0.28s ease, transform 0.35s ease, filter 0.35s ease;
-}
+  .photo-stack-stage {
+    height: 380px;
+  }
 
-.chase-spirit-image.is-visible {
-  opacity: 1;
-  transform: translate(-50%, 0) scale(1);
-}
-
-.chase-spirit-image.is-dissolving {
-  opacity: 0;
-  transform: translate(-50%, -18px) scale(1.08);
-  filter: blur(10px) drop-shadow(0 0 10px rgba(255,255,255,0.1));
-}
-
-.chase-item-card {
-  position: absolute;
-  left: 50%;
-  top: 38%;
-  transform: translate(-50%, -50%) scale(0.86);
-  opacity: 0;
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(8, 8, 12, 0.54);
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
-  transition: opacity 0.28s ease, transform 0.35s ease;
-}
-
-.chase-item-card.is-visible {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.chase-item-image {
-  width: min(16vw, 170px);
-  max-height: 180px;
-  object-fit: contain;
-  display: block;
-  background: transparent;
-}
-
-/* =========================
-   Chase choice buttons
-========================== */
-.chase-choice-btn {
-  position: absolute;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  overflow: hidden;
-  opacity: 0.9;
-  min-width: 110px;
-  min-height: 110px;
-  border-radius: 18px;
-}
-
-.chase-choice-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.24s ease;
-}
-
-#chaseLeftBtn::before {
-  background: linear-gradient(90deg, rgba(255,255,255,0.26), rgba(255,255,255,0));
-}
-
-#chaseForwardBtn::before {
-  background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
-}
-
-#chaseRightBtn::before {
-  background: linear-gradient(270deg, rgba(255,255,255,0.26), rgba(255,255,255,0));
-}
-
-.chase-choice-btn:hover::before,
-.chase-choice-btn.is-preview::before {
-  opacity: 1;
-}
-
-.chase-choice-arrow {
-  position: relative;
-  z-index: 2;
-  display: block;
-  font-size: 2.1rem;
-  line-height: 1;
-  color: rgba(255,255,255,0.95);
-  transition: transform 0.22s ease, opacity 0.22s ease;
-}
-
-.chase-choice-label {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -20%) scale(0.96);
-  z-index: 2;
-  opacity: 0;
-  white-space: nowrap;
-  color: #fff;
-  font-size: 0.92rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: opacity 0.22s ease, transform 0.22s ease;
-}
-
-.chase-choice-btn:hover .chase-choice-label,
-.chase-choice-btn.is-preview .chase-choice-label {
-  opacity: 1;
-  transform: translate(-50%, 40%) scale(1);
-}
-
-.chase-choice-btn:hover .chase-choice-arrow,
-.chase-choice-btn.is-preview .chase-choice-arrow {
-  transform: scale(1.08);
+  .photo-card {
+    width: 82%;
+  }
 }

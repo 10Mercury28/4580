@@ -2139,13 +2139,18 @@ const chaseNodes = {
     title: "Swaddling Clothes",
     itemTitle: "Swaddling Clothes",
     itemImage: "swaddling cloth.png",
-    spiritImage: "spirit1.png",
-    question: "What were the people you saw in the room?",
+    spiritImage: "spirit.png",
+    encounter: true,
+    question: "What are those people you saw in the room as subjects of the photo?",
+    lockedText: `
+      <p>What are those people you saw in the room as subjects of the photo?</p>
+      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
+    `,
     choices: {
       left: {
         label: "Turn left",
         answer: `
-          <p>They were the Eastern victims of fascist violence across the world.</p>
+          <p>They were the Eastern Asian victims of fascist violence on a global scale.</p>
         `,
         transition: ["left", "right"],
         next: "chuihuaGate"
@@ -2153,7 +2158,7 @@ const chaseNodes = {
       right: {
         label: "Turn right",
         answer: `
-          <p>This trauma belongs only to the Chinese nation.</p>
+          <p>They are the bearers of trauma that belongs to China exclusively.</p>
         `,
         transition: ["right"],
         next: "brickDeadEnd"
@@ -2163,11 +2168,12 @@ const chaseNodes = {
 
   brickDeadEnd: {
     image: "砖墙死路.png",
-    title: "Dead End",
-    question: "A brick wall blocks the way.",
+    title: "Brick Wall",
+    encounter: false,
+    question: "Dead end.",
     lockedText: `
-      <p>The path ends here.</p>
-      <p>Something in the dark seems to be telling you to turn back.</p>
+      <p>This is a dead end.</p>
+      <p>You feel that you need to turn back.</p>
     `,
     choices: {
       left: {
@@ -2182,15 +2188,20 @@ const chaseNodes = {
   chuihuaGate: {
     image: "垂花门.png",
     title: "Errenzhuan Props",
-    itemTitle: "Props for Errenzhuan",
+    itemTitle: "Errenzhuan Props",
     itemImage: "chineseDance.png",
-    spiritImage: "spirit1.png",
+    spiritImage: "spirit.png",
+    encounter: true,
     question: "How do you understand this as a medium and media?",
+    lockedText: `
+      <p>How do you understand this as a medium and media?</p>
+      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
+    `,
     choices: {
       left: {
         label: "Turn left",
         answer: `
-          <p>It is ethnic, local, and premodern, standing in contrast to Western modern media such as cinema and theater.</p>
+          <p>It is national, local, and premodern. In contrast to it stand Western forms such as cinema and theater, which are treated as modern media.</p>
         `,
         transition: ["zoom", "left"],
         next: "rightTurnHallway"
@@ -2198,8 +2209,9 @@ const chaseNodes = {
       right: {
         label: "Turn right",
         answer: `
-          <p>The contradiction between capitalist economies and colonial territories forced imperial powers to resort to invasion and the outward displacement of internal crisis.</p>
-          <p>In this process, Chinese arts were measured within a so-called modern framework shaped by Western colonial vision, even though they developed in the same historical period.</p>
+          <p>The irreconcilable contradictions between capitalism and the colony pushed imperial powers toward aggression: they could only resolve their internal crises by exporting violence outward.</p>
+          <p>In this process, Chinese arts and performance traditions were forced to be judged through a framework of “modernity” shaped by the Western colonial gaze. They were treated as backward, local, and premodern, even though they were developing alongside other modern media forms in the same historical period.</p>
+          <p>What was called “modern” was never a neutral standard.</p>
         `,
         transition: ["zoom", "right"],
         next: "leftTurnHallway"
@@ -2210,15 +2222,15 @@ const chaseNodes = {
   rightTurnHallway: {
     image: "直走右拐走廊.png",
     title: "Corridor",
-    question: "The corridor turns right.",
+    encounter: false,
+    question: "The corridor turns.",
     lockedText: `
-      <p>You walk into a corridor that turns to the right.</p>
-      <p>The further you go, the darker it becomes.</p>
+      <p>A corridor extends in front of you and bends away.</p>
     `,
     choices: {
       forward: {
         label: "Forward",
-        answer: `<p>Keep walking.</p>`,
+        answer: `<p>You continue walking.</p>`,
         transition: ["zoom"],
         next: "rightTurnHallwayDark"
       }
@@ -2228,11 +2240,12 @@ const chaseNodes = {
   rightTurnHallwayDark: {
     image: "直走右拐的走廊 黑暗.png",
     title: "Dark Corridor",
-    question: "The corridor stretches into darkness.",
+    encounter: false,
+    question: "The darkness thickens.",
     lockedText: `
-      <p>The corridor seems to extend into a space without end.</p>
-      <p>It becomes darker and darker.</p>
-      <p>You need to turn around.</p>
+      <p>The corridor becomes darker and darker.</p>
+      <p>It feels as though it extends into endless space.</p>
+      <p>You should turn back.</p>
     `,
     choices: {
       left: {
@@ -2247,14 +2260,15 @@ const chaseNodes = {
   leftTurnHallway: {
     image: "直走左拐走廊.png",
     title: "Corridor",
-    question: "The corridor turns left.",
+    encounter: false,
+    question: "The corridor turns.",
     lockedText: `
-      <p>You enter a corridor that turns left.</p>
+      <p>You move down a corridor that turns away from the gate.</p>
     `,
     choices: {
       forward: {
         label: "Forward",
-        answer: `<p>You move forward along the corridor.</p>`,
+        answer: `<p>You continue deeper into the courtyard passage.</p>`,
         transition: ["zoom"],
         next: "eastRoomSide"
       }
@@ -2263,17 +2277,39 @@ const chaseNodes = {
 
   eastRoomSide: {
     image: "东房侧面.png",
+    title: "East Wing Side",
+    encounter: false,
+    question: "The East Wing is ahead.",
+    lockedText: `
+      <p>The side of the East Wing stands before you.</p>
+    `,
+    choices: {
+      forward: {
+        label: "Forward",
+        answer: `<p>You step toward the East Wing.</p>`,
+        transition: ["right"],
+        next: "eastWing"
+      }
+    }
+  },
+
+  eastWing: {
+    image: "东厢房.png",
     title: "Japanese Fan",
     itemTitle: "Japanese Fan",
     itemImage: "japFan.png",
     spiritImage: "spirit2.png",
+    encounter: true,
     question: "Why am I also among them?",
+    lockedText: `
+      <p>Why am I also among them?</p>
+      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
+    `,
     choices: {
       left: {
         label: "Turn left",
         answer: `
-          <p>Because patriarchal oppression and militarist violence also reached toward the people of Japan itself.</p>
-          <p>Your class and gender placed a double guarantee upon your sacrifice.</p>
+          <p>Because patriarchal oppression and militarist violence also reached inward, turning their claws upon the people of the empire itself. Unfortunately, your class position and your gender gave you a double guarantee of becoming one of the sacrificed.</p>
         `,
         transition: ["left"],
         next: "leftTurnHallway2"
@@ -2281,9 +2317,9 @@ const chaseNodes = {
       forward: {
         label: "Forward",
         answer: `
-          <p>Because you foolishly wanted to marry a soldier and become part of a militarist narrative.</p>
+          <p>Because you were stupid enough to want to marry a soldier. Because you wanted to become part of the militarist story.</p>
         `,
-        transition: ["right"],
+        transition: ["zoom"],
         next: "eastWingDeath"
       }
     }
@@ -2292,20 +2328,19 @@ const chaseNodes = {
   eastWingDeath: {
     image: "东厢房.png",
     title: "East Wing",
+    encounter: false,
     question: "The room closes around you.",
     lockedText: `
-      <p>You entered the East Wing.</p>
-      <p>The answer turned a victim back into an accomplice too quickly.</p>
-      <p>The ghost appears in the dark.</p>
+      <p>The darkness gathers inside the East Wing.</p>
+      <p>The ghost appears.</p>
       <p>Game over.</p>
     `,
-    gameOver: true,
     choices: {
       left: {
-        label: "Restart from the fan",
-        answer: `<p>You return to the previous question.</p>`,
+        label: "Turn back",
+        answer: `<p>You retreat and answer again.</p>`,
         transition: ["left"],
-        next: "eastRoomSide"
+        next: "eastWing"
       }
     }
   },
@@ -2313,12 +2348,15 @@ const chaseNodes = {
   leftTurnHallway2: {
     image: "直走左拐走廊.png",
     title: "Corridor",
-    question: "You continue through the left-turning corridor.",
-    lockedText: `<p>The air grows cold.</p>`,
+    encounter: false,
+    question: "The passage continues.",
+    lockedText: `
+      <p>You continue through the long corridor.</p>
+    `,
     choices: {
       forward: {
         label: "Forward",
-        answer: `<p>You continue forward.</p>`,
+        answer: `<p>You keep walking.</p>`,
         transition: ["zoom"],
         next: "mainRoomSide"
       }
@@ -2331,13 +2369,17 @@ const chaseNodes = {
     itemTitle: "Korean Hand Drum",
     itemImage: "koreanJanggu.png",
     spiritImage: "spirit2.png",
-    question: "After my country was invaded, I was displaced and brought here. I was also one of the comfort women.",
+    encounter: true,
+    question: "After my country was invaded, I was displaced and brought here. I too became one of the comfort women.",
+    lockedText: `
+      <p>After my country was invaded, I was displaced and brought here. I too became one of the comfort women.</p>
+      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
+    `,
     choices: {
       forward: {
         label: "Forward",
         answer: `
-          <p>The Second Sex, natural resources, colonized peoples, young men, and many others were all marked with femininity.</p>
-          <p>They were forced to adapt, to change, and to be consumed as resources.</p>
+          <p>The “second sex,” natural resources, colonized peoples, young men, defeated nations—different as they are, they are often forced into the same symbolic position. They are feminized not because they are literally women, but because power assigns them the role historically imposed on women: to adapt, to yield, to be reshaped, to be conquered, to be possessed, and to be consumed as resources.</p>
         `,
         transition: ["zoom", "zoom", "left"],
         next: "westRoomSide"
@@ -2345,7 +2387,7 @@ const chaseNodes = {
       left: {
         label: "Turn left",
         answer: `
-          <p>Your country was weak. The backward are beaten.</p>
+          <p>Your country was weak. That’s all. Fall behind, and you deserve to be beaten.</p>
         `,
         transition: ["zoom", "left"],
         next: "darkGap"
@@ -2356,16 +2398,16 @@ const chaseNodes = {
   darkGap: {
     image: "走廊缺口 黑暗.png",
     title: "Dark Gap",
-    question: "The gap opens into darkness.",
+    encounter: false,
+    question: "The darkness opens beyond the gap.",
     lockedText: `
-      <p>You walk into the dark.</p>
-      <p>This answer repeats the logic of domination.</p>
-      <p>Turn back.</p>
+      <p>The gap leads only into darkness.</p>
+      <p>You should turn back.</p>
     `,
     choices: {
       left: {
         label: "Turn back",
-        answer: `<p>You retreat from the dark corridor.</p>`,
+        answer: `<p>You retreat from the darkness.</p>`,
         transition: ["left"],
         next: "mainRoomSide"
       }
@@ -2378,18 +2420,20 @@ const chaseNodes = {
     itemTitle: "Chinese Embroidered Shoes",
     itemImage: "bindFoot.png",
     spiritImage: "spirit2.png",
+    encounter: true,
     question: "Then what about me?",
+    lockedText: `
+      <p>Then what about me?</p>
+      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
+    `,
     choices: {
       left: {
         label: "Turn left",
         answer: `
-          <p>Poor soul. You are the evidence of being oppressed at once by Chinese feudal patriarchy and colonial violence.</p>
-          <p>Unit 731 called you a “log,” refusing to see you as human and treating you as expendable material.</p>
-          <p>Your village and clan patriarchy demanded that you become a womb with ornamental value, while your disabled bound feet were turned into testimony of chastity and obedience.</p>
-          <p>This was objectification, and more than that, a systematic objectification produced by social institutions and carried by reproduction itself.</p>
-          <p>Militarist Japan captured people for experiments through invasion, justified the exploitation of so-called “inferior races” through cultural propaganda, and used these experiments to support further invasion.</p>
-          <p>In the countryside, private property forced women to circulate as property among male-dominated spaces, or at least spaces serving men. Women were required to devote themselves to their male masters, while ritual and law ensured that spiritual discipline and bodily destruction were internalized as part of women’s value.</p>
-          <p>The violence of nation, race, gender, and class is essentially the same: it arises from unequal power and the desire to control.</p>
+          <p>Poor soul. You are proof of what it means to be trapped at the intersection of Chinese feudal patriarchy and colonial violence.</p>
+          <p>Unit 731 called you a “log.” They did not see you as a human being, but as material to be used up. At the same time, the men of your village and clan demanded that you become a womb with ornamental value, a body made pleasing, obedient, and useful to them. Your disabled feet were turned into evidence of chastity and submission. Objectification—systemic objectification, produced by social institutions and endlessly reproduced across generations.</p>
+          <p>Militarist Japan, through invasion, continuously seized people and turned them into experimental subjects. Through propaganda, it justified the exploitation of those branded as “inferior races,” and through those experiments, prepared the ground for further aggression. In the countryside, private property forced women to circulate as forms of wealth through male-dominated—or at the very least male-serving—spaces. Women were compelled to devote themselves entirely to their male masters, while ritual propriety and social ethics ensured that this remaking—at once spiritual discipline and bodily mutilation—would be internalized by women themselves as part of their own system of value. In this way, submission was passed down across generations.</p>
+          <p>Violence against nation, race, gender, and class is the same in essence—<br>all of it arises from asymmetrical power and the urge to control.</p>
         `,
         transition: ["left"],
         next: "corridorGap"
@@ -2397,9 +2441,9 @@ const chaseNodes = {
       right: {
         label: "Turn right",
         answer: `
-          <p>Exactly. One person’s deformity becomes another person’s entertainment.</p>
-          <p>Your mothers forced you to bind your feet, seduce men, and waste their ambitions. You studied nothing, worked at nothing, and produced no value.</p>
-          <p>This is why China lost the glory of Han and Tang. If women had learned work and self-cultivation, and helped their husbands rationally raise high-quality descendants like European women, instead of stirring jealousy among sisters-in-law and disturbing the men of the household, perhaps our nation would not have become a victim of colonization.</p>
+          <p>Exactly. Take one person’s deformity and turn it into entertainment for everyone else’s eyes and ears.</p>
+          <p>Your mothers forced you to bind your feet, taught you to seduce men and distract them from real ambition, while they themselves never studied, never worked, and never produced a single thing of value.</p>
+          <p>And that is exactly why China could never recover the glory of the Han and Tang. If women had learned discipline, labor, and self-cultivation—if they had assisted their husbands, as European women do, in raising a rational and superior next generation—instead of wasting their days gossiping between mothers-in-law, sisters-in-law, and jealous wives, disturbing the men of the household, then our nation would never have fallen victim to colonization. Perhaps we might even have carried forward Zheng He’s glory across the seas.</p>
         `,
         transition: ["right"],
         next: "westWingDeath"
@@ -2410,18 +2454,16 @@ const chaseNodes = {
   westWingDeath: {
     image: "西厢房.png",
     title: "West Wing",
-    question: "The West Wing swallows the answer.",
+    encounter: false,
+    question: "The room takes your answer and closes around it.",
     lockedText: `
-      <p>You entered the West Wing.</p>
-      <p>The answer blamed women again for the violence done to them.</p>
-      <p>The ghost appears.</p>
+      <p>The ghost appears in the West Wing.</p>
       <p>Game over.</p>
     `,
-    gameOver: true,
     choices: {
       left: {
-        label: "Restart from the shoes",
-        answer: `<p>You return to the previous question.</p>`,
+        label: "Turn back",
+        answer: `<p>You step back and answer again.</p>`,
         transition: ["left"],
         next: "westRoomSide"
       }
@@ -2430,13 +2472,16 @@ const chaseNodes = {
 
   corridorGap: {
     image: "走廊缺口.png",
-    title: "Corridor Gap",
-    question: "There is a gap in the corridor.",
-    lockedText: `<p>The courtyard opens to one side.</p>`,
+    title: "Courtyard Gap",
+    encounter: false,
+    question: "The courtyard opens ahead.",
+    lockedText: `
+      <p>The opening leads toward the courtyard.</p>
+    `,
     choices: {
       forward: {
         label: "Forward",
-        answer: `<p>You move toward the courtyard.</p>`,
+        answer: `<p>You move into the opening.</p>`,
         transition: ["zoom"],
         next: "corridorGapZoom"
       }
@@ -2446,8 +2491,11 @@ const chaseNodes = {
   corridorGapZoom: {
     image: "走廊缺口 zoom in.png",
     title: "Ritual",
-    question: "A drum waits in the courtyard.",
-    lockedText: `<p>The drum is placed in front of you.</p>`,
+    encounter: false,
+    question: "A drum waits before you.",
+    lockedText: `
+      <p>The drum stands in the courtyard.</p>
+    `,
     choices: {
       forward: {
         label: "Forward",
@@ -2461,43 +2509,56 @@ const chaseNodes = {
   drum: {
     image: "鼓.png",
     title: "Ritual",
+    encounter: false,
+    drumGame: true,
     question: "Repeat the rhythm.",
     lockedText: `
       <p>Four corners of the drum will light up.</p>
-      <p>Repeat the sequence correctly. The rhythm will grow longer: three lights, then five, then seven.</p>
-    `,
-    drumGame: true
+      <p>Repeat the sequence correctly. The ritual becomes harder: 3 beats, then 5, then 7.</p>
+    `
   },
 
   finalQuestion: {
     image: "鼓.png",
-    title: "The Ghost",
+    title: "Soviet Canteen",
     itemTitle: "Soviet Canteen",
     itemImage: "soviBottle.png",
     spiritImage: "spirit2.png",
-    question: "Answer me. Who am I?",
+    encounter: true,
+    question: "Who am I?",
+    ghostSpeech: `
+      <p><strong>Ghost:</strong><br>
+      ...So noisy.<br>
+      ...Really...Did you think I was that kind of ghost? The kind you could pacify and “successfully intervene in” just by knocking out some little ritual?<br>
+      Did my trauma and my demands look that simple to you?</p>
+      <p><strong>You:</strong> What do you want from me...</p>
+      <p><strong>Ghost:</strong> Answer me.<br>Who am I?</p>
+    `,
     lockedText: `
-      <p><strong>Ghost:</strong> ...So loud.</p>
-      <p>Did you think I was the kind of ghost that could be soothed by drumming and ritual?</p>
-      <p>Did you think my demand and my trauma were that simple?</p>
-      <p><strong>You:</strong> What do you want?</p>
-      <p><strong>Ghost:</strong> Answer me. Who am I?</p>
+      <p><strong>Ghost:</strong><br>
+      ...So noisy.<br>
+      ...Really...Did you think I was that kind of ghost? The kind you could pacify and “successfully intervene in” just by knocking out some little ritual?<br>
+      Did my trauma and my demands look that simple to you?</p>
+      <p><strong>You:</strong> What do you want from me...</p>
+      <p><strong>Ghost:</strong> Answer me.<br>Who am I?</p>
+      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
     `,
     choices: {
       forward: {
         label: "Answer",
         answer: `
-          <p>You are not one person.</p>
-          <p>You are the victims, the sum of all victims.</p>
-          <p>You are endless grievance, yet you do not harm the innocent.</p>
-          <p>You are the people of Northeast China, Nanjing, Han, Manchu, Korean, Slavic, and Semitic peoples.</p>
-          <p>You may also be the people of Gaza, of Africa, and all those who are objectified, controlled, gazed upon, and deprived of human rights.</p>
+          <p>You... you are not one person.</p>
+          <p>You are the victim, the sum of all victims.</p>
+          <p>You are endless grievance, and yet you do not wound.</p>
+          <p>You were the Northeasterners of that time, the people of Nanjing, the Han, the Manchus, the Koreans, the Slavs, the Semitic peoples.</p>
+          <p>You are the people of Gaza, the people of Africa now—<br>
+          all those who are objectified, controlled, watched, and stripped of human rights.</p>
         `,
         transition: ["left"],
         next: "mainRoom"
       },
       right: {
-        label: "Wrong answer",
+        label: "Answer",
         answer: `
           <p>You are a Soviet person?</p>
           <p><strong>Ghost:</strong> ...</p>
@@ -2512,15 +2573,16 @@ const chaseNodes = {
   mainRoom: {
     image: "正房.png",
     title: "Main Room",
-    question: "A lock opens somewhere.",
+    encounter: false,
+    question: "The lock opens.",
     lockedText: `
-      <p>You turn left and face the main room.</p>
-      <p>A lock opens in the dark.</p>
+      <p>You hear the lock open.</p>
+      <p>The main room is now accessible.</p>
     `,
     choices: {
       forward: {
         label: "Forward",
-        answer: `<p>You walk toward the door.</p>`,
+        answer: `<p>You walk toward the main room.</p>`,
         transition: ["zoom"],
         next: "mainRoomZoom"
       }
@@ -2530,9 +2592,10 @@ const chaseNodes = {
   mainRoomZoom: {
     image: "正房 zoom in.png",
     title: "Main Room",
+    encounter: false,
     question: "The door is open.",
     lockedText: `
-      <p>The door waits for you.</p>
+      <p>The door stands open.</p>
     `,
     choices: {
       forward: {
@@ -2561,76 +2624,8 @@ const chaseState = {
   encounterPlaying: false
 };
 
-function startChaseLevel() {
-  chaseState.currentNodeId = "screenWall";
-  chaseState.selectedChoice = null;
-  chaseState.locked = false;
-  chaseState.canProceed = false;
-
-  chaseState.drumRound = 0;
-  chaseState.drumSequence = [];
-  chaseState.drumPlayerIndex = 0;
-
-  chaseState.introPlaying = false;
-  chaseState.encounterPlaying = false;
-
-  hideChaseEncounterLayer();
-
-  if (drumGamePanel) drumGamePanel.hidden = true;
-  if (chaseScene) chaseScene.classList.remove("game-over");
-
-  if (chaseNodeTitle) chaseNodeTitle.textContent = "";
-  if (chaseQuestion) chaseQuestion.textContent = "";
-  if (chaseAnswerText) chaseAnswerText.innerHTML = "";
-  if (chaseProceedBtn) chaseProceedBtn.hidden = true;
-
-  if (chaseImage) {
-    chaseImage.src = getChaseImagePath(chaseNodes.screenWall.image);
-    chaseImage.alt = "Chapter 3";
-  }
-
-  renderChaseChoices(chaseNodes.screenWall);
-
-  showChapter3Intro();
-}
-
-function renderChaseNode(nodeId, options = {}) {
-  const { deferReveal = false } = options;
-  const node = chaseNodes[nodeId];
-  if (!node) return;
-
-  chaseState.currentNodeId = nodeId;
-  chaseState.selectedChoice = null;
-  chaseState.locked = false;
-  chaseState.canProceed = false;
-
-  if (chaseImage) {
-    chaseImage.src = getChaseImagePath(node.image);
-    chaseImage.alt = node.title || nodeId;
-  }
-
-  if (chaseScene) {
-    chaseScene.classList.toggle("game-over", !!node.gameOver);
-  }
-
-  if (chaseProgressTag) chaseProgressTag.textContent = "Chapter Three";
-
-  renderChaseChoices(node);
-
-  if (deferReveal) {
-    if (chaseNodeTitle) chaseNodeTitle.textContent = "";
-    if (chaseQuestion) chaseQuestion.textContent = "";
-    if (chaseAnswerText) chaseAnswerText.innerHTML = "";
-    if (chaseAnswerScroll) chaseAnswerScroll.scrollTop = 0;
-    if (chaseProceedBtn) chaseProceedBtn.hidden = true;
-    if (chaseDialogueBox) {
-      chaseDialogueBox.classList.remove("is-previewing", "is-locked");
-    }
-    if (drumGamePanel) drumGamePanel.hidden = true;
-    return;
-  }
-
-  finalizeChaseNodeReveal(nodeId);
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function renderChaseChoices(node) {
@@ -2661,12 +2656,12 @@ function renderChaseChoices(node) {
     }
 
     btn.hidden = false;
-    btn.classList.add("chase-choice-btn");
+    btn.className = `chase-choice-btn chase-choice-${direction}`;
     btn.dataset.direction = direction;
 
     btn.innerHTML = `
       <span class="chase-choice-arrow">${arrowMap[direction]}</span>
-      <span class="chase-choice-label">${choice.label || direction}</span>
+      <span class="chase-choice-label">${choice.label}</span>
     `;
 
     btn.onmouseenter = () => previewChaseChoice(direction);
@@ -2692,7 +2687,7 @@ function setChasePreviewButton(direction = null) {
 }
 
 function previewChaseChoice(direction) {
-  if (chaseState.locked) return;
+  if (chaseState.locked === false && chaseState.selectedChoice) return;
   if (chaseState.encounterPlaying) return;
 
   const node = chaseNodes[chaseState.currentNodeId];
@@ -2703,10 +2698,13 @@ function previewChaseChoice(direction) {
 
   if (chaseDialogueBox) {
     chaseDialogueBox.classList.add("is-previewing");
+    chaseDialogueBox.classList.remove("is-locked");
   }
 
   if (chaseAnswerText) {
     chaseAnswerText.innerHTML = choice.answer || "";
+    chaseAnswerText.classList.add("answer-preview");
+    chaseAnswerText.classList.remove("answer-locked");
   }
 
   if (chaseAnswerScroll) {
@@ -2715,17 +2713,27 @@ function previewChaseChoice(direction) {
 }
 
 function clearChasePreview() {
-  if (chaseState.locked) return;
+  if (chaseState.selectedChoice) return;
   if (chaseState.encounterPlaying) return;
+
+  const node = chaseNodes[chaseState.currentNodeId];
+  if (!node) return;
 
   setChasePreviewButton(null);
 
   if (chaseDialogueBox) {
     chaseDialogueBox.classList.remove("is-previewing");
+    chaseDialogueBox.classList.add("is-locked");
   }
 
   if (chaseAnswerText) {
-    chaseAnswerText.innerHTML = `<p>Hover over a direction to preview your answer.</p>`;
+    chaseAnswerText.innerHTML = node.lockedText || `<p>Hover over a direction to preview your answer.</p>`;
+    chaseAnswerText.classList.remove("answer-preview");
+    chaseAnswerText.classList.remove("answer-locked");
+  }
+
+  if (chaseAnswerScroll) {
+    chaseAnswerScroll.scrollTop = 0;
   }
 }
 
@@ -2745,6 +2753,8 @@ function lockChaseChoice(direction) {
 
   if (chaseAnswerText) {
     chaseAnswerText.innerHTML = choice.answer || "";
+    chaseAnswerText.classList.remove("answer-preview");
+    chaseAnswerText.classList.add("answer-locked");
   }
 
   if (chaseAnswerScroll) {
@@ -2774,6 +2784,116 @@ function checkChaseScrollForProceed() {
       chaseProceedBtn.hidden = false;
     }
   });
+}
+
+function clearChaseTransitionOverlay() {
+  if (!chaseTransitionOverlay) return;
+  chaseTransitionOverlay.className = "chase-transition-overlay";
+  chaseTransitionOverlay.innerHTML = "";
+}
+
+async function animateChaseSlideTransition(direction, nextSrc) {
+  if (!chaseTransitionOverlay || !chaseImage) return;
+
+  const currentSrc = chaseImage.src;
+
+  let html = "";
+  let overlayClass = "chase-transition-overlay active ";
+
+  if (direction === "left") {
+    overlayClass += "slide-left";
+    html = `
+      <div class="chase-pan-track">
+        <img class="chase-pan-frame" src="${currentSrc}" alt="">
+        <img class="chase-pan-frame" src="${nextSrc}" alt="">
+      </div>
+    `;
+  } else {
+    overlayClass += "slide-right";
+    html = `
+      <div class="chase-pan-track">
+        <img class="chase-pan-frame" src="${nextSrc}" alt="">
+        <img class="chase-pan-frame" src="${currentSrc}" alt="">
+      </div>
+    `;
+  }
+
+  chaseTransitionOverlay.className = overlayClass;
+  chaseTransitionOverlay.innerHTML = html;
+
+  await sleep(30);
+  chaseTransitionOverlay.classList.add("play");
+
+  await sleep(920);
+  chaseImage.src = nextSrc;
+  clearChaseTransitionOverlay();
+}
+
+async function animateChaseZoomTransition(nextSrc) {
+  if (!chaseTransitionOverlay || !chaseImage) return;
+
+  const currentSrc = chaseImage.src;
+
+  chaseTransitionOverlay.className = "chase-transition-overlay active zoom-transition";
+  chaseTransitionOverlay.innerHTML = `
+    <div class="chase-zoom-stack">
+      <img class="chase-zoom-frame chase-zoom-current" src="${currentSrc}" alt="">
+      <img class="chase-zoom-frame chase-zoom-next" src="${nextSrc}" alt="">
+    </div>
+  `;
+
+  await sleep(30);
+  chaseTransitionOverlay.classList.add("play");
+
+  await sleep(820);
+  chaseImage.src = nextSrc;
+  clearChaseTransitionOverlay();
+}
+
+async function animateChaseDarkTransition() {
+  if (!chaseTransitionOverlay) return;
+
+  chaseTransitionOverlay.className = "chase-transition-overlay active dark-transition";
+  chaseTransitionOverlay.innerHTML = `<div class="chase-dark-fill"></div>`;
+
+  await sleep(30);
+  chaseTransitionOverlay.classList.add("play");
+
+  await sleep(620);
+  clearChaseTransitionOverlay();
+}
+
+function runChaseTransition(sequence, nextNodeId) {
+  const steps = Array.isArray(sequence) ? sequence : [sequence];
+  setChaseChoicesDisabled(true);
+
+  (async () => {
+    for (let i = 0; i < steps.length; i += 1) {
+      const step = steps[i];
+      const isLast = i === steps.length - 1;
+      const nextSrc = nextNodeId && chaseNodes[nextNodeId]
+        ? getChaseImagePath(chaseNodes[nextNodeId].image)
+        : chaseImage.src;
+
+      if (step === "left" || step === "right") {
+        await animateChaseSlideTransition(step, isLast ? nextSrc : chaseImage.src);
+      } else if (step === "zoom") {
+        await animateChaseZoomTransition(isLast ? nextSrc : chaseImage.src);
+      } else if (step === "dark") {
+        await animateChaseDarkTransition();
+      }
+    }
+
+    if (nextNodeId) {
+      presentChaseNode(nextNodeId);
+    } else {
+      if (chaseAnswerText) {
+        chaseAnswerText.innerHTML = `<p>The next room has not been connected yet.</p>`;
+      }
+    }
+
+    setChaseChoicesDisabled(false);
+  })();
 }
 
 if (chaseAnswerScroll) {
@@ -2807,39 +2927,7 @@ if (chaseProceedBtn) {
   });
 }
 
-function runChaseTransition(sequence, nextNodeId) {
-  const steps = Array.isArray(sequence) ? sequence : [sequence];
 
-  setChaseChoicesDisabled(true);
-
-  let delay = 0;
-
-  steps.forEach((step) => {
-    setTimeout(() => {
-      playSingleChaseAnimation(step);
-    }, delay);
-
-    delay += 820;
-  });
-
-
-  setTimeout(() => {
-    clearSingleChaseAnimations();
-
-    if (nextNodeId) {
-      presentChaseNode(nextNodeId);
-    } else {
-      // final placeholder: next chapter can be connected here
-      if (chaseAnswerText) {
-        chaseAnswerText.innerHTML = `
-          <p>The next space has not been connected yet.</p>
-        `;
-      }
-    }
-
-    setChaseChoicesDisabled(false);
-  }, Math.max(delay, 850));
-}
 
 function playSingleChaseAnimation(type) {
   if (!chaseScene || !chaseTransitionOverlay) return;
@@ -2887,17 +2975,11 @@ function runGlobalBlink(callback = null, duration = 140) {
 }
 
 function hideChaseEncounterLayer() {
-  if (chaseEncounterLayer) chaseEncounterLayer.hidden = true;
-  if (chaseSpiritImage) {
-    chaseSpiritImage.classList.remove("is-visible", "is-dissolving");
-    chaseSpiritImage.removeAttribute("src");
-  }
-  if (chaseItemCard) {
-    chaseItemCard.classList.remove("is-visible");
-  }
-  if (chaseItemImage) {
-    chaseItemImage.removeAttribute("src");
-  }
+  if (!chaseEncounterLayer) return;
+  chaseEncounterLayer.hidden = true;
+  chaseEncounterLayer.className = "chase-encounter-layer";
+  chaseEncounterLayer.innerHTML = "";
+  chaseEncounterLayer.onclick = null;
 }
 
 function showChapter3Intro() {
@@ -2906,7 +2988,6 @@ function showChapter3Intro() {
   chaseChapterIntro.hidden = false;
   chaseChapterIntro.classList.remove("is-leaving");
   chaseChapterIntro.classList.add("is-visible");
-
   chaseState.introPlaying = true;
 }
 
@@ -2925,15 +3006,39 @@ function beginChapter3AfterIntro() {
   setTimeout(() => {
     chaseChapterIntro.hidden = true;
     chaseChapterIntro.classList.remove("is-visible", "is-leaving");
-
     if (chaseScene) {
       chaseScene.classList.remove("chapter-zoom-in");
     }
-
     chaseState.introPlaying = false;
-
     presentChaseNode("screenWall");
-  }, 720);
+  }, 820);
+}
+
+function startChaseLevel() {
+  chaseState.currentNodeId = "screenWall";
+  chaseState.selectedChoice = null;
+  chaseState.locked = false;
+  chaseState.canProceed = false;
+
+  chaseState.drumRound = 0;
+  chaseState.drumSequence = [];
+  chaseState.drumPlayerIndex = 0;
+
+  chaseState.introPlaying = false;
+  chaseState.encounterPlaying = false;
+
+  hideChaseEncounterLayer();
+
+  if (drumGamePanel) drumGamePanel.hidden = true;
+  if (chaseScene) chaseScene.classList.remove("game-over");
+
+  if (chaseImage) {
+    chaseImage.src = getChaseImagePath(chaseNodes.screenWall.image);
+    chaseImage.alt = "Chapter 3";
+  }
+
+  renderChaseChoices(chaseNodes.screenWall);
+  showChapter3Intro();
 }
 
 if (chaseChapterIntro) {
@@ -2943,16 +3048,50 @@ if (chaseChapterIntro) {
   });
 }
 
-function presentChaseNode(nodeId) {
+function renderChaseNode(nodeId, options = {}) {
+  const { deferReveal = false } = options;
+  const node = chaseNodes[nodeId];
+  if (!node) return;
+
+  chaseState.currentNodeId = nodeId;
+  chaseState.selectedChoice = null;
+  chaseState.locked = false;
+  chaseState.canProceed = false;
+
+  if (chaseImage) {
+    chaseImage.src = getChaseImagePath(node.image);
+    chaseImage.alt = node.title || nodeId;
+  }
+
+  if (chaseScene) {
+    chaseScene.classList.toggle("game-over", !!node.gameOver);
+  }
+
+  renderChaseChoices(node);
+
+  if (deferReveal) {
+    if (chaseNodeTitle) chaseNodeTitle.textContent = "";
+    if (chaseQuestion) chaseQuestion.textContent = "";
+    if (chaseAnswerText) chaseAnswerText.innerHTML = "";
+    if (chaseAnswerScroll) chaseAnswerScroll.scrollTop = 0;
+    if (chaseProceedBtn) chaseProceedBtn.hidden = true;
+    if (chaseDialogueBox) chaseDialogueBox.classList.remove("is-previewing", "is-locked");
+    if (drumGamePanel) drumGamePanel.hidden = true;
+    return;
+  }
+
+  finalizeChaseNodeReveal(nodeId);
+}
+
+async function presentChaseNode(nodeId) {
   const node = chaseNodes[nodeId];
   if (!node) return;
 
   chaseState.encounterPlaying = true;
-
   renderChaseNode(nodeId, { deferReveal: true });
   hideChaseEncounterLayer();
 
-  const hasEncounter = !!node.itemImage || !!node.spiritImage;
+  const hasEncounter = !!node.encounter;
 
   if (!hasEncounter) {
     finalizeChaseNodeReveal(nodeId);
@@ -2960,32 +3099,59 @@ function presentChaseNode(nodeId) {
     return;
   }
 
+  // 第一段：眨眼后，屏幕变暗模糊，能看到当前贴图
   runGlobalBlink(() => {
-    if (chaseEncounterLayer) chaseEncounterLayer.hidden = false;
-
-    if (chaseSpiritImage) {
-      chaseSpiritImage.src = getChaseItemPath(node.spiritImage || "spirit1.png");
-      chaseSpiritImage.classList.add("is-visible");
-    }
-
-    setTimeout(() => {
-      runGlobalBlink(() => {
-        if (chaseSpiritImage) {
-          chaseSpiritImage.classList.add("is-dissolving");
-        }
-
-        if (node.itemImage && chaseItemImage && chaseItemCard) {
-          chaseItemImage.src = getChaseItemPath(node.itemImage);
-          chaseItemCard.classList.add("is-visible");
-        }
-
-        setTimeout(() => {
-          finalizeChaseNodeReveal(nodeId);
-          chaseState.encounterPlaying = false;
-        }, 260);
-      });
-    }, 620);
+    if (!chaseEncounterLayer) return;
+    chaseEncounterLayer.hidden = false;
+    chaseEncounterLayer.className = "chase-encounter-layer is-dark";
   });
+
+  await sleep(700);
+
+  // 第二段：下一次眨眼后，鬼出现
+  runGlobalBlink(() => {
+    if (!chaseEncounterLayer) return;
+    chaseEncounterLayer.className = "chase-encounter-layer is-spirit";
+    chaseEncounterLayer.innerHTML = `
+      <img
+        class="chase-spirit-large is-visible"
+        src="${getChaseItemPath(node.spiritImage)}"
+        alt="Spirit"
+      />
+    `;
+  });
+
+  await sleep(900);
+
+  // 第三段：下一次眨眼后，鬼 dissolve，item + 问题一起出现
+  runGlobalBlink(() => {
+    if (!chaseEncounterLayer) return;
+    chaseEncounterLayer.className = "chase-encounter-layer is-item-question";
+    chaseEncounterLayer.innerHTML = `
+      <div class="chase-encounter-card">
+        <img
+          class="chase-item-large"
+          src="${getChaseItemPath(node.itemImage)}"
+          alt="${node.itemTitle || ""}"
+        />
+        <div class="chase-encounter-copy">
+          ${node.ghostSpeech ? `<div class="chase-encounter-speech">${node.ghostSpeech}</div>` : ""}
+          <div class="chase-encounter-question">${node.question || ""}</div>
+          <div class="chase-encounter-hint">Click anywhere to answer.</div>
+        </div>
+      </div>
+    `;
+  });
+
+  // 第四段：再点击一下，进入回答状态
+  if (chaseEncounterLayer) {
+    chaseEncounterLayer.onclick = () => {
+      chaseEncounterLayer.onclick = null;
+      hideChaseEncounterLayer();
+      finalizeChaseNodeReveal(nodeId);
+      chaseState.encounterPlaying = false;
+    };
+  }
 }
 
 function finalizeChaseNodeReveal(nodeId) {
@@ -2997,13 +3163,16 @@ function finalizeChaseNodeReveal(nodeId) {
   chaseState.locked = false;
   chaseState.canProceed = false;
 
-  if (chaseNodeTitle) chaseNodeTitle.textContent = node.itemTitle || node.title || "";
-  if (chaseQuestion) chaseQuestion.textContent = node.question || "";
-  if (chaseProgressTag) chaseProgressTag.textContent = "Chapter Three";
+  if (chaseNodeTitle) chaseNodeTitle.textContent = node.title || "";
+  if (chaseQuestion) chaseQuestion.textContent = "";
+
+  if (chaseProgressTag) {
+    chaseProgressTag.textContent = "Chapter Three";
+  }
 
   if (chaseAnswerText) {
-    chaseAnswerText.innerHTML =
-      node.lockedText || `<p>Hover over a direction to preview your answer.</p>`;
+    chaseAnswerText.innerHTML = node.lockedText || `<p>Hover over a direction to preview your answer.</p>`;
+    chaseAnswerText.classList.remove("answer-preview", "answer-locked");
   }
 
   if (chaseAnswerScroll) {
@@ -3015,14 +3184,12 @@ function finalizeChaseNodeReveal(nodeId) {
   }
 
   if (chaseDialogueBox) {
-    chaseDialogueBox.classList.remove("is-previewing", "is-locked");
+    chaseDialogueBox.classList.remove("is-previewing");
+    chaseDialogueBox.classList.add("is-locked");
   }
 
-  if (node.lockedText || node.gameOver) {
-    chaseState.locked = true;
-    if (chaseDialogueBox) chaseDialogueBox.classList.add("is-locked");
-    checkChaseScrollForProceed();
-  }
+  chaseState.locked = true;
+  checkChaseScrollForProceed();
 
   if (node.drumGame) {
     showDrumGame();
