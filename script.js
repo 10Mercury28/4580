@@ -2133,19 +2133,20 @@ function getChaseItemPath(filename) {
   return `${CHASE_ITEM_DIR}${filename}`;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const chaseNodes = {
   screenWall: {
     image: "影壁.png",
     title: "Swaddling Clothes",
     itemTitle: "Swaddling Clothes",
     itemImage: "swaddling cloth.png",
+    spiritCloseImage: "spirit1.png",
     spiritImage: "spirit.png",
     encounter: true,
     question: "What are those people you saw in the room as subjects of the photo?",
-    lockedText: `
-      <p>What are those people you saw in the room as subjects of the photo?</p>
-      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
-    `,
     choices: {
       left: {
         label: "Turn left",
@@ -2170,11 +2171,7 @@ const chaseNodes = {
     image: "砖墙死路.png",
     title: "Brick Wall",
     encounter: false,
-    question: "Dead end.",
-    lockedText: `
-      <p>This is a dead end.</p>
-      <p>You feel that you need to turn back.</p>
-    `,
+    hideDialogue: true,
     choices: {
       left: {
         label: "Turn back",
@@ -2190,13 +2187,10 @@ const chaseNodes = {
     title: "Errenzhuan Props",
     itemTitle: "Errenzhuan Props",
     itemImage: "chineseDance.png",
+    spiritCloseImage: "spirit1.png",
     spiritImage: "spirit.png",
     encounter: true,
     question: "How do you understand this as a medium and media?",
-    lockedText: `
-      <p>How do you understand this as a medium and media?</p>
-      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
-    `,
     choices: {
       left: {
         label: "Turn left",
@@ -2223,10 +2217,7 @@ const chaseNodes = {
     image: "直走右拐走廊.png",
     title: "Corridor",
     encounter: false,
-    question: "The corridor turns.",
-    lockedText: `
-      <p>A corridor extends in front of you and bends away.</p>
-    `,
+    hideDialogue: true,
     choices: {
       forward: {
         label: "Forward",
@@ -2241,12 +2232,7 @@ const chaseNodes = {
     image: "直走右拐的走廊 黑暗.png",
     title: "Dark Corridor",
     encounter: false,
-    question: "The darkness thickens.",
-    lockedText: `
-      <p>The corridor becomes darker and darker.</p>
-      <p>It feels as though it extends into endless space.</p>
-      <p>You should turn back.</p>
-    `,
+    hideDialogue: true,
     choices: {
       left: {
         label: "Turn back",
@@ -2261,10 +2247,7 @@ const chaseNodes = {
     image: "直走左拐走廊.png",
     title: "Corridor",
     encounter: false,
-    question: "The corridor turns.",
-    lockedText: `
-      <p>You move down a corridor that turns away from the gate.</p>
-    `,
+    hideDialogue: true,
     choices: {
       forward: {
         label: "Forward",
@@ -2279,10 +2262,7 @@ const chaseNodes = {
     image: "东房侧面.png",
     title: "East Wing Side",
     encounter: false,
-    question: "The East Wing is ahead.",
-    lockedText: `
-      <p>The side of the East Wing stands before you.</p>
-    `,
+    hideDialogue: true,
     choices: {
       forward: {
         label: "Forward",
@@ -2298,13 +2278,10 @@ const chaseNodes = {
     title: "Japanese Fan",
     itemTitle: "Japanese Fan",
     itemImage: "japFan.png",
+    spiritCloseImage: "spirit1.png",
     spiritImage: "spirit.png",
     encounter: true,
     question: "Why am I also among them?",
-    lockedText: `
-      <p>Why am I also among them?</p>
-      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
-    `,
     choices: {
       left: {
         label: "Turn left",
@@ -2328,19 +2305,16 @@ const chaseNodes = {
   eastWingDeath: {
     image: "东厢房.png",
     title: "East Wing",
-    encounter: false,
     death: true,
-    deathSpirit: "spirit2.png"
+    deathSpiritClose: "spirit1.png",
+    deathSpirit: "spirit.png"
   },
 
   leftTurnHallway2: {
     image: "直走左拐走廊.png",
     title: "Corridor",
     encounter: false,
-    question: "The passage continues.",
-    lockedText: `
-      <p>You continue through the long corridor.</p>
-    `,
+    hideDialogue: true,
     choices: {
       forward: {
         label: "Forward",
@@ -2356,13 +2330,10 @@ const chaseNodes = {
     title: "Korean Hand Drum",
     itemTitle: "Korean Hand Drum",
     itemImage: "koreanJanggu.png",
+    spiritCloseImage: "spirit1.png",
     spiritImage: "spirit.png",
     encounter: true,
     question: "After my country was invaded, I was displaced and brought here. I too became one of the comfort women.",
-    lockedText: `
-      <p>After my country was invaded, I was displaced and brought here. I too became one of the comfort women.</p>
-      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
-    `,
     choices: {
       forward: {
         label: "Forward",
@@ -2387,11 +2358,7 @@ const chaseNodes = {
     image: "走廊缺口 黑暗.png",
     title: "Dark Gap",
     encounter: false,
-    question: "The darkness opens beyond the gap.",
-    lockedText: `
-      <p>The gap leads only into darkness.</p>
-      <p>You should turn back.</p>
-    `,
+    hideDialogue: true,
     choices: {
       left: {
         label: "Turn back",
@@ -2407,13 +2374,10 @@ const chaseNodes = {
     title: "Chinese Embroidered Shoes",
     itemTitle: "Chinese Embroidered Shoes",
     itemImage: "bindFoot.png",
+    spiritCloseImage: "spirit1.png",
     spiritImage: "spirit.png",
     encounter: true,
     question: "Then what about me?",
-    lockedText: `
-      <p>Then what about me?</p>
-      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
-    `,
     choices: {
       left: {
         label: "Turn left",
@@ -2442,19 +2406,16 @@ const chaseNodes = {
   westWingDeath: {
     image: "西厢房.png",
     title: "West Wing",
-    encounter: false,
     death: true,
-    deathSpirit: "spirit2.png"
+    deathSpiritClose: "spirit1.png",
+    deathSpirit: "spirit.png"
   },
 
   corridorGap: {
     image: "走廊缺口.png",
     title: "Courtyard Gap",
     encounter: false,
-    question: "The courtyard opens ahead.",
-    lockedText: `
-      <p>The opening leads toward the courtyard.</p>
-    `,
+    hideDialogue: true,
     choices: {
       forward: {
         label: "Forward",
@@ -2469,10 +2430,7 @@ const chaseNodes = {
     image: "走廊缺口 zoom in.png",
     title: "Ritual",
     encounter: false,
-    question: "A drum waits before you.",
-    lockedText: `
-      <p>The drum stands in the courtyard.</p>
-    `,
+    hideDialogue: true,
     choices: {
       forward: {
         label: "Forward",
@@ -2487,12 +2445,8 @@ const chaseNodes = {
     image: "鼓.png",
     title: "Ritual",
     encounter: false,
-    drumGame: true,
-    question: "Repeat the rhythm.",
-    lockedText: `
-      <p>Four corners of the drum will light up.</p>
-      <p>Repeat the sequence correctly. The ritual becomes harder: 3 beats, then 5, then 7.</p>
-    `
+    hideDialogue: true,
+    drumGame: true
   },
 
   finalQuestion: {
@@ -2500,6 +2454,7 @@ const chaseNodes = {
     title: "Soviet Canteen",
     itemTitle: "Soviet Canteen",
     itemImage: "soviBottle.png",
+    spiritCloseImage: "spirit1.png",
     spiritImage: "spirit.png",
     encounter: true,
     question: "Who am I?",
@@ -2511,15 +2466,6 @@ const chaseNodes = {
       "You: What do you want from me...",
       "Ghost: Answer me.\nWho am I?"
     ],
-    lockedText: `
-      <p><strong>Ghost:</strong><br>
-      ...So noisy.<br>
-      ...Really...Did you think I was that kind of ghost? The kind you could pacify and “successfully intervene in” just by knocking out some little ritual?<br>
-      Did my trauma and my demands look that simple to you?</p>
-      <p><strong>You:</strong> What do you want from me...</p>
-      <p><strong>Ghost:</strong> Answer me.<br>Who am I?</p>
-      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
-    `,
     choices: {
       forward: {
         label: "Answer",
@@ -2551,11 +2497,7 @@ const chaseNodes = {
     image: "正房.png",
     title: "Main Room",
     encounter: false,
-    question: "The lock opens.",
-    lockedText: `
-      <p>You hear the lock open.</p>
-      <p>The main room is now accessible.</p>
-    `,
+    hideDialogue: true,
     choices: {
       forward: {
         label: "Forward",
@@ -2570,10 +2512,7 @@ const chaseNodes = {
     image: "正房 zoom in.png",
     title: "Main Room",
     encounter: false,
-    question: "The door is open.",
-    lockedText: `
-      <p>The door stands open.</p>
-    `,
+    hideDialogue: true,
     choices: {
       forward: {
         label: "Enter",
@@ -2584,7 +2523,6 @@ const chaseNodes = {
     }
   }
 };
-
 
 const chaseState = {
   currentNodeId: "screenWall",
@@ -2600,10 +2538,6 @@ const chaseState = {
   introPlaying: false,
   encounterPlaying: false
 };
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function renderChaseChoices(node) {
   const buttons = {
@@ -2635,7 +2569,6 @@ function renderChaseChoices(node) {
     btn.hidden = false;
     btn.className = `chase-choice-btn chase-choice-${direction}`;
     btn.dataset.direction = direction;
-
     btn.innerHTML = `
       <span class="chase-choice-arrow">${arrowMap[direction]}</span>
       <span class="chase-choice-label">${choice.label}</span>
@@ -2663,6 +2596,19 @@ function setChasePreviewButton(direction = null) {
   }
 }
 
+function hideChaseDialogue() {
+  if (chaseDialogueBox) {
+    chaseDialogueBox.hidden = true;
+    chaseDialogueBox.classList.remove("is-previewing", "is-locked");
+  }
+}
+
+function showChaseDialogue() {
+  if (chaseDialogueBox) {
+    chaseDialogueBox.hidden = false;
+  }
+}
+
 function previewChaseChoice(direction) {
   if (chaseState.selectedChoice) return;
   if (chaseState.encounterPlaying) return;
@@ -2673,9 +2619,25 @@ function previewChaseChoice(direction) {
 
   setChasePreviewButton(direction);
 
+  if (!node.hideDialogue) {
+    showChaseDialogue();
+  }
+
   if (chaseDialogueBox) {
     chaseDialogueBox.classList.add("is-previewing");
     chaseDialogueBox.classList.remove("is-locked");
+  }
+
+  if (chaseNodeTitle) {
+    chaseNodeTitle.textContent = "";
+  }
+
+  if (chaseQuestion) {
+    chaseQuestion.innerHTML = "";
+  }
+
+  if (chaseProgressTag) {
+    chaseProgressTag.textContent = "";
   }
 
   if (chaseAnswerText) {
@@ -2699,7 +2661,31 @@ function clearChasePreview() {
   if (chaseState.selectedChoice) return;
   if (chaseState.encounterPlaying) return;
 
+  const node = chaseNodes[chaseState.currentNodeId];
+  if (!node) return;
+
   setChasePreviewButton(null);
+
+  if (node.hideDialogue) {
+    hideChaseDialogue();
+  } else {
+    showChaseDialogue();
+
+    if (chaseNodeTitle) {
+      chaseNodeTitle.textContent = node.title || "";
+    }
+
+    if (chaseQuestion) {
+      chaseQuestion.innerHTML = `
+        <p>${node.question || ""}</p>
+        <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
+      `;
+    }
+
+    if (chaseProgressTag) {
+      chaseProgressTag.textContent = "Chapter Three";
+    }
+  }
 
   if (chaseDialogueBox) {
     chaseDialogueBox.classList.remove("is-previewing", "is-locked");
@@ -2731,10 +2717,23 @@ function lockChaseChoice(direction) {
   chaseState.canProceed = false;
 
   setChasePreviewButton(direction);
+  showChaseDialogue();
 
   if (chaseDialogueBox) {
     chaseDialogueBox.classList.remove("is-previewing");
     chaseDialogueBox.classList.add("is-locked");
+  }
+
+  if (chaseNodeTitle) {
+    chaseNodeTitle.textContent = "";
+  }
+
+  if (chaseQuestion) {
+    chaseQuestion.innerHTML = "";
+  }
+
+  if (chaseProgressTag) {
+    chaseProgressTag.textContent = "";
   }
 
   if (chaseAnswerText) {
@@ -2757,7 +2756,6 @@ function lockChaseChoice(direction) {
 function checkChaseScrollForProceed() {
   if (!chaseAnswerScroll || !chaseProceedBtn) return;
 
-  // 没有点击方向之前，不允许出现 Proceed
   if (!chaseState.selectedChoice) {
     chaseState.canProceed = false;
     chaseProceedBtn.hidden = true;
@@ -2792,11 +2790,9 @@ async function animateChaseSlideTransition(direction, nextSrc) {
   if (!chaseTransitionOverlay || !chaseImage) return;
 
   const currentSrc = chaseImage.src;
-
   let html = "";
   let overlayClass = "chase-transition-overlay active ";
 
-  // 选择左转：画面应该向右移动
   if (direction === "left") {
     overlayClass += "slide-left";
     html = `
@@ -2807,7 +2803,6 @@ async function animateChaseSlideTransition(direction, nextSrc) {
     `;
   }
 
-  // 选择右转：画面应该向左移动
   if (direction === "right") {
     overlayClass += "slide-right";
     html = `
@@ -2824,7 +2819,7 @@ async function animateChaseSlideTransition(direction, nextSrc) {
   await sleep(30);
   chaseTransitionOverlay.classList.add("play");
 
-  await sleep(920);
+  await sleep(980);
   chaseImage.src = nextSrc;
   clearChaseTransitionOverlay();
 }
@@ -2845,7 +2840,7 @@ async function animateChaseZoomTransition(nextSrc) {
   await sleep(30);
   chaseTransitionOverlay.classList.add("play");
 
-  await sleep(820);
+  await sleep(860);
   chaseImage.src = nextSrc;
   clearChaseTransitionOverlay();
 }
@@ -2859,13 +2854,15 @@ async function animateChaseDarkTransition() {
   await sleep(30);
   chaseTransitionOverlay.classList.add("play");
 
-  await sleep(620);
+  await sleep(650);
   clearChaseTransitionOverlay();
 }
 
 function runChaseTransition(sequence, nextNodeId) {
   const steps = Array.isArray(sequence) ? sequence : [sequence];
+
   setChaseChoicesDisabled(true);
+  hideChaseDialogue();
 
   (async () => {
     for (let i = 0; i < steps.length; i += 1) {
@@ -2912,45 +2909,10 @@ if (chaseProceedBtn) {
     }
 
     const choice = chaseState.selectedChoice;
-
-    if (!choice && node?.choices) {
-      const firstChoice = Object.values(node.choices)[0];
-      if (firstChoice) {
-        runChaseTransition(firstChoice.transition || [], firstChoice.next);
-      }
-      return;
-    }
-
     if (!choice) return;
 
     runChaseTransition(choice.transition || [], choice.next);
   });
-}
-
-
-
-function playSingleChaseAnimation(type) {
-  if (!chaseScene || !chaseTransitionOverlay) return;
-
-  clearSingleChaseAnimations();
-
-  if (type === "left") {
-    chaseScene.classList.add("anim-left");
-  } else if (type === "right") {
-    chaseScene.classList.add("anim-right");
-  } else if (type === "zoom") {
-    chaseScene.classList.add("anim-zoom");
-  } else if (type === "dark") {
-    chaseScene.classList.add("anim-dark");
-    chaseTransitionOverlay.classList.add("active");
-  }
-}
-
-function clearSingleChaseAnimations() {
-  if (!chaseScene || !chaseTransitionOverlay) return;
-
-  chaseScene.classList.remove("anim-left", "anim-right", "anim-zoom", "anim-dark");
-  chaseTransitionOverlay.classList.remove("active");
 }
 
 function setChaseChoicesDisabled(disabled) {
@@ -3006,9 +2968,11 @@ function beginChapter3AfterIntro() {
   setTimeout(() => {
     chaseChapterIntro.hidden = true;
     chaseChapterIntro.classList.remove("is-visible", "is-leaving");
+
     if (chaseScene) {
       chaseScene.classList.remove("chapter-zoom-in");
     }
+
     chaseState.introPlaying = false;
     presentChaseNode("screenWall");
   }, 820);
@@ -3028,6 +2992,7 @@ function startChaseLevel() {
   chaseState.encounterPlaying = false;
 
   hideChaseEncounterLayer();
+  hideChaseDialogue();
 
   if (drumGamePanel) drumGamePanel.hidden = true;
   if (chaseScene) chaseScene.classList.remove("game-over");
@@ -3071,7 +3036,7 @@ function renderChaseNode(nodeId, options = {}) {
 
   if (deferReveal) {
     if (chaseNodeTitle) chaseNodeTitle.textContent = "";
-    if (chaseQuestion) chaseQuestion.textContent = "";
+    if (chaseQuestion) chaseQuestion.innerHTML = "";
     if (chaseAnswerText) chaseAnswerText.innerHTML = "";
     if (chaseAnswerScroll) chaseAnswerScroll.scrollTop = 0;
     if (chaseProceedBtn) chaseProceedBtn.hidden = true;
@@ -3088,9 +3053,7 @@ async function playGhostSpeechSequence(lines = []) {
 
   chaseEncounterLayer.hidden = false;
   chaseEncounterLayer.className = "chase-encounter-layer ghost-speech-layer";
-  chaseEncounterLayer.innerHTML = `
-    <div class="ghost-speech-text"></div>
-  `;
+  chaseEncounterLayer.innerHTML = `<div class="ghost-speech-text"></div>`;
 
   const textNode = chaseEncounterLayer.querySelector(".ghost-speech-text");
 
@@ -3114,48 +3077,80 @@ async function playGhostSpeechSequence(lines = []) {
   chaseEncounterLayer.classList.remove("ghost-line-zoom");
 }
 
+async function playSpiritRevealSequence(node) {
+  if (!chaseEncounterLayer) return;
+
+  const closeSrc = getChaseItemPath(node.spiritCloseImage || "spirit1.png");
+  const fullSrc = getChaseItemPath(node.spiritImage || "spirit.png");
+
+  runGlobalBlink(() => {
+    chaseEncounterLayer.hidden = false;
+    chaseEncounterLayer.className = "chase-encounter-layer is-spirit-close";
+    chaseEncounterLayer.innerHTML = `
+      <img
+        class="chase-spirit-close"
+        src="${closeSrc}"
+        alt="Spirit"
+      />
+    `;
+  });
+
+  await sleep(760);
+
+  const closeImg = chaseEncounterLayer.querySelector(".chase-spirit-close");
+  if (closeImg) {
+    closeImg.classList.add("zooming-out");
+  }
+
+  await sleep(260);
+
+  runGlobalBlink(() => {
+    chaseEncounterLayer.className = "chase-encounter-layer is-spirit-full";
+    chaseEncounterLayer.innerHTML = `
+      <img
+        class="chase-spirit-full"
+        src="${fullSrc}"
+        alt="Spirit"
+      />
+    `;
+  });
+
+  await sleep(760);
+}
+
 async function playChaseDeathSequence(node) {
   if (!chaseEncounterLayer) return;
 
   chaseState.encounterPlaying = true;
+  hideChaseDialogue();
 
-  // 先显示当前死亡房间图
   if (chaseImage && node.image) {
     chaseImage.src = getChaseImagePath(node.image);
   }
 
-  // 1. 鬼出现
-  chaseEncounterLayer.hidden = false;
-  chaseEncounterLayer.className = "chase-encounter-layer chase-death-layer death-spirit-phase";
-  chaseEncounterLayer.innerHTML = `
-    <img
-      class="chase-death-spirit"
-      src="${getChaseItemPath(node.deathSpirit || "spirit2.png")}"
-      alt="Spirit"
-    />
-  `;
+  await playSpiritRevealSequence({
+    spiritCloseImage: node.deathSpiritClose || "spirit1.png",
+    spiritImage: node.deathSpirit || "spirit.png"
+  });
 
-  await sleep(900);
-
-  // 2. 红屏
   chaseEncounterLayer.className = "chase-encounter-layer chase-death-layer death-red-phase";
   chaseEncounterLayer.innerHTML = `
     <img
       class="chase-death-spirit"
-      src="${getChaseItemPath(node.deathSpirit || "spirit2.png")}"
+      src="${getChaseItemPath(node.deathSpirit || "spirit.png")}"
       alt="Spirit"
     />
   `;
 
   await sleep(900);
 
-  // 3. 黑屏文字
   chaseEncounterLayer.className = "chase-encounter-layer chase-death-layer death-black-phase";
   chaseEncounterLayer.innerHTML = `
     <div class="chase-death-text">
       <p>The moment this thought rises in your mind, you feel your eyes and mouth burning fiercely.</p>
       <p>Before you can react, the pain spreads through your entire body.</p>
       <p>Before death, the only thing you hear is the ghost’s roar.</p>
+      <p class="chase-death-hint">Click to wake at the door.</p>
     </div>
   `;
 
@@ -3186,10 +3181,15 @@ async function presentChaseNode(nodeId) {
   chaseState.encounterPlaying = true;
   renderChaseNode(nodeId, { deferReveal: true });
   hideChaseEncounterLayer();
+  hideChaseDialogue();
 
-  const hasEncounter = !!node.encounter;
+  if (node.drumGame) {
+    finalizeChaseNodeReveal(nodeId);
+    chaseState.encounterPlaying = false;
+    return;
+  }
 
-  if (!hasEncounter) {
+  if (!node.encounter) {
     finalizeChaseNodeReveal(nodeId);
     chaseState.encounterPlaying = false;
     return;
@@ -3199,33 +3199,9 @@ async function presentChaseNode(nodeId) {
     await playGhostSpeechSequence(node.ghostLines);
   }
 
-  // 第一段：眨眼后，屏幕变暗模糊，能看到当前贴图
+  await playSpiritRevealSequence(node);
+
   runGlobalBlink(() => {
-    if (!chaseEncounterLayer) return;
-    chaseEncounterLayer.hidden = false;
-    chaseEncounterLayer.className = "chase-encounter-layer is-dark";
-  });
-
-  await sleep(700);
-
-  // 第二段：下一次眨眼后，鬼出现
-  runGlobalBlink(() => {
-    if (!chaseEncounterLayer) return;
-    chaseEncounterLayer.className = "chase-encounter-layer is-spirit";
-    chaseEncounterLayer.innerHTML = `
-      <img
-        class="chase-spirit-large is-visible"
-        src="${getChaseItemPath(node.spiritImage)}"
-        alt="Spirit"
-      />
-    `;
-  });
-
-  await sleep(900);
-
-  // 第三段：下一次眨眼后，鬼 dissolve，item + 问题一起出现
-  runGlobalBlink(() => {
-    if (!chaseEncounterLayer) return;
     chaseEncounterLayer.className = "chase-encounter-layer is-item-question";
     chaseEncounterLayer.innerHTML = `
       <div class="chase-encounter-card">
@@ -3242,15 +3218,12 @@ async function presentChaseNode(nodeId) {
     `;
   });
 
-  // 第四段：再点击一下，进入回答状态
-  if (chaseEncounterLayer) {
-    chaseEncounterLayer.onclick = () => {
-      chaseEncounterLayer.onclick = null;
-      hideChaseEncounterLayer();
-      finalizeChaseNodeReveal(nodeId);
-      chaseState.encounterPlaying = false;
-    };
-  }
+  chaseEncounterLayer.onclick = () => {
+    chaseEncounterLayer.onclick = null;
+    hideChaseEncounterLayer();
+    finalizeChaseNodeReveal(nodeId);
+    chaseState.encounterPlaying = false;
+  };
 }
 
 function finalizeChaseNodeReveal(nodeId) {
@@ -3262,36 +3235,42 @@ function finalizeChaseNodeReveal(nodeId) {
   chaseState.locked = false;
   chaseState.canProceed = false;
 
-  if (chaseNodeTitle) {
-    chaseNodeTitle.textContent = node.title || "";
-  }
+  if (node.hideDialogue) {
+    hideChaseDialogue();
+  } else {
+    showChaseDialogue();
 
-  if (chaseQuestion) {
-    chaseQuestion.innerHTML = `
-      <p>${node.question || ""}</p>
-      <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
-    `;
-  }
+    if (chaseNodeTitle) {
+      chaseNodeTitle.textContent = node.title || "";
+    }
 
-  if (chaseProgressTag) {
-    chaseProgressTag.textContent = "Chapter Three";
-  }
+    if (chaseQuestion) {
+      chaseQuestion.innerHTML = `
+        <p>${node.question || ""}</p>
+        <p class="chase-hint-line">Hover over a direction to preview your answer.</p>
+      `;
+    }
 
-  if (chaseAnswerText) {
-    chaseAnswerText.innerHTML = "";
-    chaseAnswerText.classList.remove("answer-preview", "answer-locked");
-  }
+    if (chaseProgressTag) {
+      chaseProgressTag.textContent = "Chapter Three";
+    }
 
-  if (chaseAnswerScroll) {
-    chaseAnswerScroll.scrollTop = 0;
-  }
+    if (chaseAnswerText) {
+      chaseAnswerText.innerHTML = "";
+      chaseAnswerText.classList.remove("answer-preview", "answer-locked");
+    }
 
-  if (chaseProceedBtn) {
-    chaseProceedBtn.hidden = true;
-  }
+    if (chaseAnswerScroll) {
+      chaseAnswerScroll.scrollTop = 0;
+    }
 
-  if (chaseDialogueBox) {
-    chaseDialogueBox.classList.remove("is-previewing", "is-locked");
+    if (chaseProceedBtn) {
+      chaseProceedBtn.hidden = true;
+    }
+
+    if (chaseDialogueBox) {
+      chaseDialogueBox.classList.remove("is-previewing", "is-locked");
+    }
   }
 
   if (node.drumGame) {
@@ -3416,10 +3395,10 @@ function finishDrumRitual() {
 
 function returnToRoom2DoorAfterDeath() {
   hideChaseEncounterLayer();
+  hideChaseDialogue();
 
   openScreen(gameScreen2);
 
-  // 确保 room2 保持在门出现后的状态
   room2State.finalTriggered = true;
   room2State.fullscreenActive = true;
   room2State.doorFlipUnlocked = true;
@@ -3442,7 +3421,6 @@ function returnToRoom2DoorAfterDeath() {
 
   renderRoom2Status();
 
-  // 如果 bgm3 停了，重新播放
   if (bgm3) {
     if (bgm3.paused) {
       bgm3Started = false;
@@ -3452,6 +3430,5 @@ function returnToRoom2DoorAfterDeath() {
     switchToBgm3();
   }
 
-  // 重新开始眨眼循环
   restartRoom2BlinkFromImmediateBlink();
 }
