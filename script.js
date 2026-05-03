@@ -6,6 +6,7 @@ const goIntroBtn = document.getElementById("goIntroBtn");
 const goBriefingBtn = document.getElementById("goBriefingBtn");
 const goRoom1Btn = document.getElementById("goRoom1Btn");
 const goRoom2Btn = document.getElementById("goRoom2Btn");
+const goRoom3Btn = document.getElementById("goRoom3Btn");
 
 const introScreen = document.getElementById("introScreen");
 const briefingScreen = document.getElementById("briefingScreen");
@@ -28,6 +29,26 @@ const room2ProgressCount = document.getElementById("room2ProgressCount");
 const blinkOverlay = document.getElementById("blinkOverlay");
 const gameScreen3 = document.getElementById("gameScreen3");
 
+const chaseScene = document.getElementById("chaseScene");
+const chaseImage = document.getElementById("chaseImage");
+const chaseTransitionOverlay = document.getElementById("chaseTransitionOverlay");
+
+const chaseLeftBtn = document.getElementById("chaseLeftBtn");
+const chaseForwardBtn = document.getElementById("chaseForwardBtn");
+const chaseRightBtn = document.getElementById("chaseRightBtn");
+
+const chaseDialogueBox = document.getElementById("chaseDialogueBox");
+const chaseNodeTitle = document.getElementById("chaseNodeTitle");
+const chaseQuestion = document.getElementById("chaseQuestion");
+const chaseProgressTag = document.getElementById("chaseProgressTag");
+const chaseAnswerScroll = document.getElementById("chaseAnswerScroll");
+const chaseAnswerText = document.getElementById("chaseAnswerText");
+const chaseProceedBtn = document.getElementById("chaseProceedBtn");
+
+const drumGamePanel = document.getElementById("drumGamePanel");
+const drumInstruction = document.getElementById("drumInstruction");
+const drumRoundText = document.getElementById("drumRoundText");
+
 const storyText = document.getElementById("storyText");
 const storyText2 = document.getElementById("storyText2");
 
@@ -47,6 +68,13 @@ const gameScreenInner = document.getElementById("gameScreen");
 
 const bgm1 = document.getElementById("bgm1");
 const bgm2 = document.getElementById("bgm2");
+const bgm3 = document.getElementById("bgm3");
+
+const chaseChapterIntro = document.getElementById("chaseChapterIntro");
+const chaseEncounterLayer = document.getElementById("chaseEncounterLayer");
+const chaseSpiritImage = document.getElementById("chaseSpiritImage");
+const chaseItemCard = document.getElementById("chaseItemCard");
+const chaseItemImage = document.getElementById("chaseItemImage");
 
 let bgm1Started = false;
 let bgm2Started = false;
@@ -174,6 +202,10 @@ function openScreen(screenToOpen) {
   briefingScreen.classList.remove("active");
   gameScreen.classList.remove("active");
   gameScreen2.classList.remove("active");
+
+  if (gameScreen3) {
+    gameScreen3.classList.remove("active");
+  }
 
   if (screenToOpen) {
     screenToOpen.classList.add("active");
@@ -1207,12 +1239,23 @@ function toggleRoom2MainImage() {
 function goToNextRoomFromDoor() {
   if (!room2State.doorVisible) return;
 
-  if (gameScreen3) {
-    openScreen(gameScreen3);
+  if (!gameScreen3) {
+    alert("Next room not added yet. Create an element with id='gameScreen3'.");
     return;
   }
 
-  alert("Next room not added yet. Create an element with id='gameScreen3'.");
+  if (room2SceneWrapper) {
+    room2SceneWrapper.classList.add("room2-door-enter-zoom");
+  }
+
+  setTimeout(() => {
+    if (room2SceneWrapper) {
+      room2SceneWrapper.classList.remove("room2-door-enter-zoom");
+    }
+
+    openScreen(gameScreen3);
+    startChaseLevel();
+  }, 850);
 }
 
 /* =========================
@@ -2016,16 +2059,15 @@ if (goRoom2Btn) {
   });
 }
 
-if (room2FlipBtn) {
-  room2FlipBtn.addEventListener("click", toggleRoom2MainImage);
+if (goRoom3Btn) {
+  goRoom3Btn.addEventListener("click", () => {
+    scaffoldJumpTo(gameScreen3);
+    startChaseLevel();
+  });
 }
 
-if (roomImage2) {
-  roomImage2.addEventListener("click", () => {
-    if (room2State.doorVisible) {
-      goToNextRoomFromDoor();
-    }
-  });
+if (room2FlipBtn) {
+  room2FlipBtn.addEventListener("click", toggleRoom2MainImage);
 }
 
 if (room2SceneWrapper) {
@@ -2035,23 +2077,1069 @@ if (room2SceneWrapper) {
 
     room2State.dragActive = true;
     room2State.dragStartX = event.clientX;
+    room2State.dragMoved = false;
+
     room2SceneWrapper.setPointerCapture(event.pointerId);
+  });
+
+  room2SceneWrapper.addEventListener("pointermove", (event) => {
+    if (!room2State.dragActive) return;
+
+    const deltaX = event.clientX - room2State.dragStartX;
+    if (Math.abs(deltaX) > 12) {
+      room2State.dragMoved = true;
+    }
   });
 
   room2SceneWrapper.addEventListener("pointerup", (event) => {
     if (!room2State.dragActive) return;
 
     const deltaX = event.clientX - room2State.dragStartX;
+    const moved = Math.abs(deltaX) > 60;
+
     room2State.dragActive = false;
 
-    if (Math.abs(deltaX) > 60) {
+    if (moved) {
       toggleRoom2MainImage();
+      return;
+    }
+
+    // 没有拖拽，只是点击；如果当前是门图，就进入第三关
+    if (room2State.doorVisible) {
+      goToNextRoomFromDoor();
     }
   });
 
   room2SceneWrapper.addEventListener("pointercancel", () => {
     room2State.dragActive = false;
+    room2State.dragMoved = false;
   });
 }
 
 renderRoom2Status();
+
+/* =========================
+   Chapter 3: Chase Level
+========================== */
+
+const CHASE_IMAGE_DIR = "images/room/";
+const CHASE_ITEM_DIR = "images/chaseItem/";
+
+function getChaseImagePath(filename) {
+  return `${CHASE_IMAGE_DIR}${filename}`;
+}
+
+function getChaseItemPath(filename) {
+  return `${CHASE_ITEM_DIR}${filename}`;
+}
+
+const chaseNodes = {
+  screenWall: {
+    image: "影壁.png",
+    title: "Swaddling Clothes",
+    itemTitle: "Swaddling Clothes",
+    itemImage: "swaddling cloth.png",
+    spiritImage: "spirit1.png",
+    question: "What were the people you saw in the room?",
+    choices: {
+      left: {
+        label: "Turn left",
+        answer: `
+          <p>They were the Eastern victims of fascist violence across the world.</p>
+        `,
+        transition: ["left", "right"],
+        next: "chuihuaGate"
+      },
+      right: {
+        label: "Turn right",
+        answer: `
+          <p>This trauma belongs only to the Chinese nation.</p>
+        `,
+        transition: ["right"],
+        next: "brickDeadEnd"
+      }
+    }
+  },
+
+  brickDeadEnd: {
+    image: "砖墙死路.png",
+    title: "Dead End",
+    question: "A brick wall blocks the way.",
+    lockedText: `
+      <p>The path ends here.</p>
+      <p>Something in the dark seems to be telling you to turn back.</p>
+    `,
+    choices: {
+      left: {
+        label: "Turn back",
+        answer: `<p>You turn away from the wall.</p>`,
+        transition: ["left"],
+        next: "screenWall"
+      }
+    }
+  },
+
+  chuihuaGate: {
+    image: "垂花门.png",
+    title: "Errenzhuan Props",
+    itemTitle: "Props for Errenzhuan",
+    itemImage: "chineseDance.png",
+    spiritImage: "spirit1.png",
+    question: "How do you understand this as a medium and media?",
+    choices: {
+      left: {
+        label: "Turn left",
+        answer: `
+          <p>It is ethnic, local, and premodern, standing in contrast to Western modern media such as cinema and theater.</p>
+        `,
+        transition: ["zoom", "left"],
+        next: "rightTurnHallway"
+      },
+      right: {
+        label: "Turn right",
+        answer: `
+          <p>The contradiction between capitalist economies and colonial territories forced imperial powers to resort to invasion and the outward displacement of internal crisis.</p>
+          <p>In this process, Chinese arts were measured within a so-called modern framework shaped by Western colonial vision, even though they developed in the same historical period.</p>
+        `,
+        transition: ["zoom", "right"],
+        next: "leftTurnHallway"
+      }
+    }
+  },
+
+  rightTurnHallway: {
+    image: "直走右拐走廊.png",
+    title: "Corridor",
+    question: "The corridor turns right.",
+    lockedText: `
+      <p>You walk into a corridor that turns to the right.</p>
+      <p>The further you go, the darker it becomes.</p>
+    `,
+    choices: {
+      forward: {
+        label: "Forward",
+        answer: `<p>Keep walking.</p>`,
+        transition: ["zoom"],
+        next: "rightTurnHallwayDark"
+      }
+    }
+  },
+
+  rightTurnHallwayDark: {
+    image: "直走右拐的走廊 黑暗.png",
+    title: "Dark Corridor",
+    question: "The corridor stretches into darkness.",
+    lockedText: `
+      <p>The corridor seems to extend into a space without end.</p>
+      <p>It becomes darker and darker.</p>
+      <p>You need to turn around.</p>
+    `,
+    choices: {
+      left: {
+        label: "Turn back",
+        answer: `<p>You turn back before the darkness swallows you.</p>`,
+        transition: ["left"],
+        next: "chuihuaGate"
+      }
+    }
+  },
+
+  leftTurnHallway: {
+    image: "直走左拐走廊.png",
+    title: "Corridor",
+    question: "The corridor turns left.",
+    lockedText: `
+      <p>You enter a corridor that turns left.</p>
+    `,
+    choices: {
+      forward: {
+        label: "Forward",
+        answer: `<p>You move forward along the corridor.</p>`,
+        transition: ["zoom"],
+        next: "eastRoomSide"
+      }
+    }
+  },
+
+  eastRoomSide: {
+    image: "东房侧面.png",
+    title: "Japanese Fan",
+    itemTitle: "Japanese Fan",
+    itemImage: "japFan.png",
+    spiritImage: "spirit2.png",
+    question: "Why am I also among them?",
+    choices: {
+      left: {
+        label: "Turn left",
+        answer: `
+          <p>Because patriarchal oppression and militarist violence also reached toward the people of Japan itself.</p>
+          <p>Your class and gender placed a double guarantee upon your sacrifice.</p>
+        `,
+        transition: ["left"],
+        next: "leftTurnHallway2"
+      },
+      forward: {
+        label: "Forward",
+        answer: `
+          <p>Because you foolishly wanted to marry a soldier and become part of a militarist narrative.</p>
+        `,
+        transition: ["right"],
+        next: "eastWingDeath"
+      }
+    }
+  },
+
+  eastWingDeath: {
+    image: "东厢房.png",
+    title: "East Wing",
+    question: "The room closes around you.",
+    lockedText: `
+      <p>You entered the East Wing.</p>
+      <p>The answer turned a victim back into an accomplice too quickly.</p>
+      <p>The ghost appears in the dark.</p>
+      <p>Game over.</p>
+    `,
+    gameOver: true,
+    choices: {
+      left: {
+        label: "Restart from the fan",
+        answer: `<p>You return to the previous question.</p>`,
+        transition: ["left"],
+        next: "eastRoomSide"
+      }
+    }
+  },
+
+  leftTurnHallway2: {
+    image: "直走左拐走廊.png",
+    title: "Corridor",
+    question: "You continue through the left-turning corridor.",
+    lockedText: `<p>The air grows cold.</p>`,
+    choices: {
+      forward: {
+        label: "Forward",
+        answer: `<p>You continue forward.</p>`,
+        transition: ["zoom"],
+        next: "mainRoomSide"
+      }
+    }
+  },
+
+  mainRoomSide: {
+    image: "正房侧面.png",
+    title: "Korean Hand Drum",
+    itemTitle: "Korean Hand Drum",
+    itemImage: "koreanJanggu.png",
+    spiritImage: "spirit2.png",
+    question: "After my country was invaded, I was displaced and brought here. I was also one of the comfort women.",
+    choices: {
+      forward: {
+        label: "Forward",
+        answer: `
+          <p>The Second Sex, natural resources, colonized peoples, young men, and many others were all marked with femininity.</p>
+          <p>They were forced to adapt, to change, and to be consumed as resources.</p>
+        `,
+        transition: ["zoom", "zoom", "left"],
+        next: "westRoomSide"
+      },
+      left: {
+        label: "Turn left",
+        answer: `
+          <p>Your country was weak. The backward are beaten.</p>
+        `,
+        transition: ["zoom", "left"],
+        next: "darkGap"
+      }
+    }
+  },
+
+  darkGap: {
+    image: "走廊缺口 黑暗.png",
+    title: "Dark Gap",
+    question: "The gap opens into darkness.",
+    lockedText: `
+      <p>You walk into the dark.</p>
+      <p>This answer repeats the logic of domination.</p>
+      <p>Turn back.</p>
+    `,
+    choices: {
+      left: {
+        label: "Turn back",
+        answer: `<p>You retreat from the dark corridor.</p>`,
+        transition: ["left"],
+        next: "mainRoomSide"
+      }
+    }
+  },
+
+  westRoomSide: {
+    image: "西房侧面.png",
+    title: "Chinese Embroidered Shoes",
+    itemTitle: "Chinese Embroidered Shoes",
+    itemImage: "bindFoot.png",
+    spiritImage: "spirit2.png",
+    question: "Then what about me?",
+    choices: {
+      left: {
+        label: "Turn left",
+        answer: `
+          <p>Poor soul. You are the evidence of being oppressed at once by Chinese feudal patriarchy and colonial violence.</p>
+          <p>Unit 731 called you a “log,” refusing to see you as human and treating you as expendable material.</p>
+          <p>Your village and clan patriarchy demanded that you become a womb with ornamental value, while your disabled bound feet were turned into testimony of chastity and obedience.</p>
+          <p>This was objectification, and more than that, a systematic objectification produced by social institutions and carried by reproduction itself.</p>
+          <p>Militarist Japan captured people for experiments through invasion, justified the exploitation of so-called “inferior races” through cultural propaganda, and used these experiments to support further invasion.</p>
+          <p>In the countryside, private property forced women to circulate as property among male-dominated spaces, or at least spaces serving men. Women were required to devote themselves to their male masters, while ritual and law ensured that spiritual discipline and bodily destruction were internalized as part of women’s value.</p>
+          <p>The violence of nation, race, gender, and class is essentially the same: it arises from unequal power and the desire to control.</p>
+        `,
+        transition: ["left"],
+        next: "corridorGap"
+      },
+      right: {
+        label: "Turn right",
+        answer: `
+          <p>Exactly. One person’s deformity becomes another person’s entertainment.</p>
+          <p>Your mothers forced you to bind your feet, seduce men, and waste their ambitions. You studied nothing, worked at nothing, and produced no value.</p>
+          <p>This is why China lost the glory of Han and Tang. If women had learned work and self-cultivation, and helped their husbands rationally raise high-quality descendants like European women, instead of stirring jealousy among sisters-in-law and disturbing the men of the household, perhaps our nation would not have become a victim of colonization.</p>
+        `,
+        transition: ["right"],
+        next: "westWingDeath"
+      }
+    }
+  },
+
+  westWingDeath: {
+    image: "西厢房.png",
+    title: "West Wing",
+    question: "The West Wing swallows the answer.",
+    lockedText: `
+      <p>You entered the West Wing.</p>
+      <p>The answer blamed women again for the violence done to them.</p>
+      <p>The ghost appears.</p>
+      <p>Game over.</p>
+    `,
+    gameOver: true,
+    choices: {
+      left: {
+        label: "Restart from the shoes",
+        answer: `<p>You return to the previous question.</p>`,
+        transition: ["left"],
+        next: "westRoomSide"
+      }
+    }
+  },
+
+  corridorGap: {
+    image: "走廊缺口.png",
+    title: "Corridor Gap",
+    question: "There is a gap in the corridor.",
+    lockedText: `<p>The courtyard opens to one side.</p>`,
+    choices: {
+      forward: {
+        label: "Forward",
+        answer: `<p>You move toward the courtyard.</p>`,
+        transition: ["zoom"],
+        next: "corridorGapZoom"
+      }
+    }
+  },
+
+  corridorGapZoom: {
+    image: "走廊缺口 zoom in.png",
+    title: "Ritual",
+    question: "A drum waits in the courtyard.",
+    lockedText: `<p>The drum is placed in front of you.</p>`,
+    choices: {
+      forward: {
+        label: "Forward",
+        answer: `<p>You approach the drum.</p>`,
+        transition: ["zoom"],
+        next: "drum"
+      }
+    }
+  },
+
+  drum: {
+    image: "鼓.png",
+    title: "Ritual",
+    question: "Repeat the rhythm.",
+    lockedText: `
+      <p>Four corners of the drum will light up.</p>
+      <p>Repeat the sequence correctly. The rhythm will grow longer: three lights, then five, then seven.</p>
+    `,
+    drumGame: true
+  },
+
+  finalQuestion: {
+    image: "鼓.png",
+    title: "The Ghost",
+    itemTitle: "Soviet Canteen",
+    itemImage: "soviBottle.png",
+    spiritImage: "spirit2.png",
+    question: "Answer me. Who am I?",
+    lockedText: `
+      <p><strong>Ghost:</strong> ...So loud.</p>
+      <p>Did you think I was the kind of ghost that could be soothed by drumming and ritual?</p>
+      <p>Did you think my demand and my trauma were that simple?</p>
+      <p><strong>You:</strong> What do you want?</p>
+      <p><strong>Ghost:</strong> Answer me. Who am I?</p>
+    `,
+    choices: {
+      forward: {
+        label: "Answer",
+        answer: `
+          <p>You are not one person.</p>
+          <p>You are the victims, the sum of all victims.</p>
+          <p>You are endless grievance, yet you do not harm the innocent.</p>
+          <p>You are the people of Northeast China, Nanjing, Han, Manchu, Korean, Slavic, and Semitic peoples.</p>
+          <p>You may also be the people of Gaza, of Africa, and all those who are objectified, controlled, gazed upon, and deprived of human rights.</p>
+        `,
+        transition: ["left"],
+        next: "mainRoom"
+      },
+      right: {
+        label: "Wrong answer",
+        answer: `
+          <p>You are a Soviet person?</p>
+          <p><strong>Ghost:</strong> ...</p>
+          <p>Answer again.</p>
+        `,
+        transition: ["right"],
+        next: "finalQuestion"
+      }
+    }
+  },
+
+  mainRoom: {
+    image: "正房.png",
+    title: "Main Room",
+    question: "A lock opens somewhere.",
+    lockedText: `
+      <p>You turn left and face the main room.</p>
+      <p>A lock opens in the dark.</p>
+    `,
+    choices: {
+      forward: {
+        label: "Forward",
+        answer: `<p>You walk toward the door.</p>`,
+        transition: ["zoom"],
+        next: "mainRoomZoom"
+      }
+    }
+  },
+
+  mainRoomZoom: {
+    image: "正房 zoom in.png",
+    title: "Main Room",
+    question: "The door is open.",
+    lockedText: `
+      <p>The door waits for you.</p>
+    `,
+    choices: {
+      forward: {
+        label: "Enter",
+        answer: `<p>You enter the next space.</p>`,
+        transition: ["zoom", "dark"],
+        next: null
+      }
+    }
+  }
+};
+
+
+const chaseState = {
+  currentNodeId: "screenWall",
+  selectedChoice: null,
+  locked: false,
+  canProceed: false,
+
+  drumRound: 0,
+  drumSequence: [],
+  drumPlayerIndex: 0,
+  drumLengths: [3, 5, 7],
+
+  introPlaying: false,
+  encounterPlaying: false
+};
+
+function startChaseLevel() {
+  chaseState.currentNodeId = "screenWall";
+  chaseState.selectedChoice = null;
+  chaseState.locked = false;
+  chaseState.canProceed = false;
+
+  chaseState.drumRound = 0;
+  chaseState.drumSequence = [];
+  chaseState.drumPlayerIndex = 0;
+
+  chaseState.introPlaying = false;
+  chaseState.encounterPlaying = false;
+
+  hideChaseEncounterLayer();
+
+  if (drumGamePanel) drumGamePanel.hidden = true;
+  if (chaseScene) chaseScene.classList.remove("game-over");
+
+  if (chaseNodeTitle) chaseNodeTitle.textContent = "";
+  if (chaseQuestion) chaseQuestion.textContent = "";
+  if (chaseAnswerText) chaseAnswerText.innerHTML = "";
+  if (chaseProceedBtn) chaseProceedBtn.hidden = true;
+
+  if (chaseImage) {
+    chaseImage.src = getChaseImagePath(chaseNodes.screenWall.image);
+    chaseImage.alt = "Chapter 3";
+  }
+
+  renderChaseChoices(chaseNodes.screenWall);
+
+  showChapter3Intro();
+}
+
+function renderChaseNode(nodeId, options = {}) {
+  const { deferReveal = false } = options;
+  const node = chaseNodes[nodeId];
+  if (!node) return;
+
+  chaseState.currentNodeId = nodeId;
+  chaseState.selectedChoice = null;
+  chaseState.locked = false;
+  chaseState.canProceed = false;
+
+  if (chaseImage) {
+    chaseImage.src = getChaseImagePath(node.image);
+    chaseImage.alt = node.title || nodeId;
+  }
+
+  if (chaseScene) {
+    chaseScene.classList.toggle("game-over", !!node.gameOver);
+  }
+
+  if (chaseProgressTag) chaseProgressTag.textContent = "Chapter Three";
+
+  renderChaseChoices(node);
+
+  if (deferReveal) {
+    if (chaseNodeTitle) chaseNodeTitle.textContent = "";
+    if (chaseQuestion) chaseQuestion.textContent = "";
+    if (chaseAnswerText) chaseAnswerText.innerHTML = "";
+    if (chaseAnswerScroll) chaseAnswerScroll.scrollTop = 0;
+    if (chaseProceedBtn) chaseProceedBtn.hidden = true;
+    if (chaseDialogueBox) {
+      chaseDialogueBox.classList.remove("is-previewing", "is-locked");
+    }
+    if (drumGamePanel) drumGamePanel.hidden = true;
+    return;
+  }
+
+  finalizeChaseNodeReveal(nodeId);
+}
+
+function renderChaseChoices(node) {
+  const buttons = {
+    left: chaseLeftBtn,
+    forward: chaseForwardBtn,
+    right: chaseRightBtn
+  };
+
+  const arrowMap = {
+    left: "←",
+    forward: "↑",
+    right: "→"
+  };
+
+  Object.entries(buttons).forEach(([direction, btn]) => {
+    if (!btn) return;
+
+    const choice = node.choices?.[direction];
+
+    if (!choice) {
+      btn.hidden = true;
+      btn.classList.remove("is-preview");
+      btn.onmouseenter = null;
+      btn.onmouseleave = null;
+      btn.onclick = null;
+      return;
+    }
+
+    btn.hidden = false;
+    btn.classList.add("chase-choice-btn");
+    btn.dataset.direction = direction;
+
+    btn.innerHTML = `
+      <span class="chase-choice-arrow">${arrowMap[direction]}</span>
+      <span class="chase-choice-label">${choice.label || direction}</span>
+    `;
+
+    btn.onmouseenter = () => previewChaseChoice(direction);
+    btn.onmouseleave = () => clearChasePreview();
+    btn.onclick = () => lockChaseChoice(direction);
+  });
+}
+
+function setChasePreviewButton(direction = null) {
+  [chaseLeftBtn, chaseForwardBtn, chaseRightBtn].forEach((btn) => {
+    if (btn) btn.classList.remove("is-preview");
+  });
+
+  const map = {
+    left: chaseLeftBtn,
+    forward: chaseForwardBtn,
+    right: chaseRightBtn
+  };
+
+  if (direction && map[direction]) {
+    map[direction].classList.add("is-preview");
+  }
+}
+
+function previewChaseChoice(direction) {
+  if (chaseState.locked) return;
+  if (chaseState.encounterPlaying) return;
+
+  const node = chaseNodes[chaseState.currentNodeId];
+  const choice = node?.choices?.[direction];
+  if (!choice) return;
+
+  setChasePreviewButton(direction);
+
+  if (chaseDialogueBox) {
+    chaseDialogueBox.classList.add("is-previewing");
+  }
+
+  if (chaseAnswerText) {
+    chaseAnswerText.innerHTML = choice.answer || "";
+  }
+
+  if (chaseAnswerScroll) {
+    chaseAnswerScroll.scrollTop = 0;
+  }
+}
+
+function clearChasePreview() {
+  if (chaseState.locked) return;
+  if (chaseState.encounterPlaying) return;
+
+  setChasePreviewButton(null);
+
+  if (chaseDialogueBox) {
+    chaseDialogueBox.classList.remove("is-previewing");
+  }
+
+  if (chaseAnswerText) {
+    chaseAnswerText.innerHTML = `<p>Hover over a direction to preview your answer.</p>`;
+  }
+}
+
+function lockChaseChoice(direction) {
+  const node = chaseNodes[chaseState.currentNodeId];
+  const choice = node?.choices?.[direction];
+  if (!choice) return;
+
+  chaseState.selectedChoice = choice;
+  chaseState.locked = true;
+  chaseState.canProceed = false;
+
+  if (chaseDialogueBox) {
+    chaseDialogueBox.classList.remove("is-previewing");
+    chaseDialogueBox.classList.add("is-locked");
+  }
+
+  if (chaseAnswerText) {
+    chaseAnswerText.innerHTML = choice.answer || "";
+  }
+
+  if (chaseAnswerScroll) {
+    chaseAnswerScroll.scrollTop = 0;
+  }
+
+  if (chaseProceedBtn) {
+    chaseProceedBtn.hidden = true;
+  }
+
+  checkChaseScrollForProceed();
+}
+
+function checkChaseScrollForProceed() {
+  if (!chaseAnswerScroll || !chaseProceedBtn) return;
+
+  requestAnimationFrame(() => {
+    const canShow =
+      chaseAnswerScroll.scrollTop + chaseAnswerScroll.clientHeight >=
+      chaseAnswerScroll.scrollHeight - 12;
+
+    const noScrollNeeded =
+      chaseAnswerScroll.scrollHeight <= chaseAnswerScroll.clientHeight + 12;
+
+    if (canShow || noScrollNeeded) {
+      chaseState.canProceed = true;
+      chaseProceedBtn.hidden = false;
+    }
+  });
+}
+
+if (chaseAnswerScroll) {
+  chaseAnswerScroll.addEventListener("scroll", checkChaseScrollForProceed);
+}
+
+if (chaseProceedBtn) {
+  chaseProceedBtn.addEventListener("click", () => {
+    if (!chaseState.canProceed) return;
+
+    const node = chaseNodes[chaseState.currentNodeId];
+
+    if (node?.drumGame) {
+      showDrumGame();
+      return;
+    }
+
+    const choice = chaseState.selectedChoice;
+
+    if (!choice && node?.choices) {
+      const firstChoice = Object.values(node.choices)[0];
+      if (firstChoice) {
+        runChaseTransition(firstChoice.transition || [], firstChoice.next);
+      }
+      return;
+    }
+
+    if (!choice) return;
+
+    runChaseTransition(choice.transition || [], choice.next);
+  });
+}
+
+function runChaseTransition(sequence, nextNodeId) {
+  const steps = Array.isArray(sequence) ? sequence : [sequence];
+
+  setChaseChoicesDisabled(true);
+
+  let delay = 0;
+
+  steps.forEach((step) => {
+    setTimeout(() => {
+      playSingleChaseAnimation(step);
+    }, delay);
+
+    delay += 820;
+  });
+
+
+  setTimeout(() => {
+    clearSingleChaseAnimations();
+
+    if (nextNodeId) {
+      presentChaseNode(nextNodeId);
+    } else {
+      // final placeholder: next chapter can be connected here
+      if (chaseAnswerText) {
+        chaseAnswerText.innerHTML = `
+          <p>The next space has not been connected yet.</p>
+        `;
+      }
+    }
+
+    setChaseChoicesDisabled(false);
+  }, Math.max(delay, 850));
+}
+
+function playSingleChaseAnimation(type) {
+  if (!chaseScene || !chaseTransitionOverlay) return;
+
+  clearSingleChaseAnimations();
+
+  if (type === "left") {
+    chaseScene.classList.add("anim-left");
+  } else if (type === "right") {
+    chaseScene.classList.add("anim-right");
+  } else if (type === "zoom") {
+    chaseScene.classList.add("anim-zoom");
+  } else if (type === "dark") {
+    chaseScene.classList.add("anim-dark");
+    chaseTransitionOverlay.classList.add("active");
+  }
+}
+
+function clearSingleChaseAnimations() {
+  if (!chaseScene || !chaseTransitionOverlay) return;
+
+  chaseScene.classList.remove("anim-left", "anim-right", "anim-zoom", "anim-dark");
+  chaseTransitionOverlay.classList.remove("active");
+}
+
+function setChaseChoicesDisabled(disabled) {
+  [chaseLeftBtn, chaseForwardBtn, chaseRightBtn, chaseProceedBtn].forEach((btn) => {
+    if (!btn) return;
+    btn.disabled = disabled;
+  });
+}
+
+function runGlobalBlink(callback = null, duration = 140) {
+  if (!blinkOverlay) {
+    if (callback) callback();
+    return;
+  }
+
+  setBlinkOverlay(true);
+
+  setTimeout(() => {
+    setBlinkOverlay(false);
+    if (callback) callback();
+  }, duration);
+}
+
+function hideChaseEncounterLayer() {
+  if (chaseEncounterLayer) chaseEncounterLayer.hidden = true;
+  if (chaseSpiritImage) {
+    chaseSpiritImage.classList.remove("is-visible", "is-dissolving");
+    chaseSpiritImage.removeAttribute("src");
+  }
+  if (chaseItemCard) {
+    chaseItemCard.classList.remove("is-visible");
+  }
+  if (chaseItemImage) {
+    chaseItemImage.removeAttribute("src");
+  }
+}
+
+function showChapter3Intro() {
+  if (!chaseChapterIntro) return;
+
+  chaseChapterIntro.hidden = false;
+  chaseChapterIntro.classList.remove("is-leaving");
+  chaseChapterIntro.classList.add("is-visible");
+
+  chaseState.introPlaying = true;
+}
+
+function beginChapter3AfterIntro() {
+  if (!chaseChapterIntro) {
+    presentChaseNode("screenWall");
+    return;
+  }
+
+  chaseChapterIntro.classList.add("is-leaving");
+
+  if (chaseScene) {
+    chaseScene.classList.add("chapter-zoom-in");
+  }
+
+  setTimeout(() => {
+    chaseChapterIntro.hidden = true;
+    chaseChapterIntro.classList.remove("is-visible", "is-leaving");
+
+    if (chaseScene) {
+      chaseScene.classList.remove("chapter-zoom-in");
+    }
+
+    chaseState.introPlaying = false;
+
+    presentChaseNode("screenWall");
+  }, 720);
+}
+
+if (chaseChapterIntro) {
+  chaseChapterIntro.addEventListener("click", () => {
+    if (!chaseState.introPlaying) return;
+    beginChapter3AfterIntro();
+  });
+}
+
+function presentChaseNode(nodeId) {
+  const node = chaseNodes[nodeId];
+  if (!node) return;
+
+  chaseState.encounterPlaying = true;
+
+  renderChaseNode(nodeId, { deferReveal: true });
+  hideChaseEncounterLayer();
+
+  const hasEncounter = !!node.itemImage || !!node.spiritImage;
+
+  if (!hasEncounter) {
+    finalizeChaseNodeReveal(nodeId);
+    chaseState.encounterPlaying = false;
+    return;
+  }
+
+  runGlobalBlink(() => {
+    if (chaseEncounterLayer) chaseEncounterLayer.hidden = false;
+
+    if (chaseSpiritImage) {
+      chaseSpiritImage.src = getChaseItemPath(node.spiritImage || "spirit1.png");
+      chaseSpiritImage.classList.add("is-visible");
+    }
+
+    setTimeout(() => {
+      runGlobalBlink(() => {
+        if (chaseSpiritImage) {
+          chaseSpiritImage.classList.add("is-dissolving");
+        }
+
+        if (node.itemImage && chaseItemImage && chaseItemCard) {
+          chaseItemImage.src = getChaseItemPath(node.itemImage);
+          chaseItemCard.classList.add("is-visible");
+        }
+
+        setTimeout(() => {
+          finalizeChaseNodeReveal(nodeId);
+          chaseState.encounterPlaying = false;
+        }, 260);
+      });
+    }, 620);
+  });
+}
+
+function finalizeChaseNodeReveal(nodeId) {
+  const node = chaseNodes[nodeId];
+  if (!node) return;
+
+  chaseState.currentNodeId = nodeId;
+  chaseState.selectedChoice = null;
+  chaseState.locked = false;
+  chaseState.canProceed = false;
+
+  if (chaseNodeTitle) chaseNodeTitle.textContent = node.itemTitle || node.title || "";
+  if (chaseQuestion) chaseQuestion.textContent = node.question || "";
+  if (chaseProgressTag) chaseProgressTag.textContent = "Chapter Three";
+
+  if (chaseAnswerText) {
+    chaseAnswerText.innerHTML =
+      node.lockedText || `<p>Hover over a direction to preview your answer.</p>`;
+  }
+
+  if (chaseAnswerScroll) {
+    chaseAnswerScroll.scrollTop = 0;
+  }
+
+  if (chaseProceedBtn) {
+    chaseProceedBtn.hidden = true;
+  }
+
+  if (chaseDialogueBox) {
+    chaseDialogueBox.classList.remove("is-previewing", "is-locked");
+  }
+
+  if (node.lockedText || node.gameOver) {
+    chaseState.locked = true;
+    if (chaseDialogueBox) chaseDialogueBox.classList.add("is-locked");
+    checkChaseScrollForProceed();
+  }
+
+  if (node.drumGame) {
+    showDrumGame();
+  } else if (drumGamePanel) {
+    drumGamePanel.hidden = true;
+  }
+}
+
+/* =========================
+   Drum Ritual
+========================== */
+
+function showDrumGame() {
+  if (!drumGamePanel) return;
+
+  drumGamePanel.hidden = false;
+  chaseState.drumRound = 0;
+  startDrumRound();
+}
+
+function startDrumRound() {
+  const length = chaseState.drumLengths[chaseState.drumRound];
+
+  chaseState.drumSequence = Array.from({ length }, () => Math.floor(Math.random() * 4));
+  chaseState.drumPlayerIndex = 0;
+
+  if (drumRoundText) {
+    drumRoundText.textContent = `Round ${chaseState.drumRound + 1} / ${chaseState.drumLengths.length}`;
+  }
+
+  if (drumInstruction) {
+    drumInstruction.textContent = "Watch the lights. Then repeat the sequence.";
+  }
+
+  playDrumSequence();
+}
+
+function playDrumSequence() {
+  const pads = Array.from(document.querySelectorAll(".drum-pad"));
+
+  pads.forEach((pad) => {
+    pad.disabled = true;
+  });
+
+  chaseState.drumSequence.forEach((padIndex, i) => {
+    setTimeout(() => {
+      flashDrumPad(padIndex);
+    }, 650 * i);
+  });
+
+  setTimeout(() => {
+    pads.forEach((pad) => {
+      pad.disabled = false;
+    });
+
+    if (drumInstruction) {
+      drumInstruction.textContent = "Now repeat it.";
+    }
+  }, 650 * chaseState.drumSequence.length + 400);
+}
+
+function flashDrumPad(index) {
+  const pad = document.querySelector(`.drum-pad[data-pad="${index}"]`);
+  if (!pad) return;
+
+  pad.classList.add("active");
+
+  setTimeout(() => {
+    pad.classList.remove("active");
+  }, 360);
+}
+
+document.querySelectorAll(".drum-pad").forEach((pad) => {
+  pad.addEventListener("click", () => {
+    const padIndex = Number(pad.dataset.pad);
+    handleDrumInput(padIndex);
+  });
+});
+
+function handleDrumInput(padIndex) {
+  flashDrumPad(padIndex);
+
+  const expected = chaseState.drumSequence[chaseState.drumPlayerIndex];
+
+  if (padIndex !== expected) {
+    chaseState.drumPlayerIndex = 0;
+
+    if (drumInstruction) {
+      drumInstruction.textContent = "Wrong rhythm. Watch again.";
+    }
+
+    setTimeout(playDrumSequence, 800);
+    return;
+  }
+
+  chaseState.drumPlayerIndex += 1;
+
+  if (chaseState.drumPlayerIndex >= chaseState.drumSequence.length) {
+    chaseState.drumRound += 1;
+
+    if (chaseState.drumRound >= chaseState.drumLengths.length) {
+      finishDrumRitual();
+      return;
+    }
+
+    if (drumInstruction) {
+      drumInstruction.textContent = "Correct. The rhythm grows longer.";
+    }
+
+    setTimeout(startDrumRound, 1000);
+  }
+}
+
+function finishDrumRitual() {
+  if (drumGamePanel) {
+    drumGamePanel.hidden = true;
+  }
+
+  presentChaseNode("finalQuestion");
+}
