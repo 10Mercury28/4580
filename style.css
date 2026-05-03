@@ -1543,10 +1543,6 @@ body.final-blackout-stage::after {
   color: #fff;
 }
 
-#chaseAnswerText.answer-locked {
-  color: var(--gold);
-}
-
 #chaseAnswerText p {
   margin: 0 0 0.9rem;
 }
@@ -1775,30 +1771,30 @@ body.final-blackout-stage::after {
   display: block;
 }
 
-/* Left turn: current left, next right, track moves left. */
+/* 左转：画面向右移动 */
 .chase-transition-overlay.slide-left .chase-pan-track {
-  transform: translateX(0);
+  transform: translateX(-50%);
 }
 
 .chase-transition-overlay.slide-left.play .chase-pan-track {
   transition:
     transform 0.92s cubic-bezier(0.18, 0.82, 0.24, 1),
     filter 0.92s ease;
-  transform: translateX(-50%);
-  filter: blur(14px);
+  transform: translateX(0);
+  filter: blur(16px);
 }
 
-/* Right turn: next left, current right, track moves right. */
+/* 右转：画面向左移动 */
 .chase-transition-overlay.slide-right .chase-pan-track {
-  transform: translateX(-50%);
+  transform: translateX(0);
 }
 
 .chase-transition-overlay.slide-right.play .chase-pan-track {
   transition:
     transform 0.92s cubic-bezier(0.18, 0.82, 0.24, 1),
     filter 0.92s ease;
-  transform: translateX(0);
-  filter: blur(14px);
+  transform: translateX(-50%);
+  filter: blur(16px);
 }
 
 .chase-zoom-stack {
@@ -2020,5 +2016,152 @@ body.final-blackout-stage::after {
 
   .photo-card {
     width: 82%;
+  }
+}
+
+/* =========================
+   FIX: Chapter 3 dialogue bar behavior
+========================== */
+
+#gameScreen3 #chaseDialogueBox {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  top: auto !important;
+
+  width: 100vw !important;
+  max-width: none !important;
+  min-width: 0 !important;
+
+  height: 34vh !important;
+  min-height: 34vh !important;
+  max-height: 34vh !important;
+
+  transform: none !important;
+
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+
+  padding: 24px 42px 30px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+
+  background: linear-gradient(
+    180deg,
+    rgba(164, 72, 72, 0.16) 0%,
+    rgba(18, 16, 24, 0.42) 35%,
+    rgba(10, 10, 16, 0.30) 72%,
+    rgba(10, 10, 16, 0) 100%
+  ) !important;
+
+  backdrop-filter: blur(3px);
+  opacity: 1 !important;
+  z-index: 75 !important;
+  pointer-events: auto !important;
+}
+
+/* 内部固定宽度，hover 不改变布局 */
+#gameScreen3 #chaseDialogueBox .chase-dialogue-header,
+#gameScreen3 #chaseAnswerScroll,
+#gameScreen3 #chaseProceedBtn {
+  width: min(1180px, calc(100vw - 84px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 默认状态：问题和提示照常显示 */
+#gameScreen3 #chaseAnswerScroll {
+  max-height: 19vh !important;
+  overflow-y: hidden !important;
+  padding-right: 10px;
+}
+
+/* hover 预览：白字，但透明度和 bar 一样低，不 scroll */
+#gameScreen3 #chaseAnswerText.answer-preview {
+  color: rgba(255, 255, 255, 0.42) !important;
+  opacity: 1 !important;
+  max-height: 18vh;
+  overflow: hidden;
+}
+
+/* 点击方向后：白字 100%，允许 scroll */
+#gameScreen3 #chaseAnswerText.answer-locked {
+  color: rgba(255, 255, 255, 1) !important;
+  opacity: 1 !important;
+}
+
+#gameScreen3 #chaseDialogueBox.is-locked #chaseAnswerScroll {
+  overflow-y: auto !important;
+}
+
+/* 但是还没点击方向时，即使 is-locked 也不滚动 */
+#gameScreen3 #chaseDialogueBox:not(.is-locked) #chaseAnswerScroll {
+  overflow-y: hidden !important;
+}
+
+/* Proceed 只在 JS 允许时出现 */
+#gameScreen3 #chaseProceedBtn[hidden] {
+  display: none !important;
+}
+
+#gameScreen3 #chaseProceedBtn {
+  width: auto !important;
+  align-self: center !important;
+  padding: 12px 28px !important;
+  margin-top: 10px !important;
+}
+
+/* 问题文字保持清楚 */
+#gameScreen3 #chaseNodeTitle {
+  color: var(--gold);
+}
+
+#gameScreen3 #chaseAnswerText {
+  font-size: clamp(1rem, 1.25vw, 1.16rem);
+  line-height: 1.88;
+}
+
+/* =========================
+   Ghost speech black screen
+========================== */
+
+.ghost-speech-layer {
+  background: #000 !important;
+  backdrop-filter: none !important;
+  z-index: 95 !important;
+  cursor: pointer;
+}
+
+.ghost-speech-text {
+  max-width: min(980px, 82vw);
+  color: #ffffff;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: clamp(1.5rem, 3vw, 2.6rem);
+  line-height: 1.5;
+  text-align: center;
+  white-space: pre-line;
+  letter-spacing: 0.02em;
+}
+
+.ghost-speech-layer.ghost-line-zoom .ghost-speech-text {
+  animation: ghostSpeechZoom 0.42s ease both;
+}
+
+@keyframes ghostSpeechZoom {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
   }
 }

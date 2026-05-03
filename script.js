@@ -2526,14 +2526,14 @@ const chaseNodes = {
     spiritImage: "spirit2.png",
     encounter: true,
     question: "Who am I?",
-    ghostSpeech: `
-      <p><strong>Ghost:</strong><br>
-      ...So noisy.<br>
-      ...Really...Did you think I was that kind of ghost? The kind you could pacify and “successfully intervene in” just by knocking out some little ritual?<br>
-      Did my trauma and my demands look that simple to you?</p>
-      <p><strong>You:</strong> What do you want from me...</p>
-      <p><strong>Ghost:</strong> Answer me.<br>Who am I?</p>
-    `,
+    ghostLines: [
+      "...So noisy.",
+      "...Really...",
+      "Did you think I was that kind of ghost? The kind you could pacify and “successfully intervene in” just by knocking out some little ritual?",
+      "Did my trauma and my demands look that simple to you?",
+      "You: What do you want from me...",
+      "Ghost: Answer me.\nWho am I?"
+    ],
     lockedText: `
       <p><strong>Ghost:</strong><br>
       ...So noisy.<br>
@@ -2687,7 +2687,7 @@ function setChasePreviewButton(direction = null) {
 }
 
 function previewChaseChoice(direction) {
-  if (chaseState.locked === false && chaseState.selectedChoice) return;
+  if (chaseState.selectedChoice) return;
   if (chaseState.encounterPlaying) return;
 
   const node = chaseNodes[chaseState.currentNodeId];
@@ -2710,6 +2710,12 @@ function previewChaseChoice(direction) {
   if (chaseAnswerScroll) {
     chaseAnswerScroll.scrollTop = 0;
   }
+
+  if (chaseProceedBtn) {
+    chaseProceedBtn.hidden = true;
+  }
+
+  chaseState.canProceed = false;
 }
 
 function clearChasePreview() {
@@ -2722,19 +2728,24 @@ function clearChasePreview() {
   setChasePreviewButton(null);
 
   if (chaseDialogueBox) {
-    chaseDialogueBox.classList.remove("is-previewing");
-    chaseDialogueBox.classList.add("is-locked");
+    chaseDialogueBox.classList.remove("is-previewing", "is-locked");
   }
 
   if (chaseAnswerText) {
-    chaseAnswerText.innerHTML = node.lockedText || `<p>Hover over a direction to preview your answer.</p>`;
-    chaseAnswerText.classList.remove("answer-preview");
-    chaseAnswerText.classList.remove("answer-locked");
+    chaseAnswerText.innerHTML =
+      node.lockedText || `<p>Hover over a direction to preview your answer.</p>`;
+    chaseAnswerText.classList.remove("answer-preview", "answer-locked");
   }
 
   if (chaseAnswerScroll) {
     chaseAnswerScroll.scrollTop = 0;
   }
+
+  if (chaseProceedBtn) {
+    chaseProceedBtn.hidden = true;
+  }
+
+  chaseState.canProceed = false;
 }
 
 function lockChaseChoice(direction) {
@@ -2745,6 +2756,8 @@ function lockChaseChoice(direction) {
   chaseState.selectedChoice = choice;
   chaseState.locked = true;
   chaseState.canProceed = false;
+
+  setChasePreviewButton(direction);
 
   if (chaseDialogueBox) {
     chaseDialogueBox.classList.remove("is-previewing");
@@ -2771,6 +2784,13 @@ function lockChaseChoice(direction) {
 function checkChaseScrollForProceed() {
   if (!chaseAnswerScroll || !chaseProceedBtn) return;
 
+  // 没有点击方向之前，不允许出现 Proceed
+  if (!chaseState.selectedChoice) {
+    chaseState.canProceed = false;
+    chaseProceedBtn.hidden = true;
+    return;
+  }
+
   requestAnimationFrame(() => {
     const canShow =
       chaseAnswerScroll.scrollTop + chaseAnswerScroll.clientHeight >=
@@ -2782,6 +2802,9 @@ function checkChaseScrollForProceed() {
     if (canShow || noScrollNeeded) {
       chaseState.canProceed = true;
       chaseProceedBtn.hidden = false;
+    } else {
+      chaseState.canProceed = false;
+      chaseProceedBtn.hidden = true;
     }
   });
 }
@@ -2800,20 +2823,24 @@ async function animateChaseSlideTransition(direction, nextSrc) {
   let html = "";
   let overlayClass = "chase-transition-overlay active ";
 
+  // 选择左转：画面应该向右移动
   if (direction === "left") {
     overlayClass += "slide-left";
     html = `
       <div class="chase-pan-track">
-        <img class="chase-pan-frame" src="${currentSrc}" alt="">
         <img class="chase-pan-frame" src="${nextSrc}" alt="">
+        <img class="chase-pan-frame" src="${currentSrc}" alt="">
       </div>
     `;
-  } else {
+  }
+
+  // 选择右转：画面应该向左移动
+  if (direction === "right") {
     overlayClass += "slide-right";
     html = `
       <div class="chase-pan-track">
-        <img class="chase-pan-frame" src="${nextSrc}" alt="">
         <img class="chase-pan-frame" src="${currentSrc}" alt="">
+        <img class="chase-pan-frame" src="${nextSrc}" alt="">
       </div>
     `;
   }
@@ -3083,6 +3110,37 @@ function renderChaseNode(nodeId, options = {}) {
   finalizeChaseNodeReveal(nodeId);
 }
 
+async function playGhostSpeechSequence(lines = []) {
+  if (!chaseEncounterLayer || !Array.isArray(lines) || lines.length === 0) return;
+
+  chaseEncounterLayer.hidden = false;
+  chaseEncounterLayer.className = "chase-encounter-layer ghost-speech-layer";
+  chaseEncounterLayer.innerHTML = `
+    <div class="ghost-speech-text"></div>
+  `;
+
+  const textNode = chaseEncounterLayer.querySelector(".ghost-speech-text");
+
+  for (const line of lines) {
+    textNode.textContent = line;
+
+    chaseEncounterLayer.classList.remove("ghost-line-zoom");
+    void chaseEncounterLayer.offsetWidth;
+    chaseEncounterLayer.classList.add("ghost-line-zoom");
+
+    await new Promise((resolve) => {
+      const handleClick = () => {
+        chaseEncounterLayer.removeEventListener("click", handleClick);
+        resolve();
+      };
+
+      chaseEncounterLayer.addEventListener("click", handleClick);
+    });
+  }
+
+  chaseEncounterLayer.classList.remove("ghost-line-zoom");
+}
+
 async function presentChaseNode(nodeId) {
   const node = chaseNodes[nodeId];
   if (!node) return;
@@ -3097,6 +3155,10 @@ async function presentChaseNode(nodeId) {
     finalizeChaseNodeReveal(nodeId);
     chaseState.encounterPlaying = false;
     return;
+  }
+
+  if (node.ghostLines && node.ghostLines.length > 0) {
+    await playGhostSpeechSequence(node.ghostLines);
   }
 
   // 第一段：眨眼后，屏幕变暗模糊，能看到当前贴图
@@ -3135,7 +3197,6 @@ async function presentChaseNode(nodeId) {
           alt="${node.itemTitle || ""}"
         />
         <div class="chase-encounter-copy">
-          ${node.ghostSpeech ? `<div class="chase-encounter-speech">${node.ghostSpeech}</div>` : ""}
           <div class="chase-encounter-question">${node.question || ""}</div>
           <div class="chase-encounter-hint">Click anywhere to answer.</div>
         </div>
@@ -3188,8 +3249,13 @@ function finalizeChaseNodeReveal(nodeId) {
     chaseDialogueBox.classList.add("is-locked");
   }
 
-  chaseState.locked = true;
-  checkChaseScrollForProceed();
+  chaseState.locked = false;
+  chaseState.selectedChoice = null;
+  chaseState.canProceed = false;
+
+  if (chaseProceedBtn) {
+    chaseProceedBtn.hidden = true;
+  }
 
   if (node.drumGame) {
     showDrumGame();
