@@ -1495,17 +1495,13 @@ body.final-blackout-stage::after {
   border-radius: 0 !important;
   box-shadow: none !important;
 
-  /* 关键：顶部距离缩小 */
-  padding: 14px 42px 24px !important;
+  padding: 18px 42px !important;
 
   display: flex !important;
   flex-direction: column !important;
-
-  /* 关键：内容从上往下排，不要压到底部 */
   justify-content: flex-start !important;
   align-items: stretch !important;
-
-  gap: 4px !important;
+  gap: 6px !important;
 
   background: linear-gradient(
     180deg,
@@ -1527,8 +1523,7 @@ body.final-blackout-stage::after {
 }
 
 #gameScreen3 #chaseDialogueBox .chase-dialogue-header,
-#gameScreen3 #chaseAnswerScroll,
-#gameScreen3 #chaseProceedBtn {
+#gameScreen3 #chaseAnswerScroll {
   width: min(1180px, calc(100vw - 84px));
   margin-left: auto;
   margin-right: auto;
@@ -1537,9 +1532,9 @@ body.final-blackout-stage::after {
 #gameScreen3 .chase-dialogue-header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 16px;
   margin-bottom: 0 !important;
-  align-items: flex-start;
 }
 
 #gameScreen3 #chaseNodeTitle {
@@ -1580,16 +1575,19 @@ body.final-blackout-stage::after {
 }
 
 #gameScreen3 #chaseAnswerScroll {
-  /* 关键：给答案区域预留固定高度，hover 前后就不会上下跳 */
+  flex: 1 1 auto;
   min-height: 4.8rem !important;
-  max-height: 16vh !important;
+  max-height: none !important;
   overflow-y: hidden !important;
+  overflow-x: hidden !important;
   padding-right: 10px;
+  padding-bottom: 2px;
   margin-top: 2px !important;
 }
 
 #gameScreen3 #chaseAnswerText {
   min-height: 4.2rem !important;
+  padding-bottom: 6px !important;
   font-family: "Georgia", "Times New Roman", serif;
   font-size: clamp(1rem, 1.25vw, 1.16rem);
   line-height: 1.88;
@@ -1604,19 +1602,18 @@ body.final-blackout-stage::after {
   margin-bottom: 0;
 }
 
-/* Hover answer: only translucent answer text */
 #gameScreen3 #chaseAnswerText.answer-preview {
   color: rgba(255, 255, 255, 0.42) !important;
   overflow: hidden !important;
 }
 
-/* Clicked answer: full white, scrollable */
 #gameScreen3 #chaseAnswerText.answer-locked {
   color: rgba(255, 255, 255, 1) !important;
 }
 
 #gameScreen3 #chaseDialogueBox.is-locked #chaseAnswerScroll {
   overflow-y: auto !important;
+  overflow-x: hidden !important;
 }
 
 #gameScreen3 #chaseProceedBtn[hidden] {
@@ -1625,9 +1622,13 @@ body.final-blackout-stage::after {
 
 #gameScreen3 #chaseProceedBtn {
   width: auto !important;
+  min-width: 140px !important;
   align-self: center !important;
+  margin: 8px auto 0 !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
   padding: 12px 28px !important;
-  margin-top: 10px !important;
   font-family: "Georgia", "Times New Roman", serif !important;
 }
 
@@ -1747,56 +1748,61 @@ body.final-blackout-stage::after {
   z-index: 99990 !important;
 }
 
-#chaseEncounterLayer,
-.chase-encounter-layer {
+#gameScreen3 #chaseEncounterLayer {
   position: absolute !important;
   inset: 0 !important;
   z-index: 99992 !important;
-  display: grid !important;
-  place-items: center !important;
   pointer-events: auto !important;
+  overflow: hidden !important;
 }
 
-#chaseEncounterLayer[hidden],
-.chase-encounter-layer[hidden] {
+#gameScreen3 #chaseEncounterLayer[hidden] {
   display: none !important;
 }
 
-.chase-encounter-layer.is-spirit-close,
-.chase-encounter-layer.is-spirit-full,
-.chase-encounter-layer.is-item-question {
+#gameScreen3 #chaseEncounterLayer.is-spirit-close,
+#gameScreen3 #chaseEncounterLayer.is-spirit-full,
+#gameScreen3 #chaseEncounterLayer.is-item-question {
   background: rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(8px) brightness(0.48);
 }
 
-.chase-spirit-close {
-  /* 关键：固定一个更高的显示区域，做“上半身近景” */
+/* ghost suddenly appears: upper body, centered horizontally, touching bottom */
+#gameScreen3 #chaseEncounterLayer.is-spirit-close {
+  display: block !important;
+}
+
+#gameScreen3 .chase-spirit-close {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 0 !important;
+
   width: min(72vw, 860px);
   height: min(92vh, 900px);
   max-height: none;
 
-  /* 关键：cover + top，裁掉下半部分，只保留上半身近景 */
   object-fit: cover;
   object-position: center top;
 
   opacity: 0;
-
-  /* 关键：更靠上，同时更大 */
-  transform: translateY(-18vh) scale(1.55);
-
+  transform: translateX(-50%) translateY(0) scale(1.55) !important;
   animation: chaseSpiritCloseIn 0.46s ease forwards;
-  filter: drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
 
-  /* 再裁一点底部，让它更像“上半身扑脸” */
+  filter: drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
   clip-path: inset(0 0 24% 0);
 }
 
-.chase-spirit-close.zooming-out {
+#gameScreen3 .chase-spirit-close.zooming-out {
   animation: chaseSpiritZoomOut 0.24s ease forwards;
 }
 
-.chase-spirit-full,
-.chase-death-spirit {
+/* ghost full reveal: centered */
+#gameScreen3 #chaseEncounterLayer.is-spirit-full {
+  display: grid !important;
+  place-items: center !important;
+}
+
+#gameScreen3 .chase-spirit-full {
   width: min(36vw, 460px);
   max-width: 78vw;
   opacity: 0;
@@ -1804,16 +1810,62 @@ body.final-blackout-stage::after {
   filter: drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
 }
 
+/* item + question: centered */
+#gameScreen3 #chaseEncounterLayer.is-item-question {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+#gameScreen3 .chase-encounter-card {
+  width: min(980px, 86vw);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(34px, 5vw, 72px);
+}
+
+#gameScreen3 .chase-item-large {
+  width: min(24vw, 280px);
+  max-height: 48vh;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.14));
+}
+
+#gameScreen3 .chase-encounter-copy {
+  width: min(560px, 48vw);
+  color: #fff;
+  line-height: 1.85;
+  font-family: "Georgia", "Times New Roman", serif;
+  text-align: left;
+}
+
+#gameScreen3 .chase-encounter-question {
+  max-width: 560px;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  color: var(--gold);
+  line-height: 1.48;
+}
+
+#gameScreen3 .chase-encounter-hint {
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.96rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 @keyframes chaseSpiritCloseIn {
   from {
     opacity: 0;
-    transform: translateY(-24vh) scale(1.85);
+    transform: translateX(-50%) translateY(8vh) scale(1.85);
     filter: blur(12px) drop-shadow(0 0 34px rgba(255, 255, 255, 0.16));
   }
 
   to {
     opacity: 1;
-    transform: translateY(-18vh) scale(1.55);
+    transform: translateX(-50%) translateY(0) scale(1.55);
     filter: blur(0) drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
   }
 }
@@ -1821,13 +1873,13 @@ body.final-blackout-stage::after {
 @keyframes chaseSpiritZoomOut {
   from {
     opacity: 1;
-    transform: translateY(-18vh) scale(1.55);
+    transform: translateX(-50%) translateY(0) scale(1.55);
     filter: blur(0) drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
   }
 
   to {
     opacity: 1;
-    transform: translateY(-2vh) scale(0.62);
+    transform: translateX(-50%) translateY(-2vh) scale(0.62);
     filter: blur(4px) drop-shadow(0 0 26px rgba(255, 255, 255, 0.16));
   }
 }
@@ -1846,50 +1898,15 @@ body.final-blackout-stage::after {
   }
 }
 
-/* Item + question reveal */
-.chase-encounter-card {
-  width: min(1100px, 90vw);
-  display: grid;
-  grid-template-columns: minmax(260px, 390px) 1fr;
-  gap: 34px;
-  align-items: center;
-}
-
-.chase-item-large {
-  width: min(34vw, 370px);
-  max-width: 100%;
-  justify-self: center;
-  filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.14));
-}
-
-.chase-encounter-copy {
-  color: #fff;
-  line-height: 1.85;
-  font-family: "Georgia", "Times New Roman", serif;
-}
-
-.chase-encounter-question {
-  font-size: clamp(1.2rem, 2vw, 1.6rem);
-  color: var(--gold);
-  line-height: 1.5;
-}
-
-.chase-encounter-hint {
-  margin-top: 18px;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 0.96rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
 /* =========================
    Final ghost speech black screen
 ========================== */
 
-.ghost-speech-layer {
+#gameScreen3 #chaseEncounterLayer.ghost-speech-layer {
+  display: grid !important;
+  place-items: center !important;
   background: #000 !important;
   backdrop-filter: none !important;
-  z-index: 99992 !important;
   cursor: pointer;
 }
 
@@ -1956,7 +1973,6 @@ body.final-blackout-stage::after {
   display: block;
 }
 
-/* If player turns left, image moves right */
 .chase-transition-overlay.slide-left .chase-pan-track {
   transform: translateX(-50%);
 }
@@ -1969,7 +1985,6 @@ body.final-blackout-stage::after {
   filter: blur(18px);
 }
 
-/* If player turns right, image moves left */
 .chase-transition-overlay.slide-right .chase-pan-track {
   transform: translateX(0);
 }
@@ -1982,7 +1997,6 @@ body.final-blackout-stage::after {
   filter: blur(18px);
 }
 
-/* Zoom transition */
 .chase-zoom-stack {
   position: absolute;
   inset: 0;
@@ -2028,7 +2042,6 @@ body.final-blackout-stage::after {
   opacity: 1;
 }
 
-/* Dark transition */
 .chase-dark-fill {
   position: absolute;
   inset: 0;
@@ -2136,17 +2149,17 @@ body.final-blackout-stage::after {
    Death sequence
 ========================== */
 
-.chase-death-layer {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  pointer-events: auto;
-  cursor: pointer;
+#gameScreen3 #chaseEncounterLayer.chase-death-layer {
+  position: absolute !important;
+  inset: 0 !important;
   z-index: 99993 !important;
+  display: grid !important;
+  place-items: center !important;
+  pointer-events: auto !important;
+  cursor: pointer;
 }
 
-.death-red-phase {
+#gameScreen3 #chaseEncounterLayer.death-red-phase {
   background:
     radial-gradient(circle, rgba(255, 60, 40, 0.38), rgba(110, 0, 0, 0.9)),
     rgba(110, 0, 0, 0.72);
@@ -2154,26 +2167,22 @@ body.final-blackout-stage::after {
   animation: deathRedPulse 0.12s infinite;
 }
 
-@keyframes deathRedPulse {
-  0% {
-    filter: brightness(0.8);
-  }
-
-  50% {
-    filter: brightness(1.25);
-  }
-
-  100% {
-    filter: brightness(0.8);
-  }
+#gameScreen3 #chaseEncounterLayer.death-black-phase {
+  background: #000 !important;
+  backdrop-filter: none !important;
 }
 
-.death-black-phase {
-  background: #000;
+.chase-death-spirit {
+  width: min(36vw, 460px);
+  max-width: 78vw;
+  opacity: 0;
+  animation: chaseSpiritFullIn 0.44s ease forwards;
+  filter: drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
 }
 
 .chase-death-text {
   width: min(960px, 82vw);
+  margin: 0 auto;
   color: #ffffff;
   font-family: "Georgia", "Times New Roman", serif;
   font-size: clamp(1.35rem, 2.4vw, 2.25rem);
@@ -2191,6 +2200,20 @@ body.final-blackout-stage::after {
   font-size: 1rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+@keyframes deathRedPulse {
+  0% {
+    filter: brightness(0.8);
+  }
+
+  50% {
+    filter: brightness(1.25);
+  }
+
+  100% {
+    filter: brightness(0.8);
+  }
 }
 
 @keyframes deathTextAppear {
@@ -2212,22 +2235,13 @@ body.final-blackout-stage::after {
 ========================== */
 
 @media (max-width: 900px) {
-  .chase-encounter-card {
-    grid-template-columns: 1fr;
-    text-align: center;
+  #gameScreen3 #chaseDialogueBox {
+    padding: 22px 24px 28px !important;
   }
 
-  .chase-item-large {
-    width: min(48vw, 300px);
-  }
-
-  .chase-spirit-close {
-    width: min(90vw, 760px);
-  }
-
-  .chase-spirit-full,
-  .chase-death-spirit {
-    width: min(58vw, 340px);
+  #gameScreen3 #chaseDialogueBox .chase-dialogue-header,
+  #gameScreen3 #chaseAnswerScroll {
+    width: min(1180px, calc(100vw - 48px));
   }
 
   .chase-choice-btn {
@@ -2240,13 +2254,38 @@ body.final-blackout-stage::after {
     font-size: 0.95rem;
   }
 
-  #gameScreen3 #chaseDialogueBox {
-    padding: 22px 24px 28px !important;
+  #gameScreen3 .chase-spirit-close {
+    width: min(90vw, 760px);
   }
 
-  #gameScreen3 #chaseDialogueBox .chase-dialogue-header,
-  #gameScreen3 #chaseAnswerScroll,
-  #gameScreen3 #chaseProceedBtn {
-    width: min(100%, calc(100vw - 48px));
+  #gameScreen3 .chase-spirit-full,
+  .chase-death-spirit {
+    width: min(58vw, 340px);
+  }
+
+  #gameScreen3 .chase-encounter-card {
+    width: min(92vw, 640px);
+    flex-direction: column;
+    gap: 24px;
+    text-align: center;
+  }
+
+  #gameScreen3 .chase-item-large {
+    width: min(48vw, 300px);
+    max-height: 34vh;
+  }
+
+  #gameScreen3 .chase-encounter-copy {
+    width: 100%;
+    text-align: center;
+  }
+
+  #gameScreen3 .chase-encounter-question {
+    max-width: none;
+  }
+
+  .chase-death-text {
+    width: min(88vw, 720px);
+    font-size: clamp(1.15rem, 5vw, 1.8rem);
   }
 }

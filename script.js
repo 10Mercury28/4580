@@ -1244,6 +1244,15 @@ function goToNextRoomFromDoor() {
     return;
   }
 
+  // 关键：进入 Chapter 3 前，停止 Room2 的所有眨眼和摇晃
+  clearRoom2BlinkTimers();
+  stopRoom2FullscreenShake();
+  setBlinkOverlay(false);
+
+  room2State.persistentBlink = false;
+  room2State.dragActive = false;
+  room2State.dragMoved = false;
+
   if (room2SceneWrapper) {
     room2SceneWrapper.classList.add("room2-door-enter-zoom");
   }
@@ -1253,11 +1262,14 @@ function goToNextRoomFromDoor() {
       room2SceneWrapper.classList.remove("room2-door-enter-zoom");
     }
 
+    clearRoom2BlinkTimers();
+    stopRoom2FullscreenShake();
+    setBlinkOverlay(false);
+
     openScreen(gameScreen3);
     startChaseLevel();
   }, 850);
 }
-
 /* =========================
    7. 照片堆叠组件
 ========================== */
@@ -2484,10 +2496,8 @@ const chaseNodes = {
         label: "Answer",
         answer: `
           <p>You are a Soviet person?</p>
-          <p><strong>Ghost:</strong> ...</p>
-          <p>Answer again.</p>
         `,
-        transition: ["right"],
+        transition: [],
         next: "finalQuestion"
       }
     }
@@ -2536,7 +2546,10 @@ const chaseState = {
   drumLengths: [3, 5, 7],
 
   introPlaying: false,
-  encounterPlaying: false
+  encounterPlaying: false,
+
+  itemQuestionNodeId: null,
+  itemQuestionReady: false
 };
 
 function renderChaseChoices(node) {
@@ -2780,6 +2793,59 @@ function checkChaseScrollForProceed() {
   });
 }
 
+async function playSovietWrongAnswerSequence() {
+  chaseState.encounterPlaying = true;
+  chaseState.selectedChoice = null;
+  chaseState.locked = false;
+  chaseState.canProceed = false;
+
+  setChaseChoicesDisabled(true);
+  hideChaseDialogue();
+  setChasePreviewButton(null);
+
+  if (chaseProceedBtn) {
+    chaseProceedBtn.hidden = true;
+  }
+
+  if (!chaseEncounterLayer) {
+    renderChaseNode("finalQuestion");
+    setChaseChoicesDisabled(false);
+    chaseState.encounterPlaying = false;
+    return;
+  }
+
+  chaseEncounterLayer.hidden = false;
+  chaseEncounterLayer.onclick = null;
+  chaseEncounterLayer.onpointerup = null;
+  chaseEncounterLayer.className = "chase-encounter-layer ghost-speech-layer";
+  chaseEncounterLayer.innerHTML = `<div class="ghost-speech-text"></div>`;
+
+  const textNode = chaseEncounterLayer.querySelector(".ghost-speech-text");
+  const lines = ["...", "Seriously?", "..."];
+
+  for (const line of lines) {
+    if (!textNode) break;
+
+    textNode.textContent = line;
+
+    chaseEncounterLayer.classList.remove("ghost-line-zoom");
+    void chaseEncounterLayer.offsetWidth;
+    chaseEncounterLayer.classList.add("ghost-line-zoom");
+
+    await sleep(760);
+  }
+
+  await sleep(220);
+
+  hideChaseEncounterLayer();
+
+  // 关键：重新完整渲染 finalQuestion，而不是只 finalize
+  renderChaseNode("finalQuestion");
+
+  setChaseChoicesDisabled(false);
+  chaseState.encounterPlaying = false;
+}
+
 function clearChaseTransitionOverlay() {
   if (!chaseTransitionOverlay) return;
   chaseTransitionOverlay.className = "chase-transition-overlay";
@@ -2911,6 +2977,14 @@ if (chaseProceedBtn) {
     const choice = chaseState.selectedChoice;
     if (!choice) return;
 
+    if (
+      chaseState.currentNodeId === "finalQuestion" &&
+      choice === chaseNodes.finalQuestion.choices.right
+    ) {
+      playSovietWrongAnswerSequence();
+      return;
+    }
+
     runChaseTransition(choice.transition || [], choice.next);
   });
 }
@@ -2936,12 +3010,87 @@ function runGlobalBlink(callback = null, duration = 140) {
   }, duration);
 }
 
+function resetChaseInteractionState() {
+  chaseState.selectedChoice = null;
+  chaseState.locked = false;
+  chaseState.canProceed = false;
+  chaseState.encounterPlaying = false;
+  chaseState.itemQuestionReady = false;
+  chaseState.itemQuestionNodeId = null;
+
+  [chaseLeftBtn, chaseForwardBtn, chaseRightBtn, chaseProceedBtn].forEach((btn) => {
+    if (!btn) return;
+    btn.disabled = false;
+    btn.classList.remove("is-preview");
+  });
+
+  if (chaseProceedBtn) {
+    chaseProceedBtn.hidden = true;
+  }
+
+  if (chaseDialogueBox) {
+    chaseDialogueBox.classList.remove("is-previewing", "is-locked");
+  }
+
+  if (chaseAnswerText) {
+    chaseAnswerText.innerHTML = "";
+    chaseAnswerText.classList.remove("answer-preview", "answer-locked");
+  }
+
+  if (chaseAnswerScroll) {
+    chaseAnswerScroll.scrollTop = 0;
+  }
+
+  clearChaseTransitionOverlay();
+}
+
 function hideChaseEncounterLayer() {
   if (!chaseEncounterLayer) return;
+
   chaseEncounterLayer.hidden = true;
   chaseEncounterLayer.className = "chase-encounter-layer";
   chaseEncounterLayer.innerHTML = "";
+
   chaseEncounterLayer.onclick = null;
+  chaseEncounterLayer.onpointerup = null;
+  chaseEncounterLayer.onpointerdown = null;
+
+  chaseState.itemQuestionReady = false;
+  chaseState.itemQuestionNodeId = null;
+}
+
+if (chaseEncounterLayer) {
+  chaseEncounterLayer.addEventListener("click", (event) => {
+    if (!chaseEncounterLayer.classList.contains("is-item-question")) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    continueFromItemQuestion();
+  });
+
+  chaseEncounterLayer.addEventListener("pointerup", (event) => {
+    if (!chaseEncounterLayer.classList.contains("is-item-question")) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    continueFromItemQuestion();
+  });
+}
+
+function continueFromItemQuestion() {
+  if (!chaseState.itemQuestionReady) return;
+  if (!chaseState.itemQuestionNodeId) return;
+
+  const nodeId = chaseState.itemQuestionNodeId;
+
+  chaseState.itemQuestionReady = false;
+  chaseState.itemQuestionNodeId = null;
+
+  hideChaseEncounterLayer();
+  finalizeChaseNodeReveal(nodeId);
+  chaseState.encounterPlaying = false;
 }
 
 function showChapter3Intro() {
@@ -2980,22 +3129,24 @@ function beginChapter3AfterIntro() {
 
 function startChaseLevel() {
   chaseState.currentNodeId = "screenWall";
-  chaseState.selectedChoice = null;
-  chaseState.locked = false;
-  chaseState.canProceed = false;
 
   chaseState.drumRound = 0;
   chaseState.drumSequence = [];
   chaseState.drumPlayerIndex = 0;
 
   chaseState.introPlaying = false;
-  chaseState.encounterPlaying = false;
 
+  resetChaseInteractionState();
   hideChaseEncounterLayer();
   hideChaseDialogue();
 
-  if (drumGamePanel) drumGamePanel.hidden = true;
-  if (chaseScene) chaseScene.classList.remove("game-over");
+  if (drumGamePanel) {
+    drumGamePanel.hidden = true;
+  }
+
+  if (chaseScene) {
+    chaseScene.classList.remove("game-over", "chapter-zoom-in");
+  }
 
   if (chaseImage) {
     chaseImage.src = getChaseImagePath(chaseNodes.screenWall.image);
@@ -3218,12 +3369,8 @@ async function presentChaseNode(nodeId) {
     `;
   });
 
-  chaseEncounterLayer.onclick = () => {
-    chaseEncounterLayer.onclick = null;
-    hideChaseEncounterLayer();
-    finalizeChaseNodeReveal(nodeId);
-    chaseState.encounterPlaying = false;
-  };
+  chaseState.itemQuestionNodeId = nodeId;
+  chaseState.itemQuestionReady = true;
 }
 
 function finalizeChaseNodeReveal(nodeId) {
@@ -3394,8 +3541,13 @@ function finishDrumRitual() {
 }
 
 function returnToRoom2DoorAfterDeath() {
+  resetChaseInteractionState();
   hideChaseEncounterLayer();
   hideChaseDialogue();
+
+  if (drumGamePanel) {
+    drumGamePanel.hidden = true;
+  }
 
   openScreen(gameScreen2);
 
@@ -3404,6 +3556,8 @@ function returnToRoom2DoorAfterDeath() {
   room2State.doorFlipUnlocked = true;
   room2State.doorVisible = true;
   room2State.persistentBlink = true;
+  room2State.dragActive = false;
+  room2State.dragMoved = false;
 
   if (gameScreen2) {
     gameScreen2.classList.add("room2-fullscreen");
@@ -3422,11 +3576,7 @@ function returnToRoom2DoorAfterDeath() {
   renderRoom2Status();
 
   if (bgm3) {
-    if (bgm3.paused) {
-      bgm3Started = false;
-      switchToBgm3();
-    }
-  } else {
+    bgm3Started = false;
     switchToBgm3();
   }
 
