@@ -2679,3 +2679,517 @@ body.final-blackout-stage::after {
     width: calc(100vw - 48px);
   }
 }
+/* =========================
+   Room 2 gift card + global narrative
+========================== */
+
+.room2-gift-dock {
+  position: absolute;
+  right: 24px;
+  top: 120px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.room2-gift-dock[hidden] {
+  display: none !important;
+}
+
+.room2-gift-card {
+  width: 126px;
+  background: rgba(18, 14, 18, 0.84);
+  border: 1px solid rgba(198, 157, 96, 0.34);
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.room2-gift-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.48);
+}
+
+.room2-gift-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.room2-gift-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.room2-gift-label {
+  margin-top: 8px;
+  text-align: center;
+  color: var(--gold);
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.room2-gift-panel {
+  width: min(560px, 42vw);
+  max-height: min(78vh, 820px);
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(12, 10, 16, 0.94);
+  border: 1px solid rgba(198, 157, 96, 0.28);
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.52);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.room2-gift-panel[hidden] {
+  display: none !important;
+}
+
+.room2-gift-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.room2-gift-panel-title {
+  margin: 0;
+  color: var(--gold);
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
+.room2-gift-close {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.room2-gift-figure {
+  width: 100%;
+  height: min(270px, 30vh);
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.room2-gift-figure img {
+  width: min(100%, 100%);
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.room2-gift-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.room2-gift-flip {
+  min-width: 118px !important;
+  padding: 13px 28px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(238, 231, 221, 0.92) !important;
+  font-family: "Georgia", "Times New Roman", serif !important;
+  font-size: 1.05rem !important;
+  backdrop-filter: blur(8px) !important;
+  cursor: pointer;
+}
+
+.room2-gift-flip:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.room2-gift-text {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-right: 8px;
+  color: rgba(255,255,255,0.92);
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: clamp(0.98rem, 1.06vw, 1.06rem);
+  line-height: 1.8;
+  min-height: 160px;
+}
+
+.room2-gift-text p {
+  margin: 0 0 0.95rem;
+}
+
+.room2-gift-text strong {
+  color: var(--gold);
+}
+
+.room2-gift-proceed {
+  align-self: center;
+  min-width: 140px;
+}
+
+.room2-gift-proceed[hidden] {
+  display: none !important;
+}
+
+/* global black narrative overlay */
+.global-narrative-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #000;
+  display: grid;
+  place-items: center;
+  padding: 6vh 8vw;
+}
+
+.global-narrative-overlay[hidden] {
+  display: none !important;
+}
+
+.global-narrative-text {
+  max-width: min(1080px, 84vw);
+  color: #fff;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: clamp(1.5rem, 3vw, 2.85rem);
+  line-height: 1.58;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.global-narrative-text p {
+  margin: 0 0 1.1rem;
+}
+
+.global-narrative-text strong {
+  color: rgba(255,255,255,0.96);
+}
+
+.global-remain-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #000;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.global-remain-word {
+  position: absolute;
+  white-space: nowrap;
+  color: rgba(255,255,255,0.7);
+  animation: globalRemainFloat 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes globalRemainFloat {
+  from {
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  to {
+    transform: translateY(-18px) scale(1.06);
+    filter: blur(1.6px);
+  }
+}
+
+.global-haunt-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  pointer-events: none;
+}
+
+.global-haunt-stage .chase-spirit-close,
+.global-haunt-stage .chase-spirit-full {
+  z-index: 2;
+}
+
+@media (max-width: 980px) {
+  .room2-gift-dock {
+    right: 14px;
+    top: 96px;
+  }
+
+  .room2-gift-panel {
+    width: min(86vw, 560px);
+  }
+}
+
+/* =========================
+   Room 4: Gift room
+========================== */
+
+#gameScreen4 {
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+}
+
+#gameScreen4.screen.active {
+  display: flex;
+}
+
+#gameScreen4.room4-door-mode {
+  padding: 0 !important;
+  background: #000 !important;
+}
+
+#gameScreen4.room4-door-mode .top-bar,
+#gameScreen4.room4-door-mode .side-panel {
+  display: none !important;
+}
+
+#gameScreen4.room4-door-mode .game-layout {
+  display: block !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+#gameScreen4.room4-door-mode .scene-panel {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: #000 !important;
+  box-shadow: none !important;
+  z-index: 11000;
+}
+
+#gameScreen4.room4-door-mode .scene-wrapper {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0 !important;
+  background: #000;
+}
+
+#gameScreen4.room4-door-mode .scene-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.room4-flip-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+#gameScreen4.room4-door-mode .room4-flip-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 11001;
+}
+
+.room4-flip-btn[hidden] {
+  display: none !important;
+}
+
+.room4-scene-turning {
+  animation: room4SceneTurn 0.82s ease forwards;
+  transform-origin: center center;
+}
+
+@keyframes room4SceneTurn {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+
+  55% {
+    transform: scale(1.08);
+    filter: brightness(0.18) blur(8px);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: brightness(1) blur(0);
+  }
+}
+
+/* Room4 gift card uses the same visual language as Room2 gift */
+.room4-gift-dock {
+  position: absolute;
+  right: 24px;
+  top: 120px;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.room4-gift-dock[hidden] {
+  display: none !important;
+}
+
+.room4-gift-card {
+  width: 126px;
+  background: rgba(18, 14, 18, 0.84);
+  border: 1px solid rgba(198, 157, 96, 0.34);
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.room4-gift-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.48);
+}
+
+.room4-gift-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.room4-gift-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.room4-gift-label {
+  margin-top: 8px;
+  text-align: center;
+  color: var(--gold);
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.room4-gift-panel {
+  width: min(560px, 42vw);
+  max-height: min(78vh, 820px);
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(12, 10, 16, 0.94);
+  border: 1px solid rgba(198, 157, 96, 0.28);
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.52);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.room4-gift-panel[hidden] {
+  display: none !important;
+}
+
+.room4-gift-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.room4-gift-panel-title {
+  margin: 0;
+  color: var(--gold);
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
+.room4-gift-close {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.room4-gift-figure {
+  width: 100%;
+  height: min(270px, 30vh);
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.room4-gift-figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.room4-gift-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.room4-gift-flip {
+  min-width: 118px !important;
+  padding: 13px 28px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(238, 231, 221, 0.92) !important;
+  font-family: "Georgia", "Times New Roman", serif !important;
+  font-size: 1.05rem !important;
+  backdrop-filter: blur(8px) !important;
+  cursor: pointer;
+}
+
+.room4-gift-text {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-right: 8px;
+  color: rgba(255,255,255,0.92);
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: clamp(0.98rem, 1.06vw, 1.06rem);
+  line-height: 1.8;
+  min-height: 160px;
+}
+
+.room4-gift-text p {
+  margin: 0 0 0.95rem;
+}
+
+.room4-gift-text strong {
+  color: var(--gold);
+}
+
+.room4-gift-proceed {
+  align-self: center;
+  min-width: 140px;
+}
+
+.room4-gift-proceed[hidden] {
+  display: none !important;
+}

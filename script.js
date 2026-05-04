@@ -3793,12 +3793,22 @@ function returnToRoom2DoorAfterDeath() {
 const FINAL_GIFT_FRONT = "finalGiftPhoto.png";
 const FINAL_GIFT_BACK = "finalGiftPhotoBack.png";
 
-const finalGiftReadingHtml = `
+const finalGiftReadingBackHtml = `
   <p><strong>Roland Barthes:</strong></p>
   <p>Truly traumatic photographs are rare, for in photography, the trauma is only dependent on the certainty that the artist is there.</p>
 
   <p><strong>Andre Bazin.</strong></p>
   <p>For the first time, between the originating object and its reproduction there intervenes only the instrumentality of a nonliving agent. For the first time an image of the world is formed automatically, without the creative intervention of man. The personality of the photographer enters into the proceedings only in his selection of the object to be photographed and by way of the purpose he has in mind. The photographic image is the object itself, the object freed from the conditions of time and space that govern it. The photograph as such and the object in itself share a common being, after the fashion of a fingerprint.</p>
+`;
+
+const finalGiftReadingFrontHtml = `
+  <p>This is Bracha L. Ettinger’s <em>Eurydice</em> series, no. 14. In this work, she repeatedly prints archival photographs of female victims taken by the Nazis in the gas chambers, then adds color and brushstrokes onto the surface of the image.</p>
+
+  <p>André Bazin once understood photography as a mechanical art distinct from the traditional plastic arts: photography derives its power from its physical bond with reality, from its apparent ability to record, honestly and objectively, what “was there.” Yet it is precisely this mechanical appearance of objectivity that allows archival photographs to disguise themselves as neutral records, concealing the violent system behind the camera.</p>
+
+  <p>The image is always trying to bind itself to the reality behind the lens and beyond the frame. Ettinger, however, gently places paint at the point where these lines of sight meet. She reminds us, as Deleuze suggests, that the viewer of an image can never return to the past in a purely disembodied way, without subjectivity, without an inner life. Through feminized colors and visible brushstrokes, she refuses to hide her own presence. These marks tell the viewer clearly that the image is not being looked at by a cold, neutral, bodiless machine, but is being faced again by an artist who also carries trauma, memory, and subjectivity. She does not leave these women exposed, alone, to the Nazi archive, to modern technological mechanisms, and to the patriarchal gaze. Instead, she makes her own position as viewer visible, so that looking is no longer possession, but a form of responsibility.</p>
+
+  <p>When our gaze joins with the image, what we see is not the clear, “scientific,” objective image of the Nazi archive. The light of the 1940s once reflected from the bodies of these victims toward the lens, striking both the photographer’s retina and the photographic film. Yet when that light is refracted into the eyes of Ettinger and of the viewer, it is interrupted; it becomes blurred. This blurring protects both sides of the act of looking: those who see, and those who are seen. Ettinger is not hiding history--she is protecting these women from being invaded once again by the world outside the frame—as numbers, as specimens, as expendable material, as evidence.</p>
 `;
 
 const finalGiftGhostPages = [
@@ -3808,6 +3818,36 @@ const finalGiftGhostPages = [
   `Please spare me from that gaze,`,
   `and from that pain.`
 ];
+
+const postGiftDialoguePages = [
+  `<p><strong>You:</strong></p><p>Could you please let me go home now? Or at least let me return to the crime scene and do my work.</p>`,
+  `<p><strong>Ghost:</strong></p><p>Not yet.</p>`,
+  `<p><strong>Ghost:</strong></p><p>It is not enough to simply imitate Bracha L. Ettinger.</p>`,
+  `<p><strong>Ghost:</strong></p><p>Nazi Germany apologized. Nazi rule was dismantled by the Soviet Union. The historical trauma of the Jewish people has entered public history. But under the political order shaped by decades of the Cold War, the Japanese government has still not properly apologized to the victims in Korea, North Korea, China, or even among its own people.</p>`,
+  `<p><strong>Ghost:</strong></p><p>In recent years, the survivors have grown older and older. The living sisters and men are fewer and fewer. Like all perpetrators of sexual violence and all systems built on the crushing of the powerless, the Japanese government remains silent and waits for the victims to exhaust their voices.</p>`,
+  `<p><strong>Ghost:</strong></p><p>I will send you away.</p>`,
+  `<p><strong>Ghost:</strong></p><p>But I will not disappear.</p>`,
+  `<p><strong>Ghost:</strong></p><p>I will haunt everyone who tries to objectify, exploit, and humiliate another human being. I will keep roaring.</p>`,
+  `<p><strong>Ghost:</strong></p><p>The standards of evidence demanded by the international community, the Japanese government’s erasure of proof, the pain made unspeakable by ideas of chastity, the difficulty of gathering testimony in poor and remote regions—all of these have turned the path toward justice into a black box.</p>`,
+  `<p><strong>Ghost:</strong></p><p>Our voices and our grievances echo inside that boundless darkness.</p>`,
+  `<p><strong>You:</strong></p><p>So... the man was killed by you?</p>`,
+  `<p><strong>Ghost:</strong></p><p>I do not deny it.</p>`,
+  `<p><strong>Ghost:</strong></p><p>Have you ever heard this idea? Every word we speak carries energy in the waves of its sound. Even as the walls and the air absorb it, that energy is never truly used up.</p>`,
+  `<p><strong>Ghost:</strong></p><p>Even when your ears can no longer catch it, the energy remains.</p>`,
+  `<p><strong>Ghost:</strong></p><p>And I remain.</p>`
+];
+
+const finalEchoPages = [
+  `<p>My voice echoes forever, whether you can hear it or not, whether you want to listen or not.</p>`,
+  `<p>The moment that man formed his vile intention, he was burned by the energy of that voice. But you—and people like you, decent and kind—will not be harmed by it.</p>`
+];
+
+const room2GiftState = {
+  unlocked: false,
+  panelOpen: false,
+  side: "back",
+  frontReadComplete: false
+};
 
 function renderFinalGiftBase() {
   if (!chaseEncounterLayer) return;
@@ -3835,7 +3875,7 @@ function renderFinalGiftBase() {
 
     <div id="finalGiftTextBar" class="final-gift-text-bar" hidden>
       <div id="finalGiftScroll" class="final-gift-scroll">
-        ${finalGiftReadingHtml}
+        ${finalGiftReadingBackHtml}
       </div>
 
       <button
@@ -3863,7 +3903,6 @@ async function playFinalGiftHauntIntoPhoto() {
   const closeSrc = getChaseItemPath("spirit1.png");
   const fullSrc = getChaseItemPath("spirit.png");
 
-  /* 1. 直接使用 chase 阶段的半身鬼 */
   runGlobalBlink(() => {
     spiritOverlay.innerHTML = `
       <img
@@ -3876,7 +3915,6 @@ async function playFinalGiftHauntIntoPhoto() {
 
   await sleep(240);
 
-  /* 半身出现后，照片开始慢慢浮现 */
   photo.classList.add("visible");
 
   await sleep(520);
@@ -3888,7 +3926,6 @@ async function playFinalGiftHauntIntoPhoto() {
 
   await sleep(260);
 
-  /* 2. 直接使用 chase 阶段的全身鬼 */
   runGlobalBlink(() => {
     spiritOverlay.innerHTML = `
       <img
@@ -3901,7 +3938,6 @@ async function playFinalGiftHauntIntoPhoto() {
 
   await sleep(760);
 
-  /* 3. dissolve 到照片里 */
   const fullImg = spiritOverlay.querySelector(".chase-spirit-full");
   if (fullImg) {
     fullImg.style.transition = "opacity 1.1s ease, transform 1.1s ease, filter 1.1s ease";
@@ -3941,13 +3977,34 @@ async function playFinalGiftSequence() {
     flipBtn.hidden = false;
   }
 
+  function unlockFinalGiftProceedWhenRead() {
+    if (!scroll || !proceedBtn) return;
+
+    proceedBtn.hidden = true;
+    scroll.scrollTop = 0;
+
+    const checkRead = () => {
+      const reachedBottom =
+        scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 16;
+
+      const noScrollNeeded =
+        scroll.scrollHeight <= scroll.clientHeight + 12;
+
+      if (reachedBottom || noScrollNeeded) {
+        proceedBtn.hidden = false;
+      }
+    };
+
+    requestAnimationFrame(checkRead);
+    scroll.addEventListener("scroll", checkRead);
+  }
+
   if (flipBtn && photo && textBar && scroll && proceedBtn) {
     flipBtn.addEventListener(
       "click",
       async () => {
         flipBtn.hidden = true;
 
-        /* flip 动画，中途切换到 back 图 */
         photo.classList.add("flip-anim");
         await sleep(500);
         photo.src = getChaseItemPath(FINAL_GIFT_BACK);
@@ -3955,28 +4012,9 @@ async function playFinalGiftSequence() {
         photo.classList.remove("flip-anim");
 
         textBar.hidden = false;
-        scroll.scrollTop = 0;
-        proceedBtn.hidden = true;
+        scroll.innerHTML = finalGiftReadingBackHtml;
 
-        requestAnimationFrame(() => {
-          const noScrollNeeded =
-            scroll.scrollHeight <= scroll.clientHeight + 12;
-
-          if (noScrollNeeded) {
-            proceedBtn.hidden = false;
-          }
-        });
-
-        const onScrollCheck = () => {
-          const reachedBottom =
-            scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 16;
-
-          if (reachedBottom) {
-            proceedBtn.hidden = false;
-          }
-        };
-
-        scroll.addEventListener("scroll", onScrollCheck);
+        unlockFinalGiftProceedWhenRead();
       },
       { once: true }
     );
@@ -4015,6 +4053,8 @@ async function playFinalGiftGhostSpeech() {
 
   hideChaseEncounterLayer();
   setChaseChoicesDisabled(false);
+
+  await enterRoom4DoorBeforeGift();
 }
 
 async function playPaginatedFinalGiftSpeech(pages) {
@@ -4022,9 +4062,7 @@ async function playPaginatedFinalGiftSpeech(pages) {
   if (!textNode) return;
 
   for (let i = 0; i < pages.length; i += 1) {
-    textNode.innerHTML = `
-      <p>${pages[i]}</p>
-    `;
+    textNode.innerHTML = `<p>${pages[i]}</p>`;
 
     if (chaseEncounterLayer) {
       chaseEncounterLayer.classList.remove("ghost-line-zoom");
@@ -4050,4 +4088,473 @@ function waitForEncounterLayerClickOnce() {
 
     chaseEncounterLayer.addEventListener("click", handler);
   });
+}
+
+/* =========================
+   Return to Room 2 + Gift card
+========================== */
+
+const room4GiftState = {
+  unlocked: false,
+  panelOpen: false,
+  side: "back",
+  frontReadComplete: false
+};
+
+function ensureRoom4Screen() {
+  let room4 = document.getElementById("gameScreen4");
+  if (room4) return room4;
+
+  room4 = document.createElement("section");
+  room4.id = "gameScreen4";
+  room4.className = "screen game-screen";
+
+  room4.innerHTML = `
+    <div class="top-bar">
+      <div>
+        <h2>Chapter four: the gift</h2>
+        <p>It seems that everything has been mirrored and reversed</p>
+      </div>
+      <button id="room4BackBtn" type="button" class="secondary-btn">返回上一页</button>
+    </div>
+
+    <div class="game-layout">
+      <div class="scene-panel">
+        <div id="room4SceneWrapper" class="scene-wrapper">
+          <img
+            id="room4Image"
+            class="scene-image"
+            src="images/door.png"
+            alt="Room 4"
+          />
+        </div>
+
+        <div class="room4-flip-wrap">
+          <button id="room4FlipBtn" class="room4-flip-btn" type="button">Flip</button>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+        <div class="panel-block">
+          <h3>The gift from the ghost.</h3>
+          <div id="room4StoryText" class="story-text">
+            <p>Something has been returned to you.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  `;
+
+  document.body.appendChild(room4);
+
+  const backBtn = room4.querySelector("#room4BackBtn");
+  if (backBtn) {
+    backBtn.addEventListener("click", () => {
+      openScreen(gameScreen3);
+    });
+  }
+
+  const flipBtn = room4.querySelector("#room4FlipBtn");
+  if (flipBtn) {
+    flipBtn.addEventListener("click", revealRoom4FromDoor);
+  }
+
+  return room4;
+}
+
+async function enterRoom4DoorBeforeGift() {
+  const room4 = ensureRoom4Screen();
+  const room4Image = room4.querySelector("#room4Image");
+  const room4FlipBtn = room4.querySelector("#room4FlipBtn");
+
+  if (typeof stopAllBgm === "function") {
+    stopAllBgm();
+  }
+
+  openScreen(room4);
+
+  room4.classList.add("room4-door-mode");
+
+  if (room4Image) {
+    room4Image.src = "images/door.png";
+  }
+
+  if (room4FlipBtn) {
+    room4FlipBtn.hidden = false;
+    room4FlipBtn.textContent = "Flip";
+  }
+
+  room4GiftState.unlocked = false;
+  room4GiftState.panelOpen = false;
+  room4GiftState.side = "back";
+  room4GiftState.frontReadComplete = false;
+
+  ensureRoom4GiftUI();
+  renderRoom4GiftUI();
+}
+
+async function revealRoom4FromDoor() {
+  const room4 = ensureRoom4Screen();
+  const wrapper = room4.querySelector("#room4SceneWrapper");
+  const room4Image = room4.querySelector("#room4Image");
+  const room4FlipBtn = room4.querySelector("#room4FlipBtn");
+
+  if (wrapper) {
+    wrapper.classList.add("room4-scene-turning");
+  }
+
+  runGlobalBlink();
+
+  await sleep(420);
+
+  if (room4Image) {
+    room4Image.src = "images/room2.png";
+  }
+
+  await sleep(420);
+
+  if (wrapper) {
+    wrapper.classList.remove("room4-scene-turning");
+  }
+
+  room4.classList.remove("room4-door-mode");
+
+  if (room4FlipBtn) {
+    room4FlipBtn.hidden = true;
+  }
+
+  room4GiftState.unlocked = true;
+  room4GiftState.panelOpen = false;
+  room4GiftState.side = "back";
+  room4GiftState.frontReadComplete = false;
+
+  ensureRoom4GiftUI();
+  renderRoom4GiftUI();
+}
+
+function ensureRoom4GiftUI() {
+  if (document.getElementById("room4GiftDock")) return;
+
+  const room4 = ensureRoom4Screen();
+  const sceneWrapper = room4.querySelector("#room4SceneWrapper");
+  if (!sceneWrapper) return;
+
+  const dock = document.createElement("div");
+  dock.id = "room4GiftDock";
+  dock.className = "room4-gift-dock";
+  dock.hidden = true;
+
+  dock.innerHTML = `
+    <div id="room4GiftCard" class="room4-gift-card" role="button" tabindex="0">
+      <div class="room4-gift-thumb">
+        <img src="${getChaseItemPath(FINAL_GIFT_FRONT)}" alt="gift">
+      </div>
+      <div class="room4-gift-label">gift</div>
+    </div>
+
+    <div id="room4GiftPanel" class="room4-gift-panel" hidden></div>
+  `;
+
+  sceneWrapper.appendChild(dock);
+
+  const card = dock.querySelector("#room4GiftCard");
+  if (card) {
+    card.addEventListener("click", () => {
+      room4GiftState.panelOpen = !room4GiftState.panelOpen;
+      renderRoom4GiftUI();
+    });
+
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        room4GiftState.panelOpen = !room4GiftState.panelOpen;
+        renderRoom4GiftUI();
+      }
+    });
+  }
+}
+
+function renderRoom4GiftUI() {
+  const dock = document.getElementById("room4GiftDock");
+  const panel = document.getElementById("room4GiftPanel");
+  if (!dock || !panel) return;
+
+  dock.hidden = !room4GiftState.unlocked;
+  panel.hidden = !room4GiftState.panelOpen;
+
+  if (!room4GiftState.unlocked || !room4GiftState.panelOpen) return;
+
+  const isBack = room4GiftState.side === "back";
+  const imagePath = isBack
+    ? getChaseItemPath(FINAL_GIFT_BACK)
+    : getChaseItemPath(FINAL_GIFT_FRONT);
+
+  const textHtml = isBack
+    ? finalGiftReadingBackHtml
+    : finalGiftReadingFrontHtml;
+
+  panel.innerHTML = `
+    <div class="room4-gift-panel-header">
+      <h3 class="room4-gift-panel-title">gift</h3>
+      <button id="room4GiftClose" class="room4-gift-close" type="button">Close</button>
+    </div>
+
+    <div class="room4-gift-figure">
+      <img src="${imagePath}" alt="gift detail">
+    </div>
+
+    <div class="room4-gift-actions">
+      <button id="room4GiftFlip" class="room4-gift-flip" type="button">
+        Flip
+      </button>
+    </div>
+
+    <div id="room4GiftText" class="room4-gift-text">
+      ${textHtml}
+    </div>
+
+    <button id="room4GiftProceed" class="room4-gift-proceed" type="button" hidden>
+      Proceed
+    </button>
+  `;
+
+  const closeBtn = document.getElementById("room4GiftClose");
+  const flipBtn = document.getElementById("room4GiftFlip");
+  const textBox = document.getElementById("room4GiftText");
+  const proceedBtn = document.getElementById("room4GiftProceed");
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      room4GiftState.panelOpen = false;
+      renderRoom4GiftUI();
+    });
+  }
+
+  if (flipBtn) {
+    flipBtn.addEventListener("click", () => {
+      room4GiftState.side = room4GiftState.side === "back" ? "front" : "back";
+      renderRoom4GiftUI();
+    });
+  }
+
+  if (textBox && proceedBtn) {
+    const maybeUnlockProceed = () => {
+      const reachedBottom =
+        textBox.scrollTop + textBox.clientHeight >= textBox.scrollHeight - 16;
+
+      const noScrollNeeded =
+        textBox.scrollHeight <= textBox.clientHeight + 12;
+
+      if (room4GiftState.side === "front" && (reachedBottom || noScrollNeeded)) {
+        room4GiftState.frontReadComplete = true;
+        proceedBtn.hidden = false;
+      }
+    };
+
+    if (room4GiftState.side === "front" && room4GiftState.frontReadComplete) {
+      proceedBtn.hidden = false;
+    } else {
+      proceedBtn.hidden = true;
+    }
+
+    requestAnimationFrame(maybeUnlockProceed);
+    textBox.addEventListener("scroll", maybeUnlockProceed);
+  }
+
+  if (proceedBtn) {
+    proceedBtn.addEventListener("click", async () => {
+      proceedBtn.hidden = true;
+      await startPostGiftEndingSequence();
+    });
+  }
+}
+
+/* =========================
+   Global overlay narrative
+========================== */
+
+function ensureGlobalNarrativeOverlay() {
+  let overlay = document.getElementById("globalNarrativeOverlay");
+  if (overlay) return overlay;
+
+  overlay = document.createElement("div");
+  overlay.id = "globalNarrativeOverlay";
+  overlay.className = "global-narrative-overlay";
+  overlay.hidden = true;
+  document.body.appendChild(overlay);
+
+  return overlay;
+}
+
+function ensureGlobalRemainLayer() {
+  let layer = document.getElementById("globalRemainLayer");
+  if (layer) return layer;
+
+  layer = document.createElement("div");
+  layer.id = "globalRemainLayer";
+  layer.className = "global-remain-layer";
+  layer.hidden = true;
+  document.body.appendChild(layer);
+
+  return layer;
+}
+
+function ensureGlobalHauntStage() {
+  let stage = document.getElementById("globalHauntStage");
+  if (stage) return stage;
+
+  stage = document.createElement("div");
+  stage.id = "globalHauntStage";
+  stage.className = "global-haunt-stage";
+  stage.hidden = true;
+  document.body.appendChild(stage);
+
+  return stage;
+}
+
+async function showGlobalNarrativePages(pages) {
+  const overlay = ensureGlobalNarrativeOverlay();
+  overlay.hidden = false;
+
+  for (const pageHtml of pages) {
+    overlay.innerHTML = `
+      <div class="global-narrative-text">
+        ${pageHtml}
+      </div>
+    `;
+
+    await waitForGlobalOverlayClick(overlay);
+  }
+
+  overlay.hidden = true;
+  overlay.innerHTML = "";
+}
+
+function waitForGlobalOverlayClick(overlay) {
+  return new Promise((resolve) => {
+    const handler = () => {
+      overlay.removeEventListener("click", handler);
+      resolve();
+    };
+    overlay.addEventListener("click", handler);
+  });
+}
+
+async function playAndIRemainStorm(duration = 20000) {
+  const layer = ensureGlobalRemainLayer();
+  layer.hidden = false;
+  layer.innerHTML = "";
+
+  const fonts = [
+    "Georgia",
+    "Times New Roman",
+    "serif",
+    "Arial",
+    "Verdana",
+    "Courier New",
+    "Palatino",
+    "Garamond"
+  ];
+
+  for (let i = 0; i < 120; i += 1) {
+    const word = document.createElement("div");
+    word.className = "global-remain-word";
+    word.textContent = "and I remain";
+    word.style.left = `${Math.random() * 92}%`;
+    word.style.top = `${Math.random() * 92}%`;
+    word.style.opacity = `${0.08 + Math.random() * 0.78}`;
+    word.style.fontSize = `${14 + Math.random() * 76}px`;
+    word.style.fontFamily = fonts[Math.floor(Math.random() * fonts.length)];
+    word.style.animationDelay = `${Math.random() * 2.8}s`;
+    layer.appendChild(word);
+  }
+
+  await sleep(duration);
+
+  layer.hidden = true;
+  layer.innerHTML = "";
+}
+
+async function playGlobalHauntSequence() {
+  const stage = ensureGlobalHauntStage();
+  stage.hidden = false;
+  stage.innerHTML = "";
+
+  runGlobalBlink(() => {
+    stage.innerHTML = `
+      <img
+        class="chase-spirit-close"
+        src="${getChaseItemPath("spirit1.png")}"
+        alt="Spirit"
+      />
+    `;
+  });
+
+  await sleep(980);
+
+  const closeImg = stage.querySelector(".chase-spirit-close");
+  if (closeImg) {
+    closeImg.classList.add("zooming-out");
+  }
+
+  await sleep(320);
+
+  runGlobalBlink(() => {
+    stage.innerHTML = `
+      <img
+        class="chase-spirit-full"
+        src="${getChaseItemPath("spirit.png")}"
+        alt="Spirit"
+      />
+    `;
+  });
+
+  await sleep(980);
+
+  runGlobalBlink();
+
+  await sleep(260);
+
+  stage.hidden = true;
+  stage.innerHTML = "";
+}
+
+async function startPostGiftEndingSequence() {
+  room4GiftState.panelOpen = false;
+  renderRoom4GiftUI();
+
+  await showGlobalNarrativePages(postGiftDialoguePages);
+
+  runGlobalBlink();
+  await sleep(220);
+
+  await playAndIRemainStorm(20000);
+
+  await playGlobalHauntSequence();
+
+  await showGlobalNarrativePages(finalEchoPages);
+
+  closeWindowGracefully();
+}
+
+function closeWindowGracefully() {
+  const overlay = ensureGlobalNarrativeOverlay();
+  overlay.hidden = false;
+  overlay.innerHTML = `
+    <div class="global-narrative-text">
+      <p>The window will now close.</p>
+    </div>
+  `;
+
+  setTimeout(() => {
+    window.close();
+
+    setTimeout(() => {
+      overlay.innerHTML = `
+        <div class="global-narrative-text">
+          <p>You may now close this window.</p>
+        </div>
+      `;
+    }, 400);
+  }, 300);
 }
