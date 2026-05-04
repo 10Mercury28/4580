@@ -7,6 +7,7 @@ const goBriefingBtn = document.getElementById("goBriefingBtn");
 const goRoom1Btn = document.getElementById("goRoom1Btn");
 const goRoom2Btn = document.getElementById("goRoom2Btn");
 const goRoom3Btn = document.getElementById("goRoom3Btn");
+const goSovietQuestionBtn = document.getElementById("goSovietQuestionBtn");
 
 const introScreen = document.getElementById("introScreen");
 const briefingScreen = document.getElementById("briefingScreen");
@@ -2156,6 +2157,33 @@ if (goRoom3Btn) {
   });
 }
 
+if (goSovietQuestionBtn) {
+  goSovietQuestionBtn.addEventListener("click", () => {
+    scaffoldJumpTo(gameScreen3);
+    switchToBgm3();
+
+    resetChaseInteractionState();
+    hideChaseEncounterLayer();
+    hideChaseDialogue();
+
+    if (drumGamePanel) {
+      drumGamePanel.hidden = true;
+    }
+
+    if (chaseImage) {
+      chaseImage.src = getChaseImagePath(chaseNodes.finalQuestion.image);
+      chaseImage.alt = "Soviet Canteen";
+    }
+
+    chaseState.currentNodeId = "finalQuestion";
+    chaseState.lastEncounterNodeId = "finalQuestion";
+    chaseState.pathFromLastEncounter = [];
+
+    // 直接进入回答界面，不播放鬼出现和 ghostLines
+    renderChaseNode("finalQuestion");
+  });
+}
+
 if (room2FlipBtn) {
   room2FlipBtn.addEventListener("click", toggleRoom2MainImage);
 }
@@ -2911,7 +2939,7 @@ async function playSovietWrongAnswerSequence() {
   }
 
   if (!chaseEncounterLayer) {
-    renderChaseNode("finalQuestion");
+    finalizeChaseNodeReveal("finalQuestion");
     setChaseChoicesDisabled(false);
     chaseState.encounterPlaying = false;
     return;
@@ -2942,8 +2970,8 @@ async function playSovietWrongAnswerSequence() {
 
   hideChaseEncounterLayer();
 
-  // 关键：重新完整渲染 finalQuestion，而不是只 finalize
-  renderChaseNode("finalQuestion");
+  // 关键：只回到 finalQuestion 的回答界面，不重新播放 ghostLines / item encounter
+  finalizeChaseNodeReveal("finalQuestion");
 
   setChaseChoicesDisabled(false);
   chaseState.encounterPlaying = false;
