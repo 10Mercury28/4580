@@ -2554,7 +2554,7 @@ const chaseNodes = {
       "Ghost: Answer me.\nWho am I?"
     ],
     choices: {
-      forward: {
+      left: {
         label: "Answer",
         answer: `
           <p>You... you are not one person.</p>
