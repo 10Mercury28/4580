@@ -2600,6 +2600,7 @@ const chaseNodes = {
         answer: `
           <p>You are a Soviet person?</p>
         `,
+        wrongSovietAnswer: true,
         transition: [],
         next: "finalQuestion"
       }
@@ -2622,7 +2623,7 @@ const chaseNodes = {
   },
 
   mainRoomZoom: {
-    image: "正房 zoom in.png",
+    image: "正房zoom in.png",
     title: "Main Room",
     encounter: false,
     hideDialogue: true,
@@ -2970,7 +2971,11 @@ async function playSovietWrongAnswerSequence() {
 
   hideChaseEncounterLayer();
 
-  // 关键：只回到 finalQuestion 的回答界面，不重新播放 ghostLines / item encounter
+  // 关键：直接回到问答页面，不 presentChaseNode，不 renderChaseNode，不播放 ghostLines
+  chaseState.currentNodeId = "finalQuestion";
+  chaseState.lastEncounterNodeId = "finalQuestion";
+  chaseState.pathFromLastEncounter = [];
+
   finalizeChaseNodeReveal("finalQuestion");
 
   setChaseChoicesDisabled(false);
@@ -3155,9 +3160,10 @@ if (chaseProceedBtn) {
     const choice = chaseState.selectedChoice;
     if (!choice) return;
 
+    // 苏联人问题：错误回答不走普通转场，不 haunt，只黑屏回应
     if (
       chaseState.currentNodeId === "finalQuestion" &&
-      choice === chaseNodes.finalQuestion.choices.right
+      choice.wrongSovietAnswer
     ) {
       playSovietWrongAnswerSequence();
       return;
