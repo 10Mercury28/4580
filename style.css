@@ -2316,3 +2316,366 @@ body.final-blackout-stage::after {
     font-size: clamp(1.15rem, 5vw, 1.8rem);
   }
 }
+
+/* =========================
+   Final photo / gift sequence
+========================== */
+
+.final-photo-layer {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 99994 !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(0, 0, 0, 0.72) !important;
+  backdrop-filter: blur(10px) brightness(0.48);
+  overflow: hidden;
+}
+
+.final-photo-stage {
+  position: relative;
+  width: min(520px, 72vw);
+  aspect-ratio: 3 / 4;
+  perspective: 1200px;
+}
+
+.final-photo-card {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.8s ease;
+}
+
+.final-photo-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.final-photo-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #111;
+  border: 1px solid rgba(200, 165, 107, 0.35);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.72);
+}
+
+.final-photo-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.final-photo-back {
+  transform: rotateY(180deg);
+  padding: 26px;
+  overflow-y: auto;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: "Georgia", "Times New Roman", serif;
+  line-height: 1.75;
+  font-size: clamp(0.82rem, 1.1vw, 1rem);
+}
+
+.final-photo-back h3 {
+  margin: 0 0 12px;
+  color: var(--gold);
+}
+
+.final-photo-flip-btn {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 30px !important;
+  transform: translateX(-50%) !important;
+  z-index: 99996 !important;
+}
+
+.final-photo-flip-btn[hidden] {
+  display: none !important;
+}
+
+.final-photo-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34vh;
+  padding: 20px 42px;
+  background: linear-gradient(
+    180deg,
+    rgba(164, 72, 72, 0.12) 0%,
+    rgba(18, 16, 24, 0.42) 35%,
+    rgba(10, 10, 16, 0.82) 100%
+  );
+  backdrop-filter: blur(3px);
+  z-index: 99995;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.final-photo-scroll {
+  width: min(1100px, calc(100vw - 84px));
+  flex: 1;
+  overflow-y: auto;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: clamp(1rem, 1.2vw, 1.14rem);
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.92);
+  padding-right: 12px;
+}
+
+.final-photo-proceed {
+  margin-top: 10px !important;
+  align-self: center !important;
+}
+
+.final-photo-proceed[hidden] {
+  display: none !important;
+}
+
+.final-spirit-dissolve {
+  animation: finalSpiritDissolve 1.3s ease forwards;
+}
+
+@keyframes finalSpiritDissolve {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1.7);
+    filter: blur(0) drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4vh) scale(0.28);
+    filter: blur(16px) drop-shadow(0 0 10px rgba(255, 255, 255, 0));
+  }
+}
+
+.remain-storm-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 99996;
+  background: #000;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.remain-word {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: "Georgia", "Times New Roman", serif;
+  white-space: nowrap;
+  animation: remainFloat 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes remainFloat {
+  from {
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+
+  to {
+    transform: translateY(-18px) scale(1.06);
+    filter: blur(1.5px);
+  }
+}
+
+/* =========================
+   Final gift photo sequence
+========================== */
+
+#gameScreen3 #chaseEncounterLayer.final-gift-layer {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 99994 !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(0, 0, 0, 0.82) !important;
+  backdrop-filter: blur(10px) brightness(0.42);
+  overflow: hidden !important;
+  pointer-events: auto !important;
+}
+
+.final-gift-stage {
+  position: relative;
+  width: min(1100px, 88vw);
+  height: min(74vh, 760px);
+  display: grid;
+  place-items: center;
+}
+
+.final-gift-main-image {
+  width: min(1180px, 82vw);
+  height: min(68vh, 760px);
+  object-fit: contain;
+  display: block;
+
+  opacity: 0;
+  transform: scale(0.985);
+  transition:
+    opacity 6.8s ease,
+    transform 6.8s ease,
+    filter 6.8s ease;
+
+  filter: drop-shadow(0 24px 70px rgba(0, 0, 0, 0.72));
+  z-index: 2;
+}
+
+.final-gift-spirit-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 99995;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+
+.final-gift-main-image.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.final-gift-main-image.flip-anim {
+  animation: finalGiftFlipImage 1s ease both;
+}
+
+@keyframes finalGiftFlipImage {
+  0% {
+    transform: rotateY(0deg) scale(1);
+    filter: drop-shadow(0 24px 70px rgba(0, 0, 0, 0.72));
+  }
+
+  50% {
+    transform: rotateY(90deg) scale(0.97);
+    filter: drop-shadow(0 18px 52px rgba(0, 0, 0, 0.62));
+  }
+
+  100% {
+    transform: rotateY(0deg) scale(1);
+    filter: drop-shadow(0 24px 70px rgba(0, 0, 0, 0.72));
+  }
+}
+
+/* 直接复用 chase 阶段鬼的样式 */
+.final-gift-layer .chase-spirit-close,
+.final-gift-layer .chase-spirit-full {
+  pointer-events: none;
+  z-index: 5;
+}
+
+.final-gift-layer .chase-spirit-full.final-gift-dissolve {
+  animation: chaseSpiritZoomOut 1.05s ease forwards;
+}
+
+/* transparent flip button like room2 */
+.final-gift-flip-btn {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 34px !important;
+  transform: translateX(-50%) !important;
+  z-index: 99997 !important;
+
+  min-width: 120px !important;
+  padding: 16px 32px !important;
+
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(238, 231, 221, 0.92) !important;
+
+  font-family: "Georgia", "Times New Roman", serif !important;
+  font-size: 1.25rem !important;
+  box-shadow: 0 0 28px rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.final-gift-flip-btn:hover {
+  transform: translateX(-50%) translateY(-2px) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.final-gift-flip-btn[hidden] {
+  display: none !important;
+}
+
+/* bottom text bar */
+.final-gift-text-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 34vh;
+  padding: 18px 42px;
+
+  z-index: 99996;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  background: linear-gradient(
+    180deg,
+    rgba(164, 72, 72, 0.12) 0%,
+    rgba(18, 16, 24, 0.32) 35%,
+    rgba(10, 10, 16, 0.72) 100%
+  );
+
+  backdrop-filter: blur(3px);
+}
+
+.final-gift-text-bar[hidden] {
+  display: none !important;
+}
+
+.final-gift-scroll {
+  width: min(1180px, calc(100vw - 84px));
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 12px;
+
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: clamp(1rem, 1.22vw, 1.15rem);
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.final-gift-scroll p {
+  margin: 0 0 0.95rem;
+}
+
+.final-gift-scroll strong {
+  color: var(--gold);
+}
+
+.final-gift-proceed-btn {
+  margin-top: 10px !important;
+  align-self: center !important;
+  min-width: 140px !important;
+}
+
+.final-gift-proceed-btn[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .final-gift-stage {
+    width: 92vw;
+    height: 62vh;
+  }
+
+  .final-gift-main-image {
+    max-width: 90vw;
+    max-height: 56vh;
+  }
+
+  .final-gift-text-bar {
+    padding: 18px 24px;
+  }
+
+  .final-gift-scroll {
+    width: calc(100vw - 48px);
+  }
+}

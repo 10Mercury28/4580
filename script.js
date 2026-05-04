@@ -2623,7 +2623,7 @@ const chaseNodes = {
   },
 
   mainRoomZoom: {
-    image: "正房zoom in.png",
+    image: "正房 zoom in.png",
     title: "Main Room",
     encounter: false,
     hideDialogue: true,
@@ -2632,9 +2632,15 @@ const chaseNodes = {
         label: "Enter",
         answer: `<p>You enter the next space.</p>`,
         transition: ["zoom", "dark"],
-        next: "mainRoomNext"
+        next: "finalGiftSequence"
       }
     }
+  },
+
+  finalGiftSequence: {
+    image: "正房 zoom in.png",
+    title: "Gift",
+    finalGiftSequence: true
   },
 
   mainRoomNext: {
@@ -3513,6 +3519,11 @@ async function presentChaseNode(nodeId, arrivalInfo = null) {
 
   chaseState.arrivalInfo = arrivalInfo;
 
+  if (node.finalGiftSequence) {
+    await playFinalGiftSequence();
+    return;
+  }
+
   // 如果当前节点是 encounter，就把它记录为新的 checkpoint
   if (node.encounter) {
     chaseState.lastEncounterNodeId = nodeId;
@@ -3778,4 +3789,265 @@ function returnToRoom2DoorAfterDeath() {
   }
 
   restartRoom2BlinkFromImmediateBlink();
+}
+const FINAL_GIFT_FRONT = "finalGiftPhoto.png";
+const FINAL_GIFT_BACK = "finalGiftPhotoBack.png";
+
+const finalGiftReadingHtml = `
+  <p><strong>Roland Barthes:</strong></p>
+  <p>Truly traumatic photographs are rare, for in photography, the trauma is only dependent on the certainty that the artist is there.</p>
+
+  <p><strong>Andre Bazin.</strong></p>
+  <p>For the first time, between the originating object and its reproduction there intervenes only the instrumentality of a nonliving agent. For the first time an image of the world is formed automatically, without the creative intervention of man. The personality of the photographer enters into the proceedings only in his selection of the object to be photographed and by way of the purpose he has in mind. The photographic image is the object itself, the object freed from the conditions of time and space that govern it. The photograph as such and the object in itself share a common being, after the fashion of a fingerprint.</p>
+`;
+
+const finalGiftGhostPages = [
+  `On the one hand, these photographs can serve as evidence. They can testify that the trauma existed.`,
+  `But please do not forget why the Japanese military took them in the first place—`,
+  `for experiment, for archival classification, for control, for objectification.`,
+  `Please spare me from that gaze,`,
+  `and from that pain.`
+];
+
+function renderFinalGiftBase() {
+  if (!chaseEncounterLayer) return;
+
+  chaseEncounterLayer.hidden = false;
+  chaseEncounterLayer.className = "chase-encounter-layer final-gift-layer";
+  chaseEncounterLayer.innerHTML = `
+    <div class="final-gift-stage">
+      <img
+        id="finalGiftMainImage"
+        class="final-gift-main-image"
+        src="${getChaseItemPath(FINAL_GIFT_FRONT)}"
+        alt="Gift photograph"
+      >
+    </div>
+
+    <button
+      id="finalGiftFlipBtn"
+      class="final-gift-flip-btn"
+      type="button"
+      hidden
+    >
+      Flip
+    </button>
+
+    <div id="finalGiftTextBar" class="final-gift-text-bar" hidden>
+      <div id="finalGiftScroll" class="final-gift-scroll">
+        ${finalGiftReadingHtml}
+      </div>
+
+      <button
+        id="finalGiftProceedBtn"
+        class="final-gift-proceed-btn"
+        type="button"
+        hidden
+      >
+        Proceed
+      </button>
+    </div>
+  `;
+}
+
+async function playFinalGiftHauntIntoPhoto() {
+  if (!chaseEncounterLayer) return;
+
+  const photo = document.getElementById("finalGiftMainImage");
+  if (!photo) return;
+
+  const spiritOverlay = document.createElement("div");
+  spiritOverlay.className = "final-gift-spirit-overlay";
+  chaseEncounterLayer.appendChild(spiritOverlay);
+
+  const closeSrc = getChaseItemPath("spirit1.png");
+  const fullSrc = getChaseItemPath("spirit.png");
+
+  /* 1. 直接使用 chase 阶段的半身鬼 */
+  runGlobalBlink(() => {
+    spiritOverlay.innerHTML = `
+      <img
+        class="chase-spirit-close"
+        src="${closeSrc}"
+        alt="Spirit"
+      />
+    `;
+  });
+
+  await sleep(240);
+
+  /* 半身出现后，照片开始慢慢浮现 */
+  photo.classList.add("visible");
+
+  await sleep(520);
+
+  const closeImg = spiritOverlay.querySelector(".chase-spirit-close");
+  if (closeImg) {
+    closeImg.classList.add("zooming-out");
+  }
+
+  await sleep(260);
+
+  /* 2. 直接使用 chase 阶段的全身鬼 */
+  runGlobalBlink(() => {
+    spiritOverlay.innerHTML = `
+      <img
+        class="chase-spirit-full"
+        src="${fullSrc}"
+        alt="Spirit"
+      />
+    `;
+  });
+
+  await sleep(760);
+
+  /* 3. dissolve 到照片里 */
+  const fullImg = spiritOverlay.querySelector(".chase-spirit-full");
+  if (fullImg) {
+    fullImg.style.transition = "opacity 1.1s ease, transform 1.1s ease, filter 1.1s ease";
+    fullImg.style.opacity = "0";
+    fullImg.style.transform = "scale(0.25)";
+    fullImg.style.filter = "blur(16px) drop-shadow(0 0 0 rgba(255,255,255,0))";
+  }
+
+  await sleep(1150);
+
+  spiritOverlay.remove();
+}
+
+async function playFinalGiftSequence() {
+  resetChaseInteractionState();
+  hideChaseDialogue();
+  setChaseChoicesDisabled(true);
+
+  if (!chaseEncounterLayer) return;
+
+  runGlobalBlink();
+  await sleep(180);
+
+  renderFinalGiftBase();
+
+  const photo = document.getElementById("finalGiftMainImage");
+  const flipBtn = document.getElementById("finalGiftFlipBtn");
+  const textBar = document.getElementById("finalGiftTextBar");
+  const scroll = document.getElementById("finalGiftScroll");
+  const proceedBtn = document.getElementById("finalGiftProceedBtn");
+
+  await playFinalGiftHauntIntoPhoto();
+
+  await sleep(10000);
+
+  if (flipBtn) {
+    flipBtn.hidden = false;
+  }
+
+  if (flipBtn && photo && textBar && scroll && proceedBtn) {
+    flipBtn.addEventListener(
+      "click",
+      async () => {
+        flipBtn.hidden = true;
+
+        /* flip 动画，中途切换到 back 图 */
+        photo.classList.add("flip-anim");
+        await sleep(500);
+        photo.src = getChaseItemPath(FINAL_GIFT_BACK);
+        await sleep(520);
+        photo.classList.remove("flip-anim");
+
+        textBar.hidden = false;
+        scroll.scrollTop = 0;
+        proceedBtn.hidden = true;
+
+        requestAnimationFrame(() => {
+          const noScrollNeeded =
+            scroll.scrollHeight <= scroll.clientHeight + 12;
+
+          if (noScrollNeeded) {
+            proceedBtn.hidden = false;
+          }
+        });
+
+        const onScrollCheck = () => {
+          const reachedBottom =
+            scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 16;
+
+          if (reachedBottom) {
+            proceedBtn.hidden = false;
+          }
+        };
+
+        scroll.addEventListener("scroll", onScrollCheck);
+      },
+      { once: true }
+    );
+  }
+
+  if (proceedBtn) {
+    proceedBtn.addEventListener(
+      "click",
+      async () => {
+        proceedBtn.hidden = true;
+        await playFinalGiftGhostSpeech();
+      },
+      { once: true }
+    );
+  }
+}
+
+async function playFinalGiftGhostSpeech() {
+  if (!chaseEncounterLayer) return;
+
+  await playSpiritRevealSequence({
+    spiritCloseImage: "spirit1.png",
+    spiritImage: "spirit.png"
+  });
+
+  runGlobalBlink();
+  await sleep(220);
+
+  chaseEncounterLayer.hidden = false;
+  chaseEncounterLayer.className = "chase-encounter-layer ghost-speech-layer";
+  chaseEncounterLayer.innerHTML = `
+    <div id="finalGiftGhostSpeechText" class="ghost-speech-text"></div>
+  `;
+
+  await playPaginatedFinalGiftSpeech(finalGiftGhostPages);
+
+  hideChaseEncounterLayer();
+  setChaseChoicesDisabled(false);
+}
+
+async function playPaginatedFinalGiftSpeech(pages) {
+  const textNode = document.getElementById("finalGiftGhostSpeechText");
+  if (!textNode) return;
+
+  for (let i = 0; i < pages.length; i += 1) {
+    textNode.innerHTML = `
+      <p>${pages[i]}</p>
+    `;
+
+    if (chaseEncounterLayer) {
+      chaseEncounterLayer.classList.remove("ghost-line-zoom");
+      void chaseEncounterLayer.offsetWidth;
+      chaseEncounterLayer.classList.add("ghost-line-zoom");
+    }
+
+    await waitForEncounterLayerClickOnce();
+  }
+}
+
+function waitForEncounterLayerClickOnce() {
+  return new Promise((resolve) => {
+    if (!chaseEncounterLayer) {
+      resolve();
+      return;
+    }
+
+    const handler = () => {
+      chaseEncounterLayer.removeEventListener("click", handler);
+      resolve();
+    };
+
+    chaseEncounterLayer.addEventListener("click", handler);
+  });
 }
