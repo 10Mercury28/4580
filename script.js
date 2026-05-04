@@ -1,13 +1,15 @@
 /* =========================
    1. 获取页面元素
 ========================== */
-// 手脚架调试按钮
+/* =========================
+手脚架
 const goIntroBtn = document.getElementById("goIntroBtn");
 const goBriefingBtn = document.getElementById("goBriefingBtn");
 const goRoom1Btn = document.getElementById("goRoom1Btn");
 const goRoom2Btn = document.getElementById("goRoom2Btn");
 const goRoom3Btn = document.getElementById("goRoom3Btn");
 const goSovietQuestionBtn = document.getElementById("goSovietQuestionBtn");
+========================== */
 
 const introScreen = document.getElementById("introScreen");
 const briefingScreen = document.getElementById("briefingScreen");
@@ -16,8 +18,6 @@ const gameScreen2 = document.getElementById("gameScreen2");
 
 const startGameBtn = document.getElementById("startGameBtn");
 const enterSceneBtn = document.getElementById("enterSceneBtn");
-const backIntroBtn = document.getElementById("backIntroBtn");
-const backPage1Btn = document.getElementById("backPage1Btn");
 
 const briefingScroll = document.getElementById("briefingScroll");
 
@@ -1317,6 +1317,9 @@ function toggleRoom2MainImage() {
 
 function goToNextRoomFromDoor() {
   if (!room2State.doorVisible) return;
+  if (room2State.enteringDoor) return;
+
+  room2State.enteringDoor = true;
 
   if (!gameScreen3) {
     alert("Next room not added yet. Create an element with id='gameScreen3'.");
@@ -1347,6 +1350,8 @@ function goToNextRoomFromDoor() {
 
     openScreen(gameScreen3);
     startChaseLevel();
+
+    room2State.enteringDoor = false;
   }, 850);
 }
 /* =========================
@@ -2054,23 +2059,6 @@ if (enterSceneBtn) {
   });
 }
 
-if (backIntroBtn) {
-  backIntroBtn.addEventListener("click", () => {
-    openScreen(introScreen);
-    stopAllBgm();
-
-    if (progressStatusText) {
-      progressStatusText.innerHTML = "";
-    }
-  });
-}
-
-if (backPage1Btn) {
-  backPage1Btn.addEventListener("click", () => {
-    openScreen(gameScreen);
-  });
-}
-
 document.querySelectorAll(".hotspot").forEach((hotspot) => {
   hotspot.addEventListener("click", () => {
     const key = hotspot.dataset.evidence;
@@ -2094,7 +2082,6 @@ document.addEventListener("keydown", (event) => {
 
 /* =========================
    15. scaffold 调试按钮
-========================== */
 
 function scaffoldJumpTo(screenToOpen) {
   // 关闭当前弹窗，不走正常 closeModal 的奖励/进度逻辑
@@ -2183,9 +2170,15 @@ if (goSovietQuestionBtn) {
     renderChaseNode("finalQuestion");
   });
 }
+  ========================== */
 
 if (room2FlipBtn) {
-  room2FlipBtn.addEventListener("click", toggleRoom2MainImage);
+  room2FlipBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    toggleRoom2MainImage();
+  });
 }
 
 if (room2SceneWrapper) {
@@ -2210,23 +2203,29 @@ if (room2SceneWrapper) {
   });
 
   room2SceneWrapper.addEventListener("pointerup", (event) => {
-    if (!room2State.dragActive) return;
-
-    const deltaX = event.clientX - room2State.dragStartX;
-    const moved = Math.abs(deltaX) > 60;
-
+  if (event.target.closest("button")) {
     room2State.dragActive = false;
+    room2State.dragMoved = false;
+    return;
+  }
 
-    if (moved) {
-      toggleRoom2MainImage();
-      return;
-    }
+  if (!room2State.dragActive) return;
 
-    // 没有拖拽，只是点击；如果当前是门图，就进入第三关
-    if (room2State.doorVisible) {
-      goToNextRoomFromDoor();
-    }
-  });
+  const deltaX = event.clientX - room2State.dragStartX;
+  const moved = Math.abs(deltaX) > 60;
+
+  room2State.dragActive = false;
+
+  if (moved) {
+    toggleRoom2MainImage();
+    return;
+  }
+
+  // 当前是门图：点击画面进入 Chapter 3
+  if (room2State.doorVisible) {
+    goToNextRoomFromDoor();
+  }
+});
 
   room2SceneWrapper.addEventListener("pointercancel", () => {
     room2State.dragActive = false;
@@ -4115,7 +4114,7 @@ function ensureRoom4Screen() {
         <h2>Chapter four: the gift</h2>
         <p>It seems that everything has been mirrored and reversed</p>
       </div>
-      <button id="room4BackBtn" type="button" class="secondary-btn">返回上一页</button>
+      <button id="room4BackBtn" type="button" class="secondary-btn">Previous chapter</button>
     </div>
 
     <div class="game-layout">

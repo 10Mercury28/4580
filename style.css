@@ -1060,7 +1060,7 @@ body.final-blackout-stage::after {
 
 /* =========================
    Scaffold debug nav
-========================== */
+
 .scaffold-nav {
   position: fixed;
   right: 16px;
@@ -1075,6 +1075,7 @@ body.final-blackout-stage::after {
 .scaffold-nav button {
   pointer-events: auto;
 }
+========================== */
 
 /* =========================
    Room 2 archive / photo modal
@@ -1294,6 +1295,21 @@ body.final-blackout-stage::after {
 
 #gameScreen2.room2-door-visible #roomImage2 {
   cursor: pointer;
+}
+
+/* Door view: hide Room 2 evidence hotspots */
+#gameScreen2.room2-door-visible .hotspot {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Normal mirrored room view: show Room 2 evidence hotspots */
+#gameScreen2:not(.room2-door-visible) .hs-archive-mirror,
+#gameScreen2:not(.room2-door-visible) .hs-photo-mirror {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .room2-door-enter-zoom {
