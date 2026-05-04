@@ -4167,11 +4167,11 @@ async function enterRoom4DoorBeforeGift() {
   const room4Image = room4.querySelector("#room4Image");
   const room4FlipBtn = room4.querySelector("#room4FlipBtn");
 
-  if (typeof stopAllBgm === "function") {
-    stopAllBgm();
-  }
-
   openScreen(room4);
+
+  if (typeof switchToBgm3 === "function") {
+    switchToBgm3();
+  }
 
   room4.classList.add("room4-door-mode");
 
@@ -4233,56 +4233,116 @@ async function revealRoom4FromDoor() {
 }
 
 function ensureRoom4GiftUI() {
-  if (document.getElementById("room4GiftDock")) return;
+  if (document.getElementById("room4GiftInline")) return;
 
   const room4 = ensureRoom4Screen();
-  const sceneWrapper = room4.querySelector("#room4SceneWrapper");
-  if (!sceneWrapper) return;
+  const storyText = room4.querySelector("#room4StoryText");
 
-  const dock = document.createElement("div");
-  dock.id = "room4GiftDock";
-  dock.className = "room4-gift-dock";
-  dock.hidden = true;
+  if (!storyText) return;
 
-  dock.innerHTML = `
-    <div id="room4GiftCard" class="room4-gift-card" role="button" tabindex="0">
-      <div class="room4-gift-thumb">
+  const giftInline = document.createElement("div");
+  giftInline.id = "room4GiftInline";
+  giftInline.className = "room4-gift-inline";
+  giftInline.hidden = true;
+
+  giftInline.innerHTML = `
+    <div id="room4GiftInlineCard" class="room4-gift-inline-card" role="button" tabindex="0">
+      <div class="room4-gift-inline-thumb">
         <img src="${getChaseItemPath(FINAL_GIFT_FRONT)}" alt="gift">
       </div>
-      <div class="room4-gift-label">gift</div>
-    </div>
 
-    <div id="room4GiftPanel" class="room4-gift-panel" hidden></div>
+      <div>
+        <div class="room4-gift-inline-title">gift</div>
+        <div class="room4-gift-inline-desc">A photograph returned by the ghost.</div>
+      </div>
+    </div>
   `;
 
-  sceneWrapper.appendChild(dock);
+  storyText.appendChild(giftInline);
 
-  const card = dock.querySelector("#room4GiftCard");
+  const card = giftInline.querySelector("#room4GiftInlineCard");
+
   if (card) {
-    card.addEventListener("click", () => {
-      room4GiftState.panelOpen = !room4GiftState.panelOpen;
-      renderRoom4GiftUI();
-    });
+    card.addEventListener("click", openRoom4GiftModal);
 
     card.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        room4GiftState.panelOpen = !room4GiftState.panelOpen;
-        renderRoom4GiftUI();
+        openRoom4GiftModal();
       }
     });
   }
 }
 
 function renderRoom4GiftUI() {
-  const dock = document.getElementById("room4GiftDock");
-  const panel = document.getElementById("room4GiftPanel");
-  if (!dock || !panel) return;
+  const giftInline = document.getElementById("room4GiftInline");
+  if (!giftInline) return;
 
-  dock.hidden = !room4GiftState.unlocked;
-  panel.hidden = !room4GiftState.panelOpen;
+  giftInline.hidden = !room4GiftState.unlocked;
+}
 
-  if (!room4GiftState.unlocked || !room4GiftState.panelOpen) return;
+function openRoom4GiftModal() {
+  room4GiftState.panelOpen = true;
+  room4GiftState.side = room4GiftState.side || "back";
+
+  ensureRoom4GiftModalExists();
+  renderRoom4GiftModal();
+}
+
+function ensureRoom4GiftModalExists() {
+  if (document.getElementById("modal")) return;
+
+  const modal = document.createElement("div");
+  modal.id = "modal";
+  modal.className = "modal";
+
+  modal.innerHTML = `
+    <div class="modal-card">
+      <button id="modalClose" class="modal-close" type="button">×</button>
+
+      <div class="modal-header">
+        <div id="modalMark" class="modal-mark">✦</div>
+        <div>
+          <h2 id="modalTitle">gift</h2>
+          <div id="modalSubtitle" class="modal-subtitle"></div>
+        </div>
+      </div>
+
+      <div id="modalContent" class="modal-content"></div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const closeBtn = modal.querySelector("#modalClose");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      modal.classList.remove("active");
+    });
+  }
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      modal.classList.remove("active");
+    }
+  });
+}
+
+function closeRoom4GiftModal() {
+  const modal = document.getElementById("modal");
+  if (modal) {
+    modal.classList.remove("active");
+  }
+}
+
+function renderRoom4GiftModal() {
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalSubtitle = document.getElementById("modalSubtitle");
+  const modalMark = document.getElementById("modalMark");
+  const modalContent = document.getElementById("modalContent");
+
+  if (!modal || !modalContent) return;
 
   const isBack = room4GiftState.side === "back";
   const imagePath = isBack
@@ -4293,47 +4353,48 @@ function renderRoom4GiftUI() {
     ? finalGiftReadingBackHtml
     : finalGiftReadingFrontHtml;
 
-  panel.innerHTML = `
-    <div class="room4-gift-panel-header">
-      <h3 class="room4-gift-panel-title">gift</h3>
-      <button id="room4GiftClose" class="room4-gift-close" type="button">Close</button>
-    </div>
+  if (modalTitle) modalTitle.textContent = "gift";
+  if (modalSubtitle) {
+    modalSubtitle.textContent = isBack
+      ? "Back of the photograph"
+      : "Front of the photograph";
+  }
+  if (modalMark) modalMark.textContent = "✦";
 
-    <div class="room4-gift-figure">
-      <img src="${imagePath}" alt="gift detail">
-    </div>
+  modalContent.innerHTML = `
+    <div class="room4-gift-modal-content">
+      <div class="room4-gift-modal-image-wrap">
+        <img src="${imagePath}" alt="gift">
+      </div>
 
-    <div class="room4-gift-actions">
-      <button id="room4GiftFlip" class="room4-gift-flip" type="button">
-        Flip
-      </button>
-    </div>
+      <div class="room4-gift-modal-note">
+        <div id="room4GiftModalText" class="room4-gift-modal-text">
+          ${textHtml}
+        </div>
 
-    <div id="room4GiftText" class="room4-gift-text">
-      ${textHtml}
-    </div>
+        <div class="room4-gift-modal-actions">
+          <button id="room4GiftModalFlip" class="room4-gift-flip" type="button">
+            Flip
+          </button>
 
-    <button id="room4GiftProceed" class="room4-gift-proceed" type="button" hidden>
-      Proceed
-    </button>
+          <button id="room4GiftModalProceed" class="room4-gift-proceed" type="button" hidden>
+            Proceed
+          </button>
+        </div>
+      </div>
+    </div>
   `;
 
-  const closeBtn = document.getElementById("room4GiftClose");
-  const flipBtn = document.getElementById("room4GiftFlip");
-  const textBox = document.getElementById("room4GiftText");
-  const proceedBtn = document.getElementById("room4GiftProceed");
+  modal.classList.add("active");
 
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      room4GiftState.panelOpen = false;
-      renderRoom4GiftUI();
-    });
-  }
+  const flipBtn = document.getElementById("room4GiftModalFlip");
+  const textBox = document.getElementById("room4GiftModalText");
+  const proceedBtn = document.getElementById("room4GiftModalProceed");
 
   if (flipBtn) {
     flipBtn.addEventListener("click", () => {
       room4GiftState.side = room4GiftState.side === "back" ? "front" : "back";
-      renderRoom4GiftUI();
+      renderRoom4GiftModal();
     });
   }
 
@@ -4363,7 +4424,7 @@ function renderRoom4GiftUI() {
 
   if (proceedBtn) {
     proceedBtn.addEventListener("click", async () => {
-      proceedBtn.hidden = true;
+      closeRoom4GiftModal();
       await startPostGiftEndingSequence();
     });
   }
@@ -4412,9 +4473,15 @@ function ensureGlobalHauntStage() {
   return stage;
 }
 
-async function showGlobalNarrativePages(pages) {
+async function showGlobalNarrativePages(pages, options = {}) {
   const overlay = ensureGlobalNarrativeOverlay();
   overlay.hidden = false;
+
+  if (options.keepBlackAfter) {
+    overlay.classList.add("keep-black");
+  } else {
+    overlay.classList.remove("keep-black");
+  }
 
   for (const pageHtml of pages) {
     overlay.innerHTML = `
@@ -4426,8 +4493,15 @@ async function showGlobalNarrativePages(pages) {
     await waitForGlobalOverlayClick(overlay);
   }
 
-  overlay.hidden = true;
-  overlay.innerHTML = "";
+  if (options.keepBlackAfter) {
+    overlay.innerHTML = "";
+    overlay.hidden = false;
+    overlay.classList.add("keep-black");
+  } else {
+    overlay.hidden = true;
+    overlay.innerHTML = "";
+    overlay.classList.remove("keep-black");
+  }
 }
 
 function waitForGlobalOverlayClick(overlay) {
@@ -4456,17 +4530,45 @@ async function playAndIRemainStorm(duration = 20000) {
     "Garamond"
   ];
 
-  for (let i = 0; i < 120; i += 1) {
+  const totalWords = 120;
+  const words = [];
+
+  for (let i = 0; i < totalWords; i += 1) {
     const word = document.createElement("div");
     word.className = "global-remain-word";
     word.textContent = "and I remain";
+
+    const opacity = 0.08 + Math.random() * 0.78;
+
     word.style.left = `${Math.random() * 92}%`;
     word.style.top = `${Math.random() * 92}%`;
-    word.style.opacity = `${0.08 + Math.random() * 0.78}`;
+    word.style.setProperty("--remain-opacity", `${opacity}`);
     word.style.fontSize = `${14 + Math.random() * 76}px`;
     word.style.fontFamily = fonts[Math.floor(Math.random() * fonts.length)];
     word.style.animationDelay = `${Math.random() * 2.8}s`;
+
     layer.appendChild(word);
+    words.push(word);
+  }
+
+  /*
+    0-5s: one by one, slower
+    5-10s: faster and denser
+    10-20s: all remain visible
+  */
+
+  for (let i = 0; i < words.length; i += 1) {
+    let delay;
+
+    if (i < 38) {
+      delay = (5000 / 38) * i;
+    } else {
+      delay = 5000 + (5000 / (totalWords - 38)) * (i - 38);
+    }
+
+    setTimeout(() => {
+      words[i].classList.add("is-visible");
+    }, delay);
   }
 
   await sleep(duration);
@@ -4476,6 +4578,11 @@ async function playAndIRemainStorm(duration = 20000) {
 }
 
 async function playGlobalHauntSequence() {
+  const overlay = ensureGlobalNarrativeOverlay();
+  overlay.hidden = false;
+  overlay.classList.add("keep-black");
+  overlay.innerHTML = "";
+
   const stage = ensureGlobalHauntStage();
   stage.hidden = false;
   stage.innerHTML = "";
@@ -4523,16 +4630,27 @@ async function startPostGiftEndingSequence() {
   room4GiftState.panelOpen = false;
   renderRoom4GiftUI();
 
-  await showGlobalNarrativePages(postGiftDialoguePages);
+  /*
+    Keep black after "And I remain."
+    Do NOT haunt before the remain storm.
+  */
+  await showGlobalNarrativePages(postGiftDialoguePages, {
+    keepBlackAfter: true
+  });
 
-  runGlobalBlink();
-  await sleep(220);
-
+  /*
+    Directly enter the staged "and I remain" storm.
+  */
   await playAndIRemainStorm(20000);
 
+  /*
+    Haunt only after the remain storm, before the final two lines.
+  */
   await playGlobalHauntSequence();
 
-  await showGlobalNarrativePages(finalEchoPages);
+  await showGlobalNarrativePages(finalEchoPages, {
+    keepBlackAfter: true
+  });
 
   closeWindowGracefully();
 }
@@ -4540,21 +4658,27 @@ async function startPostGiftEndingSequence() {
 function closeWindowGracefully() {
   const overlay = ensureGlobalNarrativeOverlay();
   overlay.hidden = false;
+  overlay.classList.add("keep-black");
   overlay.innerHTML = `
     <div class="global-narrative-text">
-      <p>The window will now close.</p>
+      <p>Closing...</p>
     </div>
   `;
 
   setTimeout(() => {
+    window.open("", "_self");
     window.close();
 
+    /*
+      Most normal browser tabs cannot be closed by JavaScript.
+      If blocked, show final ending text.
+    */
     setTimeout(() => {
       overlay.innerHTML = `
         <div class="global-narrative-text">
-          <p>You may now close this window.</p>
+          <p>The end.</p>
         </div>
       `;
-    }, 400);
-  }, 300);
+    }, 500);
+  }, 450);
 }
