@@ -791,6 +791,84 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function reverseChaseStep(step) {
+  switch (step) {
+    case "left":
+      return "right";
+    case "right":
+      return "left";
+    case "zoom":
+    case "zoomIn":
+      return "zoomOut";
+    case "zoomOut":
+    case "out":
+      return "zoom";
+    case "dark":
+      return "dark";
+    default:
+      return step;
+  }
+}
+
+function reverseChaseSequence(sequence = []) {
+  return [...sequence].reverse().map(reverseChaseStep);
+}
+
+function getTurnBackDirection(sequence = []) {
+  const reversed = reverseChaseSequence(sequence);
+
+  const horizontal = reversed.find(
+    (step) => step === "left" || step === "right"
+  );
+  if (horizontal) return horizontal;
+
+  const zoomLike = reversed.find(
+    (step) => step === "zoomOut" || step === "zoom" || step === "out"
+  );
+  if (zoomLike) return "forward";
+
+  return "forward";
+}
+
+function getResolvedChaseChoices(nodeOrId) {
+  const node =
+    typeof nodeOrId === "string" ? chaseNodes[nodeOrId] : nodeOrId;
+
+  const resolved = {};
+  if (!node || !node.choices) return resolved;
+
+  Object.entries(node.choices).forEach(([originalDirection, choice]) => {
+    if (!choice) return;
+
+    // turn back：回到最近一次 encounter，而不是上一个节点
+    if (choice.turnBack && chaseState.lastEncounterNodeId) {
+      const reversedSequence = reverseChaseSequence(
+        chaseState.pathFromLastEncounter || []
+      );
+
+      const renderDirection =
+        choice.renderDirection ||
+        getTurnBackDirection(chaseState.pathFromLastEncounter || []);
+
+      resolved[renderDirection] = {
+        ...choice,
+        transition: reversedSequence,
+        next: chaseState.lastEncounterNodeId,
+        _resolvedDirection: renderDirection
+      };
+
+      return;
+    }
+
+    resolved[originalDirection] = {
+      ...choice,
+      _resolvedDirection: originalDirection
+    };
+  });
+
+  return resolved;
+}
+
 async function runSequentialTypewriterInModal() {
   if (!artifactNote || latestUnlockedSegments.length === 0) return;
 
@@ -2185,11 +2263,10 @@ const chaseNodes = {
     encounter: false,
     hideDialogue: true,
     choices: {
-      left: {
+      back: {
         label: "Turn back",
-        answer: `<p>You turn away from the wall.</p>`,
-        transition: ["left"],
-        next: "screenWall"
+        answer: `...`,
+        turnBack: true
       }
     }
   },
@@ -2246,11 +2323,10 @@ const chaseNodes = {
     encounter: false,
     hideDialogue: true,
     choices: {
-      left: {
+      back: {
         label: "Turn back",
-        answer: `<p>You turn back before the darkness swallows you.</p>`,
-        transition: ["left"],
-        next: "chuihuaGate"
+        answer: `...`,
+        turnBack: true
       }
     }
   },
@@ -2372,11 +2448,10 @@ const chaseNodes = {
     encounter: false,
     hideDialogue: true,
     choices: {
-      left: {
+      back: {
         label: "Turn back",
-        answer: `<p>You retreat from the darkness.</p>`,
-        transition: ["left"],
-        next: "mainRoomSide"
+        answer: `...`,
+        turnBack: true
       }
     }
   },
@@ -2528,11 +2603,27 @@ const chaseNodes = {
         label: "Enter",
         answer: `<p>You enter the next space.</p>`,
         transition: ["zoom", "dark"],
-        next: null
+        next: "mainRoomNext"
       }
     }
-  }
+  },
+
+  mainRoomNext: {
+    image: "YOUR_NEXT_SCENE.png", // 这里换成你真正的下一张图文件名
+    title: "Next Scene",
+    encounter: false,
+    hideDialogue: true,
+    choices: {
+      back: {
+        label: "Turn back",
+        answer: `<p>You step back toward the main room.</p>`,
+        turnBack: true
+      }
+    }
+  },
 };
+
+
 
 const chaseState = {
   currentNodeId: "screenWall",
@@ -2549,10 +2640,20 @@ const chaseState = {
   encounterPlaying: false,
 
   itemQuestionNodeId: null,
-  itemQuestionReady: false
+  itemQuestionReady: false,
+
+  arrivalInfo: null,
+
+  // 最近一次遇到鬼/物品提问的节点
+  lastEncounterNodeId: "screenWall",
+
+  // 从最近一次 encounter 走到当前节点的路径
+  pathFromLastEncounter: []
 };
 
 function renderChaseChoices(node) {
+  const resolvedChoices = getResolvedChaseChoices(node);
+
   const buttons = {
     left: chaseLeftBtn,
     forward: chaseForwardBtn,
@@ -2568,7 +2669,7 @@ function renderChaseChoices(node) {
   Object.entries(buttons).forEach(([direction, btn]) => {
     if (!btn) return;
 
-    const choice = node.choices?.[direction];
+    const choice = resolvedChoices[direction];
 
     if (!choice) {
       btn.hidden = true;
@@ -2627,7 +2728,8 @@ function previewChaseChoice(direction) {
   if (chaseState.encounterPlaying) return;
 
   const node = chaseNodes[chaseState.currentNodeId];
-  const choice = node?.choices?.[direction];
+  const resolvedChoices = getResolvedChaseChoices(node);
+  const choice = resolvedChoices[direction];
   if (!choice) return;
 
   setChasePreviewButton(direction);
@@ -2722,7 +2824,8 @@ function clearChasePreview() {
 
 function lockChaseChoice(direction) {
   const node = chaseNodes[chaseState.currentNodeId];
-  const choice = node?.choices?.[direction];
+  const resolvedChoices = getResolvedChaseChoices(node);
+  const choice = resolvedChoices[direction];
   if (!choice) return;
 
   chaseState.selectedChoice = choice;
@@ -2911,6 +3014,28 @@ async function animateChaseZoomTransition(nextSrc) {
   clearChaseTransitionOverlay();
 }
 
+async function animateChaseZoomOutTransition(nextSrc) {
+  if (!chaseTransitionOverlay || !chaseImage) return;
+
+  const currentSrc = chaseImage.src;
+
+  chaseTransitionOverlay.className =
+    "chase-transition-overlay active zoom-out-transition";
+  chaseTransitionOverlay.innerHTML = `
+    <div class="chase-zoom-stack">
+      <img class="chase-zoom-frame chase-zoom-current" src="${currentSrc}" alt="">
+      <img class="chase-zoom-frame chase-zoom-next chase-zoom-next-out" src="${nextSrc}" alt="">
+    </div>
+  `;
+
+  await sleep(30);
+  chaseTransitionOverlay.classList.add("play");
+
+  await sleep(860);
+  chaseImage.src = nextSrc;
+  clearChaseTransitionOverlay();
+}
+
 async function animateChaseDarkTransition() {
   if (!chaseTransitionOverlay) return;
 
@@ -2926,6 +3051,7 @@ async function animateChaseDarkTransition() {
 
 function runChaseTransition(sequence, nextNodeId) {
   const steps = Array.isArray(sequence) ? sequence : [sequence];
+  const fromNodeId = chaseState.currentNodeId;
 
   setChaseChoicesDisabled(true);
   hideChaseDialogue();
@@ -2934,21 +3060,45 @@ function runChaseTransition(sequence, nextNodeId) {
     for (let i = 0; i < steps.length; i += 1) {
       const step = steps[i];
       const isLast = i === steps.length - 1;
-      const nextSrc = nextNodeId && chaseNodes[nextNodeId]
-        ? getChaseImagePath(chaseNodes[nextNodeId].image)
-        : chaseImage.src;
+
+      const nextSrc =
+        nextNodeId && chaseNodes[nextNodeId]
+          ? getChaseImagePath(chaseNodes[nextNodeId].image)
+          : chaseImage.src;
 
       if (step === "left" || step === "right") {
-        await animateChaseSlideTransition(step, isLast ? nextSrc : chaseImage.src);
+        await animateChaseSlideTransition(
+          step,
+          isLast ? nextSrc : chaseImage.src
+        );
       } else if (step === "zoom") {
-        await animateChaseZoomTransition(isLast ? nextSrc : chaseImage.src);
+        await animateChaseZoomTransition(
+          isLast ? nextSrc : chaseImage.src
+        );
+      } else if (step === "zoomOut" || step === "out") {
+        await animateChaseZoomOutTransition(
+          isLast ? nextSrc : chaseImage.src
+        );
       } else if (step === "dark") {
         await animateChaseDarkTransition();
       }
     }
 
     if (nextNodeId) {
-      presentChaseNode(nextNodeId);
+      const nextNode = chaseNodes[nextNodeId];
+
+      // 如果下一个节点不是 encounter，就继续累积路径
+      // 如果下一个节点是 encounter，presentChaseNode 会自动重置 checkpoint
+      const nextPathFromLastEncounter =
+        nextNode && nextNode.encounter
+          ? []
+          : [...(chaseState.pathFromLastEncounter || []), ...steps];
+
+      presentChaseNode(nextNodeId, {
+        fromNodeId,
+        viaSequence: steps,
+        pathFromLastEncounter: nextPathFromLastEncounter
+      });
     } else {
       if (chaseAnswerText) {
         chaseAnswerText.innerHTML = `<p>The next room has not been connected yet.</p>`;
@@ -3017,6 +3167,9 @@ function resetChaseInteractionState() {
   chaseState.encounterPlaying = false;
   chaseState.itemQuestionReady = false;
   chaseState.itemQuestionNodeId = null;
+  chaseState.arrivalInfo = null;
+  chaseState.lastEncounterNodeId = "screenWall";
+  chaseState.pathFromLastEncounter = [];
 
   [chaseLeftBtn, chaseForwardBtn, chaseRightBtn, chaseProceedBtn].forEach((btn) => {
     if (!btn) return;
@@ -3320,9 +3473,19 @@ async function playChaseDeathSequence(node) {
   returnToRoom2DoorAfterDeath();
 }
 
-async function presentChaseNode(nodeId) {
+async function presentChaseNode(nodeId, arrivalInfo = null) {
   const node = chaseNodes[nodeId];
   if (!node) return;
+
+  chaseState.arrivalInfo = arrivalInfo;
+
+  // 如果当前节点是 encounter，就把它记录为新的 checkpoint
+  if (node.encounter) {
+    chaseState.lastEncounterNodeId = nodeId;
+    chaseState.pathFromLastEncounter = [];
+  } else if (arrivalInfo && Array.isArray(arrivalInfo.pathFromLastEncounter)) {
+    chaseState.pathFromLastEncounter = arrivalInfo.pathFromLastEncounter;
+  }
 
   if (node.death) {
     await playChaseDeathSequence(node);

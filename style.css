@@ -1777,20 +1777,21 @@ body.final-blackout-stage::after {
   left: 50% !important;
   bottom: 0 !important;
 
-  width: min(72vw, 860px);
-  height: min(92vh, 900px);
+  width: min(82vw, 980px);
+  height: min(96vh, 980px);
   max-height: none;
 
   object-fit: cover;
   object-position: center top;
 
   opacity: 0;
-  transform: translateX(-50%) translateY(0) scale(1.55) !important;
+  transform: translateX(-50%) translateY(0) scale(1.7) !important;
   animation: chaseSpiritCloseIn 0.46s ease forwards;
 
   filter: drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
-  clip-path: inset(0 0 24% 0);
+  clip-path: inset(0 0 18% 0);
 }
+
 
 #gameScreen3 .chase-spirit-close.zooming-out {
   animation: chaseSpiritZoomOut 0.24s ease forwards;
@@ -1803,8 +1804,8 @@ body.final-blackout-stage::after {
 }
 
 #gameScreen3 .chase-spirit-full {
-  width: min(36vw, 460px);
-  max-width: 78vw;
+  width: min(44vw, 560px);
+  max-width: 82vw;
   opacity: 0;
   animation: chaseSpiritFullIn 0.44s ease forwards;
   filter: drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
@@ -1859,13 +1860,13 @@ body.final-blackout-stage::after {
 @keyframes chaseSpiritCloseIn {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(8vh) scale(1.85);
+    transform: translateX(-50%) translateY(8vh) scale(2);
     filter: blur(12px) drop-shadow(0 0 34px rgba(255, 255, 255, 0.16));
   }
 
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1.55);
+    transform: translateX(-50%) translateY(0) scale(1.7);
     filter: blur(0) drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
   }
 }
@@ -1873,13 +1874,13 @@ body.final-blackout-stage::after {
 @keyframes chaseSpiritZoomOut {
   from {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1.55);
+    transform: translateX(-50%) translateY(0) scale(1.7);
     filter: blur(0) drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
   }
 
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(-2vh) scale(0.62);
+    transform: translateX(-50%) translateY(-2vh) scale(0.72);
     filter: blur(4px) drop-shadow(0 0 26px rgba(255, 255, 255, 0.16));
   }
 }
@@ -2042,6 +2043,32 @@ body.final-blackout-stage::after {
   opacity: 1;
 }
 
+.chase-zoom-next-out {
+  opacity: 0;
+  transform: scale(0.9);
+  filter: blur(12px);
+}
+
+.chase-transition-overlay.zoom-out-transition.play .chase-zoom-current {
+  transition:
+    transform 0.86s cubic-bezier(0.18, 0.82, 0.24, 1),
+    filter 0.86s ease,
+    opacity 0.86s ease;
+  transform: scale(0.82);
+  filter: blur(15px);
+  opacity: 0;
+}
+
+.chase-transition-overlay.zoom-out-transition.play .chase-zoom-next-out {
+  transition:
+    transform 0.86s cubic-bezier(0.18, 0.82, 0.24, 1),
+    filter 0.86s ease,
+    opacity 0.86s ease;
+  transform: scale(1);
+  filter: blur(0);
+  opacity: 1;
+}
+
 .chase-dark-fill {
   position: absolute;
   inset: 0;
@@ -2173,8 +2200,8 @@ body.final-blackout-stage::after {
 }
 
 .chase-death-spirit {
-  width: min(36vw, 460px);
-  max-width: 78vw;
+  width: min(44vw, 560px);
+  max-width: 82vw;
   opacity: 0;
   animation: chaseSpiritFullIn 0.44s ease forwards;
   filter: drop-shadow(0 0 34px rgba(255, 255, 255, 0.22));
@@ -2260,7 +2287,7 @@ body.final-blackout-stage::after {
 
   #gameScreen3 .chase-spirit-full,
   .chase-death-spirit {
-    width: min(58vw, 340px);
+    width: min(66vw, 420px);
   }
 
   #gameScreen3 .chase-encounter-card {
