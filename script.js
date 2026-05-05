@@ -24,6 +24,9 @@ const detectiveNameInput = document.getElementById("detectiveNameInput");
 const briefingSpeaker = document.getElementById("briefingSpeaker");
 const briefingWelcome = document.getElementById("briefingWelcome");
 
+const registerLocationBtn = document.getElementById("registerLocationBtn");
+const locationResultText = document.getElementById("locationResultText");
+
 const archiveApiBtn = document.getElementById("archiveApiBtn");
 const archiveApiResult = document.getElementById("archiveApiResult");
 
@@ -203,6 +206,150 @@ function stopAllBgm() {
   bgm1Started = false;
   bgm2Started = false;
   bgm3Started = false;
+}
+
+/* =========================
+   External API: location + distance
+========================== */
+
+const CRIME_SCENE_LOCATION = {
+  name: "Harbin, Northeast China",
+  latitude: 45.8038,
+  longitude: 126.5350
+};
+
+let detectiveLocationRecord = null;
+
+function toRadians(degrees) {
+  return degrees * Math.PI / 180;
+}
+
+function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+  const earthRadiusKm = 6371;
+
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return Math.round(earthRadiusKm * c);
+}
+
+function getCurrentBrowserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocation is not supported by this browser."));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve(position);
+      },
+      (error) => {
+        reject(error);
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 9000,
+        maximumAge: 60000
+      }
+    );
+  });
+}
+
+async function reverseGeocodeWithExternalApi(latitude, longitude) {
+  const apiUrl =
+    "https://api.bigdatacloud.net/data/reverse-geocode-client" +
+    `?latitude=${encodeURIComponent(latitude)}` +
+    `&longitude=${encodeURIComponent(longitude)}` +
+    "&localityLanguage=en";
+
+  const response = await fetch(apiUrl);
+
+  if (!response.ok) {
+    throw new Error("External reverse geocoding API request failed.");
+  }
+
+  return response.json();
+}
+
+async function registerDetectiveLocation() {
+  if (!locationResultText || !registerLocationBtn) return;
+
+  locationResultText.innerHTML = `
+    <p>Requesting location permission...</p>
+  `;
+
+  registerLocationBtn.disabled = true;
+  registerLocationBtn.textContent = "Registering...";
+
+  try {
+    const position = await getCurrentBrowserLocation();
+
+    const userLatitude = position.coords.latitude;
+    const userLongitude = position.coords.longitude;
+
+    locationResultText.innerHTML = `
+      <p>Location received. Contacting external archive service...</p>
+    `;
+
+    const geoData = await reverseGeocodeWithExternalApi(
+      userLatitude,
+      userLongitude
+    );
+
+    const city =
+      geoData.city ||
+      geoData.locality ||
+      geoData.principalSubdivision ||
+      "an unknown city";
+
+    const country =
+      geoData.countryName ||
+      geoData.countryCode ||
+      "an unknown country";
+
+    const distanceKm = calculateDistanceKm(
+      userLatitude,
+      userLongitude,
+      CRIME_SCENE_LOCATION.latitude,
+      CRIME_SCENE_LOCATION.longitude
+    );
+
+    detectiveLocationRecord = {
+      city,
+      country,
+      distanceKm,
+      latitude: userLatitude,
+      longitude: userLongitude
+    };
+
+    locationResultText.innerHTML = `
+      <p><strong>Location registered:</strong> ${city}, ${country}.</p>
+      <p><strong>Distance from ${CRIME_SCENE_LOCATION.name}:</strong> approximately ${distanceKm.toLocaleString()} km.</p>
+      <p>Distance does not interrupt testimony. The scene is now ready.</p>
+    `;
+  } catch (error) {
+    console.error(error);
+
+    detectiveLocationRecord = null;
+
+    locationResultText.innerHTML = `
+      <p>Location record unavailable.</p>
+      <p>The investigation may continue, but the distance between you and the scene remains unregistered.</p>
+    `;
+  } finally {
+    registerLocationBtn.disabled = false;
+    registerLocationBtn.textContent = "Register my location";
+  }
 }
 
 /* =========================
@@ -2055,6 +2202,10 @@ if (briefingScroll) {
   briefingScroll.addEventListener("scroll", checkBriefingScroll);
 }
 
+if (registerLocationBtn) {
+  registerLocationBtn.addEventListener("click", registerDetectiveLocation);
+}
+
 function beginBriefingWithDetectiveName() {
   const typedName = detectiveNameInput
     ? detectiveNameInput.value.trim()
@@ -2068,6 +2219,12 @@ function beginBriefingWithDetectiveName() {
 
   if (briefingWelcome) {
     briefingWelcome.textContent = `Welcome, Detective ${detectiveName}.`;
+  }
+
+  if (locationResultText) {
+    locationResultText.innerHTML = `
+      Location record pending.
+    `;
   }
 
   openScreen(briefingScreen);

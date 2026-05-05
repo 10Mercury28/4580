@@ -205,6 +205,36 @@ button:disabled {
   font-size: 1.04rem;
 }
 
+.briefing-location-box {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid rgba(200, 165, 107, 0.24);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(200, 165, 107, 0.07), rgba(255, 255, 255, 0.025));
+}
+
+.briefing-location-box p {
+  margin: 0 0 14px;
+  color: rgba(238, 231, 221, 0.9);
+  line-height: 1.8;
+}
+
+.location-result-text {
+  margin-top: 14px;
+  color: var(--gold);
+  line-height: 1.75;
+  font-size: 0.98rem;
+}
+
+.location-result-text p {
+  margin: 0 0 0.65rem;
+}
+
+.location-result-text p:last-child {
+  margin-bottom: 0;
+}
+
 .briefing-footer {
   display: flex;
   justify-content: flex-end;
