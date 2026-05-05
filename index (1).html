@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Seen Her is an interactive horror investigation website about photographic evidence, gendered violence, historical trauma, and mediated memory."
+  />
   <title>Chapter one: crime scene</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -16,9 +20,26 @@
 
     <div class="intro-card">
       <h1>Seen Her</h1>
-      <p class="intro-subtitle">Cop 4580, welcome</p>
 
-      <button id="startGameBtn">Clear</button>
+      <form id="detectiveForm" class="detective-form">
+        <label for="detectiveNameInput" class="intro-subtitle">Detective:</label>
+        <input
+          id="detectiveNameInput"
+          class="detective-name-input"
+          type="text"
+          autocomplete="off"
+          maxlength="24"
+          placeholder="enter your name"
+          required
+        />
+      </form>
+
+      <p class="intro-warning">
+        Content warning: this interactive horror project addresses gendered violence,
+        war crimes, historical trauma, and non-graphic references to sexual violence.
+      </p>
+
+      <button id="startGameBtn" type="button">Clear</button>
     </div>
   </section>
 
@@ -27,12 +48,12 @@
       <div class="briefing-card">
         <div class="briefing-header">
           <h2>Case Briefing</h2>
-          <p>Assistant Mercury</p>
+          <p id="briefingSpeaker">Detective Mercury</p>
         </div>
 
         <div class="briefing-scroll" id="briefingScroll">
           <div class="briefing-content">
-            <p>Welcome, officers.</p>
+            <p id="briefingWelcome">Welcome, officers.</p>
 
             <p>
               I am Mercury, your assistant for this investigation.<br />
@@ -94,15 +115,15 @@
             id="roomImage"
             class="scene-image"
             src="images/room.png"
-            alt="案发房间"
+            alt="crime scene"
           />
 
-          <button class="hotspot hs-photo" data-evidence="photo" aria-label="照片"></button>
-          <button class="hotspot hs-mirror" data-evidence="mirror" aria-label="镜子"></button>
-          <button class="hotspot hs-doll" data-evidence="doll" aria-label="娃娃"></button>
-          <button class="hotspot hs-computer" data-evidence="computer" aria-label="电脑"></button>
-          <button class="hotspot hs-camera" data-evidence="camera" aria-label="相机"></button>
-          <button class="hotspot hs-polaroid" data-evidence="polaroid" aria-label="拍立得"></button>
+          <button class="hotspot hs-photo" data-evidence="photo" aria-label="photo"></button>
+          <button class="hotspot hs-mirror" data-evidence="mirror" aria-label="mirror"></button>
+          <button class="hotspot hs-doll" data-evidence="doll" aria-label="doll"></button>
+          <button class="hotspot hs-computer" data-evidence="computer" aria-label="computer"></button>
+          <button class="hotspot hs-camera" data-evidence="camera" aria-label="camera"></button>
+          <button class="hotspot hs-polaroid" data-evidence="polaroid" aria-label="polaroid"></button>
         </div>
       </section>
 
@@ -143,11 +164,11 @@
             id="roomImage2"
             class="scene-image"
             src="images/room2.png"
-            alt="镜中房间"
+            alt="mirrored room"
           />
 
-          <button class="hotspot hs-archive-mirror" data-evidence="archiveFolder" aria-label="档案袋"></button>
-          <button class="hotspot hs-photo-mirror" data-evidence="photoMirror" aria-label="第二页照片"></button>
+          <button class="hotspot hs-archive-mirror" data-evidence="archiveFolder" aria-label="file"></button>
+          <button class="hotspot hs-photo-mirror" data-evidence="photoMirror" aria-label="photoPile"></button>
         </div>
 
         <div class="room2-scene-controls">

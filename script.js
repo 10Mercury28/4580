@@ -19,6 +19,16 @@ const gameScreen2 = document.getElementById("gameScreen2");
 const startGameBtn = document.getElementById("startGameBtn");
 const enterSceneBtn = document.getElementById("enterSceneBtn");
 
+const detectiveForm = document.getElementById("detectiveForm");
+const detectiveNameInput = document.getElementById("detectiveNameInput");
+const briefingSpeaker = document.getElementById("briefingSpeaker");
+const briefingWelcome = document.getElementById("briefingWelcome");
+
+const archiveApiBtn = document.getElementById("archiveApiBtn");
+const archiveApiResult = document.getElementById("archiveApiResult");
+
+let detectiveName = "Detective";
+
 const briefingScroll = document.getElementById("briefingScroll");
 
 const roomImage = document.getElementById("roomImage");
@@ -2045,10 +2055,33 @@ if (briefingScroll) {
   briefingScroll.addEventListener("scroll", checkBriefingScroll);
 }
 
+function beginBriefingWithDetectiveName() {
+  const typedName = detectiveNameInput
+    ? detectiveNameInput.value.trim()
+    : "";
+
+  detectiveName = typedName || "Detective";
+
+  if (briefingSpeaker) {
+    briefingSpeaker.textContent = `Detective ${detectiveName}`;
+  }
+
+  if (briefingWelcome) {
+    briefingWelcome.textContent = `Welcome, Detective ${detectiveName}.`;
+  }
+
+  openScreen(briefingScreen);
+  resetBriefingProgress();
+}
+
 if (startGameBtn) {
-  startGameBtn.addEventListener("click", () => {
-    openScreen(briefingScreen);
-    resetBriefingProgress();
+  startGameBtn.addEventListener("click", beginBriefingWithDetectiveName);
+}
+
+if (detectiveForm) {
+  detectiveForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    beginBriefingWithDetectiveName();
   });
 }
 
@@ -2181,6 +2214,18 @@ if (room2FlipBtn) {
   });
 }
 
+if (roomImage2) {
+  roomImage2.addEventListener("click", (event) => {
+    if (!room2State.doorVisible) return;
+    if (evidenceModal.classList.contains("active")) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    goToNextRoomFromDoor();
+  });
+}
+
 if (room2SceneWrapper) {
   room2SceneWrapper.addEventListener("pointerdown", (event) => {
     if (!room2State.doorFlipUnlocked) return;
@@ -2203,29 +2248,29 @@ if (room2SceneWrapper) {
   });
 
   room2SceneWrapper.addEventListener("pointerup", (event) => {
-  if (event.target.closest("button")) {
+    if (event.target.closest("button")) {
+      room2State.dragActive = false;
+      room2State.dragMoved = false;
+      return;
+    }
+
+    if (!room2State.dragActive) return;
+
+    const deltaX = event.clientX - room2State.dragStartX;
+    const moved = Math.abs(deltaX) > 60;
+
     room2State.dragActive = false;
     room2State.dragMoved = false;
-    return;
-  }
 
-  if (!room2State.dragActive) return;
+    if (moved) {
+      toggleRoom2MainImage();
+      return;
+    }
 
-  const deltaX = event.clientX - room2State.dragStartX;
-  const moved = Math.abs(deltaX) > 60;
-
-  room2State.dragActive = false;
-
-  if (moved) {
-    toggleRoom2MainImage();
-    return;
-  }
-
-  // 当前是门图：点击画面进入 Chapter 3
-  if (room2State.doorVisible) {
-    goToNextRoomFromDoor();
-  }
-});
+    if (room2State.doorVisible) {
+      goToNextRoomFromDoor();
+    }
+  });
 
   room2SceneWrapper.addEventListener("pointercancel", () => {
     room2State.dragActive = false;
